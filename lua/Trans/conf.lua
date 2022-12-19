@@ -1,25 +1,30 @@
 return {
     display = {
-        style = 'default',
-        phnoetic = true,
+        style = 'minimal',
+        max_height = 50,
+        max_width = 50,
+        -- phnoetic = true,
         collins_star = true,
+        pos = true,
         tag = true,
         oxford = true,
-        history = false,
+        -- history = false,
+        exchange = true,
+        Trans_en = true,
+        Trans_zh = true,
     },
-    default_keymap = true,
-    map = {
-
-    },
-
     view = {
         -- TODO: style: buffer | cursor | window
         -- style = 'buffer',
         -- buffer_pos = 'bottom', -- only works when view.style == 'buffer'
     },
+    db_path = '/home/zoran/project/neovim/ecdict-ultimate-sqlite/ultimate.db', -- FIXME: change the path
 
-    db_path = '/home/zoran/project/neovim/ecdict-sqlite-28/stardict.db', -- FIXME: change the path
-
+    icon = {
+        star = '⭐',
+        isOxford = '✔',
+        notOxford = ''
+    }
     -- TODO: async process
     -- async = false,
 

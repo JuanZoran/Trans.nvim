@@ -14,8 +14,6 @@ function M.query(arg)
     else
         vim.notify('query argument error!')
     end
-
-    vim.pretty_print(res)
     return res[1]
 end
 

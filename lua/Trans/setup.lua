@@ -1,5 +1,5 @@
 local db = require("Trans").db
-local conf = require("Trans").conf
+-- local conf = require("Trans").conf
 
 local group = vim.api.nvim_create_augroup('closedb', { clear = true })
 vim.api.nvim_create_autocmd('VimLeave', {
@@ -12,11 +12,4 @@ vim.api.nvim_create_autocmd('VimLeave', {
     end,
 })
 
-vim.api.nvim_create_user_command('TranslateCurosorWord', require("Trans").query_cursor, {
-
-})
-
-
-if conf.default_keymap then
-    --- TODO: keymap
-end
+vim.api.nvim_create_user_command('TranslateCurosorWord', require("Trans").query_cursor, {})
