@@ -15,3 +15,4 @@ vim.api.nvim_create_autocmd('VimLeave', {
 vim.api.nvim_create_user_command('TranslateCurosorWord', require("Trans").query_cursor, {})
 
 -- TODO: set command to close preview window automatically
+

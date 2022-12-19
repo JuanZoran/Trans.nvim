@@ -25,12 +25,12 @@ vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 --  }
 
 local function show_win(width, height)
-    local win = vim.api.nvim_open_win(buf, true, {
+    local win = vim.api.nvim_open_win(buf, false, {
         relative = 'cursor',
         title = 'Trans',
         title_pos = 'center',
         style = display.style,
-        row = 0, col = 0, width = width > display.max_width and display.max_width or width,
+        row = 2, col = 2, width = width > display.max_width and display.max_width or width,
         height = height > display.max_height and display.max_height or height,
         border = 'rounded',
         focusable = false,
@@ -55,7 +55,6 @@ local function get_text(query_res)
         table.insert(text, '标签:')
         table.insert(text, '    ' .. tag)
     end
-    table.insert(text, '')
 
     -- NOTE: pos 词性
     if display.pos and query_res.pos:len() > 0 then
@@ -63,6 +62,7 @@ local function get_text(query_res)
         -- TODO: figure out pos sense
         table.insert(text, '    ' .. query_res.pos)
     end
+    table.insert(text, '')
 
     -- NOTE: exchange
     if display.exchange and query_res.exchange:len() > 0 then
@@ -126,7 +126,7 @@ function M.query_cursor()
     local word = vim.fn.expand('<cword>')
     local res = require("Trans.database").query(word)
 
-    vim.pretty_print(res)
+    -- vim.pretty_print(res)
 
     local width, height = set_text(res)
     show_win(width, height)
