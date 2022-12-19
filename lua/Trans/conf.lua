@@ -12,6 +12,7 @@ return {
         exchange = true,
         Trans_en = true,
         Trans_zh = true,
+        wrap = false,
     },
     view = {
         -- TODO: style: buffer | cursor | window

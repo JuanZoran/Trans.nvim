@@ -25,7 +25,7 @@ vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 --  }
 
 local function show_win(width, height)
-    vim.api.nvim_open_win(buf, true, {
+    local win = vim.api.nvim_open_win(buf, true, {
         relative = 'cursor',
         title = 'Trans',
         title_pos = 'center',
@@ -35,8 +35,7 @@ local function show_win(width, height)
         border = 'rounded',
         focusable = false,
     })
-    -- vim.api.nvim_win_set_option(win, 'warp', true)
-
+    vim.api.nvim_win_set_option(win, 'wrap', display.wrap)
 end
 
 -- @return string array
@@ -136,6 +135,10 @@ end
 
 function M.query()
     -- TODO:
+end
+
+function M.toggle()
+    -- TODO: wrap some function
 end
 
 return M
