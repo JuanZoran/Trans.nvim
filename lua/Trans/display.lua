@@ -42,6 +42,7 @@ local function get_tag(text, query_res)
             gsub('ielts', '雅思'):gsub('toefl', '托福'):gsub('gre', 'GRE')
         table.insert(text, '标签:')
         table.insert(text, '    ' .. tag)
+        table.insert(text, '')
     end
 end
 
@@ -92,7 +93,7 @@ end
 
 -- NOTE: 英文翻译
 local function get_en(text, query_res)
-    if display.Trans_en and query_res.definition:len() > 0 then
+    if #query_res.definition > 0 then
         table.insert(text, '英文翻译:')
         for v in vim.gsplit(query_res.definition, '\n') do
             table.insert(text, '    ' .. v)
@@ -115,7 +116,7 @@ local handler = {
 -- @return string array
 local function get_text(query_res)
     local text = {}
-    for _, v in pairs(order) do
+    for _, v in ipairs(order) do
         handler[v](text, query_res)
     end
     return text
