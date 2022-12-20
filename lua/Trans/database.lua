@@ -1,5 +1,4 @@
 local M = {}
--- local db = require('Trans').db
 local dict = require("Trans").dict
 
 function M.query(arg)

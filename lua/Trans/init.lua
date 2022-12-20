@@ -15,8 +15,5 @@ end
 
 M.db = require("sqlite.db")
 M.dict = M.db:open(M.conf.db_path)
-M.query = require("Trans.display").query
-M.query_cursor = require("Trans.display").query_cursor
-
 
 return M

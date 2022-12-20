@@ -1,12 +1,13 @@
 -- local conf = require("Trans").conf
 local M = {}
 
-local display = require("Trans.conf").display
-local icon = require("Trans.conf").icon
+local display = require("Trans").conf.display
+local icon = require("Trans").conf.icon
 
 
 local buf = vim.api.nvim_create_buf(false, true)
 vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
+local win = 0
 
 
 -- {
@@ -25,7 +26,7 @@ vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 --  }
 
 local function show_win(width, height)
-    local win = vim.api.nvim_open_win(buf, false, {
+    win = vim.api.nvim_open_win(buf, false, {
         relative = 'cursor',
         title = 'Trans',
         title_pos = 'center',
@@ -139,6 +140,13 @@ end
 
 function M.toggle()
     -- TODO: wrap some function
+end
+
+function M.close_win()
+    if win > 0 then
+       vim.api.nvim_win_close(win, true) 
+        win = 0
+    end
 end
 
 return M

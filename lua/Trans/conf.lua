@@ -12,7 +12,7 @@ return {
         exchange = true,
         Trans_en = true,
         Trans_zh = true,
-        wrap = false,
+        wrap = true,
     },
     view = {
         -- TODO: style: buffer | cursor | window
@@ -25,7 +25,8 @@ return {
         star = '⭐',
         isOxford = '✔',
         notOxford = ''
-    }
+    },
+    auto_close = true,
     -- TODO: async process
     -- async = false,
 
