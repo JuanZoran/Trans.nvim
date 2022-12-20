@@ -1,29 +1,14 @@
--- local conf = require("Trans").conf
 local M = {}
 
 local display = require("Trans").conf.display
 local icon = require("Trans").conf.icon
+local order = require("Trans").conf.order
 
 
 local buf = vim.api.nvim_create_buf(false, true)
-vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 local win = 0
+vim.api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 
-
--- {
---     audio = "",
---     bnc = 5222,
---     definition = "n. slang for sexual intercourse",
---     exchange = "d:fucked/p:fucked/i:fucking/3:fucks/s:fucks",
---     frq = 5040,
---     id = 1180286,
---     phonetic = "fʌk",
---     pos = "n:37/v:63",
---     sw = "fuck",
---     tag = "",
---     translation = "vt. 与...性交, 欺骗, 诅咒\nvi. 性交\nn. 性交, 些微, 杂种\ninterj. 他妈的, 混帐",
---     word = "fuck"
---  }
 
 local function show_win(width, height)
     win = vim.api.nvim_open_win(buf, false, {
@@ -31,43 +16,49 @@ local function show_win(width, height)
         title = 'Trans',
         title_pos = 'center',
         style = display.style,
-        row = 2, col = 2, width = width > display.max_width and display.max_width or width,
+        col = display.offset_x,
+        row = display.offset_y,
+        width = width > display.max_width and display.max_width or width,
         height = height > display.max_height and display.max_height or height,
-        border = 'rounded',
-        focusable = false,
+        border = display.border_style,
+        focusable = true,
     })
     vim.api.nvim_win_set_option(win, 'wrap', display.wrap)
 end
 
--- @return string array
-local function get_text(query_res)
-    local text = {
-        -- NOTE: word + phonetic + collins_star
-        string.format('%s    [%s]    ', query_res.word, query_res.phonetic) ..
-            (display.oxford and (query_res.oxford == 1 and icon.isOxford .. '    ' or icon.notOxford .. '    ') or '') ..
-            ((display.collins_star and query_res.collins) and string.rep(icon.star, query_res.collins) or '')
-    }
+-- NOTE: title
+local function get_title(text, query_res)
+    local title = string.format('%s    [%s]    ', query_res.word, query_res.phonetic) ..
+        (display.oxford and (query_res.oxford == 1 and icon.isOxford .. '    ' or icon.notOxford .. '    ') or '') ..
+        ((display.collins_star and query_res.collins) and string.rep(icon.star, query_res.collins) or '')
+    table.insert(text, title)
+end
 
-    -- NOTE: tag
-    if display.tag and query_res.tag:len() > 0 then
+-- NOTE: tag
+local function get_tag(text, query_res)
+    if #query_res.tag > 0 then
         local tag = query_res.tag:gsub('zk', '中考'):gsub('gk', '高考'):gsub('ky', '考研'):gsub('cet4', '四级'):
             gsub('cet6', '六级'):
             gsub('ielts', '雅思'):gsub('toefl', '托福'):gsub('gre', 'GRE')
         table.insert(text, '标签:')
         table.insert(text, '    ' .. tag)
     end
+end
 
-    -- NOTE: pos 词性
-    if display.pos and query_res.pos:len() > 0 then
+-- NOTE: pos 词性
+local function get_pos(text, query_res)
+    if #query_res.pos > 0 then
         table.insert(text, '词性:')
-        -- TODO: figure out pos sense
-        table.insert(text, '    ' .. query_res.pos)
+        for v in vim.gsplit(query_res.pos, [[/]]) do
+            table.insert(text, string.format('    %s', v .. '%'))
+        end
+        table.insert(text, '')
     end
-    table.insert(text, '')
+end
 
-    -- NOTE: exchange
-    if display.exchange and query_res.exchange:len() > 0 then
-        -- local list = vim.gsplit(query_res.exchange, [[\]])
+-- NOTE: exchange
+local function get_exchange(text, query_res)
+    if #query_res.exchange > 0 then
         table.insert(text, '词形变化:')
         local exchange_map = {
             p = '过去式',
@@ -83,31 +74,54 @@ local function get_text(query_res)
             table.insert(text, string.format('    %s:  %s', exchange_map[v:sub(1, 1)], v:sub(3)))
             -- FIXME: 中文字符与字母位宽不一致, 暂时无法对齐
         end
+        table.insert(text, '')
     end
-    table.insert(text, '')
+end
 
-    -- NOTE: 中文翻译
-    if display.Trans_zh and query_res.translation:len() > 0 then
-
+-- NOTE: 中文翻译
+local function get_zh(text, query_res)
+    if #query_res.translation > 0 then
         table.insert(text, '中文翻译:')
         for v in vim.gsplit(query_res.translation, '\n') do
-            -- table.insert(text, '    ' .. v)
             table.insert(text, '    ' .. v)
         end
+        table.insert(text, '')
     end
-    table.insert(text, '')
+end
 
-    -- NOTE: 英文翻译
+
+-- NOTE: 英文翻译
+local function get_en(text, query_res)
     if display.Trans_en and query_res.definition:len() > 0 then
         table.insert(text, '英文翻译:')
         for v in vim.gsplit(query_res.definition, '\n') do
             table.insert(text, '    ' .. v)
         end
+        table.insert(text, '')
     end
-    table.insert(text, '')
+end
 
+
+local handler = {
+    title = get_title,
+    tag = get_tag,
+    pos = get_pos,
+    exchange = get_exchange,
+    zh = get_zh,
+    en = get_en,
+}
+
+
+-- @return string array
+local function get_text(query_res)
+    local text = {}
+    for _, v in pairs(order) do
+        handler[v](text, query_res)
+    end
     return text
 end
+
+
 
 local function set_text(query_res)
     local text = query_res and get_text(query_res) or { '没有找到相关定义' }
@@ -126,9 +140,6 @@ function M.query_cursor()
     vim.api.nvim_buf_set_option(buf, 'modifiable', true)
     local word = vim.fn.expand('<cword>')
     local res = require("Trans.database").query(word)
-
-    -- vim.pretty_print(res)
-
     local width, height = set_text(res)
     show_win(width, height)
     vim.api.nvim_buf_set_option(buf, 'modifiable', false)
@@ -144,7 +155,7 @@ end
 
 function M.close_win()
     if win > 0 then
-       vim.api.nvim_win_close(win, true) 
+        vim.api.nvim_win_close(win, true)
         win = 0
     end
 end

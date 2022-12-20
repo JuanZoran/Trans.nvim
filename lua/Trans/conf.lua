@@ -13,13 +13,21 @@ return {
         Trans_en = true,
         Trans_zh = true,
         wrap = true,
+        border_style = 'rounded',
+        view = 'cursor',
+        offset_x = 2,
+        offset_y = 2,
     },
-    view = {
-        -- TODO: style: buffer | cursor | window
-        -- style = 'buffer',
-        -- buffer_pos = 'bottom', -- only works when view.style == 'buffer'
+    order = {
+        'title',
+        'tag',
+        'pos',
+        'exchange',
+        'zh',
+        'en',
     },
-    db_path = '/home/zoran/project/neovim/ecdict-ultimate-sqlite/ultimate.db', -- FIXME: change the path
+
+    db_path = '$HOME/.vim/dict/ultimate.db', -- FIXME: change the path
 
     icon = {
         star = '⭐',
@@ -39,8 +47,8 @@ return {
     -- TODO: precise match or return closest match result
     -- precise_match = true,
 
-    -- TODO: leamma search
-    -- leamma = false,
+    -- TODO: lemma search
+    -- lemma = false,
 
     -- TODO: register word
 }
