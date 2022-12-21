@@ -25,11 +25,13 @@
   - 英文翻译  (不是英译中, 而是用英文解释)
   - 词根
   - etc
+- 支持 `normal`和 `visual`模式
+> visual-select 不支持
   
 - 词库单词量: `43w`
   
 ## 屏幕截图
-> TODO
+![ScreenShot](./screenshot.gif)
 
 
 ## 安装
