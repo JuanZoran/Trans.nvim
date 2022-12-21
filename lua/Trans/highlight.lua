@@ -12,7 +12,6 @@ M.hlgroup = {
 }
 
 function M.set_hl()
-    -- FIXME: highlight doesn't work
     local set_hl = vim.api.nvim_set_hl
     set_hl(0, M.hlgroup.word, { fg = '#98c379', bold = true })
     set_hl(0, M.hlgroup.phonetic, { fg = '#8b949e' })

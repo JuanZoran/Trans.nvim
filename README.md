@@ -5,6 +5,7 @@
   - [安装](#安装)
   - [配置](#配置)
   - [快捷键绑定](#快捷键绑定)
+  - [高亮组](#高亮组)
   - [声明](#声明)
   - [感谢](#感谢)
 - [TODO](#todo)
@@ -120,6 +121,20 @@ vim.keymap.set('v', 'mm', '<Esc><Cmd>TranslateSelectWord<CR>')
 
 ```
 
+## 高亮组
+```lua
+hlgroup = {
+    word     = 'TransWord',
+    phonetic = 'TransPhonetic',
+    ref      = 'TransRef',    -- 如: 标签: | 中文翻译: 之类的前导词
+    tag      = 'TransTag',
+    exchange = 'TransExchange',
+    pos      = 'TransPos',
+    zh       = 'TransZh',
+    en       = 'TransEn',
+}
+
+```
 ## 声明
 - 本插件词典基于[ECDICT](https://github.com/skywind3000/ECDICT)
 
