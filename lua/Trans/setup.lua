@@ -15,6 +15,7 @@ vim.api.nvim_create_autocmd('VimLeave', {
         end
     end,
 })
+
 -- TODO: set command to close preview window automatically
 local auto_close = require("Trans.conf").auto_close
 if auto_close then
@@ -25,3 +26,5 @@ if auto_close then
         callback = require('Trans.display').close_win
     })
 end
+
+require("Trans.highlight").set_hl()

@@ -1,11 +1,5 @@
 local M = {}
 
--- NOTE:
--- Style:
---      [minimal]: one line with '/'
---      [default]:
---      [full]:    show all description in different lines
--- TODO: other style
 
 M.conf = require("Trans.conf")
 function M.setup(conf)
