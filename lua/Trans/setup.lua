@@ -2,7 +2,7 @@ local db = require("Trans").db
 -- local conf = require("Trans").conf
 
 
-vim.api.nvim_create_user_command('TranslateCurosorWord', require("Trans.display").query_cursor, {})
+vim.api.nvim_create_user_command('TranslateCursorWord', require("Trans.display").query_cursor, {})
 vim.api.nvim_create_user_command('TranslateSelectWord', require("Trans.display").query_select, {})
 
 

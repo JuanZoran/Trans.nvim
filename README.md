@@ -46,7 +46,7 @@
 ```lua
 use {
     'JuanZoran/Trans.nvim'
-    run = 'install.sh',
+    run = 'bash ./install.sh',
     requires = 'kharji/sqlite.lua',
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
     config = require'Trans'.setup{}
@@ -114,7 +114,7 @@ require'Trans'.setup{
 > 示例中展示, 将`mm`映射成快捷键
 ```lua
 -- normal-mode
-vim.keymap.set('n', 'mm', '<Cmd>TranslateCurosorWord<CR>')
+vim.keymap.set('n', 'mm', '<Cmd>TranslateCursorWord<CR>')
 
 -- visual-mode
 vim.keymap.set('v', 'mm', '<Esc><Cmd>TranslateSelectWord<CR>')
