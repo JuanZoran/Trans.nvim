@@ -10,6 +10,7 @@
   - [感谢](#感谢)
 - [TODO](#todo)
 
+
 ## 特点
 - 使用纯lua编写
 - 大部分功能可以自定义:
@@ -27,7 +28,7 @@
   - 词根
   - etc
 - 支持 `normal`和 `visual`模式
-> visual-select 不支持
+> 不支持 visual-select 
   
 - 词库单词量: `43w`
   
@@ -71,7 +72,7 @@ use {
     > `sudo apt-get install sqlite3 libsqlite3-dev # Ubuntu`
     
   - `$HOME/.vim/dict` 文件夹是否存在
-  - 后续会尝试 `healthcheck` 进行检查
+  > 后续会增加 `healthcheck` 进行检查
 
 
 ## 配置
