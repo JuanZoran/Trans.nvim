@@ -40,7 +40,7 @@ local function get_title(text, query_res)
 
     pos_info.title = {}
     pos_info.title.word = #query_res.word
-    pos_info.title.phonetic = #query_res.phonetic
+    pos_info.title.phonetic = query_res.phonetic and #query_res.phonetic or 3
     pos_info.title.line = line
     line = line + 1
 end
@@ -220,9 +220,11 @@ local function hl_zh()
 end
 
 local function hl_en()
-    api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.en.line, 0, -1)
-    for i = 1, pos_info.en.content, 1 do
-        api.nvim_buf_add_highlight(buf, -1, hl.en, pos_info.en.line + i, 0, -1)
+    if pos_info.en then
+        api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.en.line, 0, -1)
+        for i = 1, pos_info.en.content, 1 do
+            api.nvim_buf_add_highlight(buf, -1, hl.en, pos_info.en.line + i, 0, -1)
+        end
     end
 end
 
@@ -246,21 +248,43 @@ local function clear_tmp_info()
     line = 0
 end
 
-function M.query_cursor()
-    local word = vim.fn.expand('<cword>')
+local function get_visual_selection()
+    local s_start = vim.fn.getpos("'<")
+    local s_end = vim.fn.getpos("'>")
+    assert(s_end[2] == s_start[2])
+    local lin = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)[1]
+    local word = string.sub(lin, s_start[3], s_end[3])
+    return word
+end
+
+
+function M.query(mode)
+    assert(buf > 0)
+    local word = ''
+    if mode == 'n' then
+        word = vim.fn.expand('<cword>')
+    elseif mode == 'v' then
+        word = get_visual_selection()
+    else
+        print(mode, 'is invalid')
+        assert(false)
+    end
+
     local res = require("Trans.database").query(word)
     local width, height = set_text(res)
     show_win(width, height)
-    set_hl()
-    clear_tmp_info()
+    if res then
+        set_hl()
+        clear_tmp_info()
+    end
 end
 
-function M.query()
-    -- TODO:
+function M.query_cursor()
+    M.query('n')
 end
 
-function M.toggle()
-    -- TODO: wrap some function
+function M.query_select()
+    M.query('v')
 end
 
 function M.close_win()
