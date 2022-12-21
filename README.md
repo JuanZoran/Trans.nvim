@@ -40,7 +40,7 @@
 - sqlite.lua: 操作数据库所用的库
 - sqlite3: 数据库
 
-由于目前本人只使用 `Packer.nvim` 作为包管理插件, 所以这里以Packer为例:
+由于目前本人只使用 `Packer.nvim` 作为包管理插件, 所以这里以Packer为例:  
 **考虑将以下代码复制到的Packer Startup中:**
 ```lua
 use {
@@ -109,7 +109,16 @@ require'Trans'.setup{
 ```
 
 ## 快捷键绑定
-> TODO
+**示例:**
+> 示例中展示, 将`mm`映射成快捷键
+```lua
+-- normal-mode
+vim.keymap.set('n', 'mm', '<Cmd>TranslateCurosorWord<CR>')
+
+-- visual-mode
+vim.keymap.set('v', 'mm', '<Esc><Cmd>TranslateSelectWord<CR>')
+
+```
 
 ## 声明
 - 本插件词典基于[ECDICT](https://github.com/skywind3000/ECDICT)

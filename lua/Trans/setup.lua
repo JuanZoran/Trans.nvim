@@ -29,6 +29,6 @@ if auto_close then
 end
 
 
-vim.keymap.set('n', 'mm', '<cmd>TranslateCurosorWord<cr>')
-vim.keymap.set('v', 'mm', '<Esc><cmd>TranslateSelectWord<cr>')
+-- vim.keymap.set('n', 'mm', '<cmd>TranslateCurosorWord<cr>')
+-- vim.keymap.set('v', 'mm', '<Esc><cmd>TranslateSelectWord<cr>')
 require("Trans.highlight").set_hl()
