@@ -1,5 +1,5 @@
 local M = {}
-local dict = require("Trans").dict
+local dict = require("Trans").db:open(M.conf.db_path)
 
 function M.query(arg)
     -- TODO: return type: a result table:

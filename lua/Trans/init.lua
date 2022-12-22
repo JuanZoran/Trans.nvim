@@ -15,7 +15,16 @@ function M.setup(conf)
     require("Trans.setup")
 end
 
-M.db = require("sqlite.db")
-M.dict = M.db:open(M.conf.db_path)
+local res = vim.fn.executable('sqlite3')
+if res ~= 1 then
+    error('Please check out sqlite3')
+end
+
+local status, db = pcall(require, 'sqlite.db')
+if not status then
+    error('Please check out sqlite.lua')
+end
+
+M.db = db
 
 return M
