@@ -27,6 +27,7 @@ local function show_win(width, height)
         height = (display.max_width > 0 and height > display.max_height) and display.max_height or height,
         border = display.border_style,
         focusable = true,
+        zindex = 250,
     })
     api.nvim_win_set_option(win, 'wrap', display.wrap)
 end

@@ -28,7 +28,7 @@
   - 词根
   - etc
 - 支持 `normal`和 `visual`模式
-> 不支持 visual-select 
+> 不支持 visual-block mode
   
 - 词库单词量: `43w`
   
