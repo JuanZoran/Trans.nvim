@@ -3,6 +3,7 @@ local M = {}
 
 M.conf = require("Trans.conf")
 function M.setup(conf)
+    conf = conf or {}
     if conf.display then
         conf.display = vim.tbl_extend('force', M.conf.display, conf.display)
     end

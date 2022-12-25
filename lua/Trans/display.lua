@@ -1,9 +1,10 @@
 local M = {}
 
-local api     = vim.api
-local display = require("Trans").conf.display
-local icon    = require("Trans").conf.icon
-local order   = require("Trans").conf.order
+local api        = vim.api
+local display    = require("Trans").conf.display
+local icon       = require("Trans").conf.icon
+local order      = require("Trans").conf.order
+local auto_close = require("Trans").conf.auto_close
 
 local hl = require("Trans.highlight").hlgroup
 
@@ -13,7 +14,6 @@ local line = 0
 local pos_info = {}
 
 api.nvim_buf_set_option(buf, 'filetype', 'Trans')
-
 
 local function show_win(width, height)
     win = api.nvim_open_win(buf, false, {
@@ -182,20 +182,23 @@ local function set_text(query_res)
     return width, #text
 end
 
-local function hl_title()
+local hl_handler = {}
+
+
+hl_handler.title = function()
     api.nvim_buf_add_highlight(buf, -1, hl.word, pos_info.title.line, 0, pos_info.title.word)
     api.nvim_buf_add_highlight(buf, -1, hl.phonetic, pos_info.title.line, pos_info.title.word + 5,
         pos_info.title.word + 5 + pos_info.title.phonetic)
 end
 
-local function hl_tag()
+hl_handler.tag = function()
     if pos_info.tag then
         api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.tag, 0, -1)
         api.nvim_buf_add_highlight(buf, -1, hl.tag, pos_info.tag + 1, 0, -1)
     end
 end
 
-local function hl_pos()
+hl_handler.pos = function()
     if pos_info.pos then
         api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.pos.line, 0, -1)
         for i = 1, pos_info.pos.content, 1 do
@@ -204,7 +207,7 @@ local function hl_pos()
     end
 end
 
-local function hl_exchange()
+hl_handler.exchange = function()
     if pos_info.exchange then
         api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.exchange.line, 0, -1)
         for i = 1, pos_info.exchange.content, 1 do
@@ -213,14 +216,14 @@ local function hl_exchange()
     end
 end
 
-local function hl_zh()
+hl_handler.zh = function()
     api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.zh.line, 0, -1)
     for i = 1, pos_info.zh.content, 1 do
         api.nvim_buf_add_highlight(buf, -1, hl.zh, pos_info.zh.line + i, 0, -1)
     end
 end
 
-local function hl_en()
+hl_handler.en = function()
     if pos_info.en then
         api.nvim_buf_add_highlight(buf, -1, hl.ref, pos_info.en.line, 0, -1)
         for i = 1, pos_info.en.content, 1 do
@@ -229,14 +232,6 @@ local function hl_en()
     end
 end
 
-local hl_handler = {
-    title = hl_title,
-    tag = hl_tag,
-    pos = hl_pos,
-    exchange = hl_exchange,
-    zh = hl_zh,
-    en = hl_en,
-}
 
 local function set_hl()
     for _, v in ipairs(order) do
@@ -258,7 +253,6 @@ local function get_visual_selection()
     return word
 end
 
-
 function M.query(mode)
     assert(buf > 0)
     local word = ''
@@ -278,6 +272,15 @@ function M.query(mode)
         set_hl()
         clear_tmp_info()
     end
+
+    if auto_close then
+        api.nvim_create_autocmd(
+            { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
+            buffer = 0,
+            once = true,
+            callback = M.close_win,
+        })
+    end
 end
 
 function M.query_cursor()
@@ -294,5 +297,12 @@ function M.close_win()
         win = 0
     end
 end
+
+-- function M.enter_win()
+--     if api.nvim_win_is_valid(win) then
+--     else
+--         error('current win is not valid')
+--     end
+-- end
 
 return M

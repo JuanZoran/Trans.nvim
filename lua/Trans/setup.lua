@@ -17,18 +17,6 @@ vim.api.nvim_create_autocmd('VimLeave', {
     end,
 })
 
--- TODO: set command to close preview window automatically
-local auto_close = require("Trans.conf").auto_close
-if auto_close then
-    vim.api.nvim_create_autocmd(
-        { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
-        group = group,
-        pattern = '*',
-        callback = require('Trans.display').close_win
-    })
-end
-
-
 -- vim.keymap.set('n', 'mm', '<cmd>TranslateCurosorWord<cr>')
 -- vim.keymap.set('v', 'mm', '<Esc><cmd>TranslateSelectWord<cr>')
 require("Trans.highlight").set_hl()

@@ -50,9 +50,28 @@ use {
     run = 'bash ./install.sh',
     requires = 'kharji/sqlite.lua',
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
-    config = require'Trans'.setup{}
+    config = require'Trans'.setup
+}
+
+```
+
+**如果你想要使用Packer的惰性加载，这里有一个例子**  
+```lua
+use {
+    "JuanZoran/Trans.nvim",
+    keys = {
+        { 'v', 'mm' }, -- 换成其他你想用的key即可
+        { 'n', 'mm' },
+    },
+    run = 'bash ./install.sh',
+    config = function()
+        require("Trans").setup {}
+        vim.keymap.set("v", "mm", '<Esc><Cmd>TranslateSelectWord<CR>', { desc = ' Translate' })
+        vim.keymap.set("n", "mm", "<Cmd>TranslateCursorWord<CR>", { desc = ' Translate' })
+    end
 }
 ```
+
 **注意事项**:
 - `install.sh`
   - 使用了 `wget`下载词库, 安装请确保你的环境变量中存在wget
