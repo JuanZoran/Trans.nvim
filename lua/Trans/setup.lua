@@ -4,6 +4,7 @@ local db = require("Trans").db
 
 vim.api.nvim_create_user_command('TranslateCursorWord', require("Trans.display").query_cursor, {})
 vim.api.nvim_create_user_command('TranslateSelectWord', require("Trans.display").query_select, {})
+vim.api.nvim_create_user_command('TranslateInputWord', require("Trans.display").query_input, {})
 
 
 local group = vim.api.nvim_create_augroup("Trans", { clear = true })

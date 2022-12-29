@@ -13,6 +13,7 @@ local win = 0
 local line = 0
 local pos_info = {}
 
+local handler = {}
 api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 
 local function show_win(width, height)
@@ -33,7 +34,7 @@ local function show_win(width, height)
 end
 
 -- NOTE: title
-local function get_title(text, query_res)
+handler.title =  function (text, query_res)
     local title = string.format('%s    [%s]    ', query_res.word, query_res.phonetic) ..
         (display.oxford and (query_res.oxford == 1 and icon.isOxford .. '    ' or icon.notOxford .. '    ') or '') ..
         ((display.collins_star and query_res.collins) and string.rep(icon.star, query_res.collins) or '')
@@ -47,11 +48,11 @@ local function get_title(text, query_res)
 end
 
 -- NOTE: tag
-local function get_tag(text, query_res)
+handler.tag = function(text, query_res)
     if query_res.tag and #query_res.tag > 0 then
         local tag = query_res.tag:gsub('zk', '中考'):gsub('gk', '高考'):gsub('ky', '考研'):gsub('cet4', '四级'):
-            gsub('cet6', '六级'):
-            gsub('ielts', '雅思'):gsub('toefl', '托福'):gsub('gre', 'GRE')
+            gsub('cet6', '六级'):gsub('ielts', '雅思'):gsub('toefl', '托福'):gsub('gre', 'GRE')
+
         table.insert(text, '标签:')
         table.insert(text, '    ' .. tag)
         table.insert(text, '')
@@ -62,7 +63,7 @@ local function get_tag(text, query_res)
 end
 
 -- NOTE: pos 词性
-local function get_pos(text, query_res)
+handler.pos = function(text, query_res)
     if query_res.pos and #query_res.pos > 0 then
         table.insert(text, '词性:')
 
@@ -82,7 +83,7 @@ local function get_pos(text, query_res)
 end
 
 -- NOTE: exchange
-local function get_exchange(text, query_res)
+handler.exchange = function(text, query_res)
     if query_res.exchange and #query_res.exchange > 0 then
         table.insert(text, '词形变化:')
 
@@ -113,7 +114,7 @@ local function get_exchange(text, query_res)
 end
 
 -- NOTE: 中文翻译
-local function get_zh(text, query_res)
+handler.zh = function(text, query_res)
     if query_res.translation then
         table.insert(text, '中文翻译:')
 
@@ -132,7 +133,7 @@ local function get_zh(text, query_res)
 end
 
 -- NOTE: 英文翻译
-local function get_en(text, query_res)
+handler.en = function(text, query_res)
     if query_res.definition and #query_res.definition > 0 then
         table.insert(text, '英文翻译:')
 
@@ -150,16 +151,6 @@ local function get_en(text, query_res)
     end
 end
 
-local handler = {
-    title = get_title,
-    tag = get_tag,
-    pos = get_pos,
-    exchange = get_exchange,
-    zh = get_zh,
-    en = get_en,
-}
-
-
 -- @return string array
 local function get_text(query_res)
     local text = {}
@@ -168,6 +159,7 @@ local function get_text(query_res)
     end
     return text
 end
+
 
 local function set_text(query_res)
     local text = query_res and get_text(query_res) or { '没有找到相关定义' }
@@ -183,7 +175,6 @@ local function set_text(query_res)
 end
 
 local hl_handler = {}
-
 
 hl_handler.title = function()
     api.nvim_buf_add_highlight(buf, -1, hl.word, pos_info.title.line, 0, pos_info.title.word)
@@ -239,6 +230,7 @@ local function set_hl()
     end
 end
 
+
 local function clear_tmp_info()
     pos_info = {}
     line = 0
@@ -260,9 +252,12 @@ function M.query(mode)
         word = vim.fn.expand('<cword>')
     elseif mode == 'v' then
         word = get_visual_selection()
+    elseif mode == 'I' then
+        vim.ui.input({prompt = '请输入您要输查询的单词: '}, function (input)
+            word = input
+        end)
     else
-        print(mode, 'is invalid')
-        assert(false)
+        error('mode argument is invalid')
     end
 
     local res = require("Trans.database").query(word)
@@ -289,6 +284,10 @@ end
 
 function M.query_select()
     M.query('v')
+end
+
+function M.query_input()
+    M.query('I')
 end
 
 function M.close_win()
