@@ -69,7 +69,11 @@ return {
         notOxford = ''
     },
     auto_close = true,
-
+    style = {
+        input = 'float',
+        cursor = 'cursor',
+        select = 'cursor'
+    }
     -- TODO  add online translate engine
     -- online_search = {
     --     enable = false,
