@@ -19,25 +19,28 @@ api.nvim_buf_set_option(buf, 'filetype', 'Trans')
 local function show_win(width, height)
     win = api.nvim_open_win(buf, false, {
         relative = 'cursor',
+        col = display.offset_x,
+        row = display.offset_y,
         title = 'Trans',
         title_pos = 'center',
         style = display.style,
-        col = display.offset_x,
-        row = display.offset_y,
         width = (display.max_width > 0 and width > display.max_width) and display.max_width or width,
         height = (display.max_width > 0 and height > display.max_height) and display.max_height or height,
         border = display.border_style,
-        focusable = true,
-        zindex = 250,
+        focusable = false,
+        zindex = 250, -- Top
     })
     api.nvim_win_set_option(win, 'wrap', display.wrap)
 end
 
--- NOTE: title
-handler.title =  function (text, query_res)
-    local title = string.format('%s    [%s]    ', query_res.word, query_res.phonetic) ..
-        (display.oxford and (query_res.oxford == 1 and icon.isOxford .. '    ' or icon.notOxford .. '    ') or '') ..
+-- NOTE title
+handler.title = function(text, query_res)
+    local title = ('%s    [%s]    %s    %s'):format(
+        query_res.word,
+        query_res.phonetic,
+        (display.oxford and (query_res.oxford == 1 and icon.isOxford or icon.notOxford) or ''),
         ((display.collins_star and query_res.collins) and string.rep(icon.star, query_res.collins) or '')
+    )
     table.insert(text, title)
 
     pos_info.title = {}
@@ -47,7 +50,7 @@ handler.title =  function (text, query_res)
     line = line + 1
 end
 
--- NOTE: tag
+-- NOTE  tag
 handler.tag = function(text, query_res)
     if query_res.tag and #query_res.tag > 0 then
         local tag = query_res.tag:gsub('zk', '中考'):gsub('gk', '高考'):gsub('ky', '考研'):gsub('cet4', '四级'):
@@ -62,7 +65,7 @@ handler.tag = function(text, query_res)
     end
 end
 
--- NOTE: pos 词性
+-- NOTE pos 词性
 handler.pos = function(text, query_res)
     if query_res.pos and #query_res.pos > 0 then
         table.insert(text, '词性:')
@@ -82,7 +85,7 @@ handler.pos = function(text, query_res)
     end
 end
 
--- NOTE: exchange
+-- NOTE exchange
 handler.exchange = function(text, query_res)
     if query_res.exchange and #query_res.exchange > 0 then
         table.insert(text, '词形变化:')
@@ -113,7 +116,7 @@ handler.exchange = function(text, query_res)
     end
 end
 
--- NOTE: 中文翻译
+-- NOTE  中文翻译
 handler.zh = function(text, query_res)
     if query_res.translation then
         table.insert(text, '中文翻译:')
@@ -132,7 +135,7 @@ handler.zh = function(text, query_res)
     end
 end
 
--- NOTE: 英文翻译
+-- NOTE  英文翻译
 handler.en = function(text, query_res)
     if query_res.definition and #query_res.definition > 0 then
         table.insert(text, '英文翻译:')
@@ -159,7 +162,6 @@ local function get_text(query_res)
     end
     return text
 end
-
 
 local function set_text(query_res)
     local text = query_res and get_text(query_res) or { '没有找到相关定义' }
@@ -230,7 +232,6 @@ local function set_hl()
     end
 end
 
-
 local function clear_tmp_info()
     pos_info = {}
     line = 0
@@ -253,9 +254,10 @@ function M.query(mode)
     elseif mode == 'v' then
         word = get_visual_selection()
     elseif mode == 'I' then
-        vim.ui.input({prompt = '请输入您要输查询的单词: '}, function (input)
-            word = input
-        end)
+        word = vim.fn.input('请输入您要查询的单词: ')
+        -- vim.ui.input({prompt = '请输入您要查询的单词: '}, function (input)
+        --     word = input
+        -- end)
     else
         error('mode argument is invalid')
     end
