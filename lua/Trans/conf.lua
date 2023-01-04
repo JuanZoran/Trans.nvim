@@ -1,17 +1,28 @@
 return {
+    view = {
+        cursor = {
+            -- NOTE ：
+            -- 可选的风格：['fixed', 'relative', .. ]
+            style = 'fixed',
+            border = 'rounded',
+            -- NOTE :
+            -- 如果style设置为'relative'
+            -- 则其值代表最大限制, 设置为负数则无限制
+            width = 30,
+            height = 30,
+        },
+        float = {
+            top_offset = 1,
+            relative_width = 0.8,
+            border = 'rounded',
+        },
+    },
     display = {
-        style = 'minimal',
-        max_height = 50, -- 小于0代表无限制
-        max_width = 50,
-        -- phnoetic = true,
+        phnoetic = true,
         collins_star = true,
         oxford = true,
+        -- TODO
         -- history = false,
-        wrap = true,
-        border_style = 'rounded',
-        view = 'cursor',
-        offset_x = 2,
-        offset_y = 2,
     },
     order = {
         'title',
@@ -22,7 +33,35 @@ return {
         'en',
     },
 
-    db_path = '$HOME/.vim/dict/ultimate.db', -- FIXME: change the path
+    highligh = {
+        TransWord = {
+            fg = '#7ee787',
+            bold = true,
+        },
+        TransPhonetic = {
+            fg = '#8b949e',
+        },
+        TransRef = {
+            fg = '#75beff',
+            bold = true,
+        },
+        TransTag = {
+            fg = '#e5c07b',
+        },
+        TransExchange = {
+            link = 'TransTag',
+        },
+        TransPos = {
+            link = 'TransTag',
+        },
+        TransZh = {
+            link = 'TransWord',
+        },
+        TransEn = {
+            fg = '#bc8cff',
+        },
+    },
+    db_path = '$HOME/.vim/dict/ultimate.db',
 
     icon = {
         star = '⭐',
@@ -30,13 +69,12 @@ return {
         notOxford = ''
     },
     auto_close = true,
-    buf = vim.api.nvim_create_buf(false, true)
 
-    -- TODO:  add online translate engine
+    -- TODO  add online translate engine
     -- online_search = {
     --     enable = false,
     --     engine = {},
     -- }
 
-    -- TODO: register word
+    -- TODO register word
 }
