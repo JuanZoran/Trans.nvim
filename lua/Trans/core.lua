@@ -8,9 +8,6 @@ local order      = conf.order
 local auto_close = conf.auto_close
 local view       = conf.view
 
--- TODO : setup database
-local db_path = require("Trans").conf.db_path
-local dict = require("Trans").db:open(db_path)
 
 local highlight = {
     word     = 'TransWord',
@@ -22,6 +19,7 @@ local highlight = {
     zh       = 'TransZh',
     en       = 'TransEn',
 }
+
 
 local function get_select()
     local s_start = vim.fn.getpos("'<")
@@ -46,12 +44,7 @@ local function get_query_res(method)
     else
         error('unknown method')
     end
-
-    -- TODO : dict query optimization
-    local res = dict:select('stardict', {
-        where = { word = arg },
-    })
-    return res[1]
+    -- FIXME 
 end
 
 M.TransLate = function(opts)
