@@ -1,7 +1,13 @@
 local M = {}
-local conf = require("Trans").conf.view
+local conf = require("Trans.conf").style.window
+local type_check = require("Trans.util.debug").type_check
+
+-- FIXME 
 
 local get_float_opts = function(float_conf)
+    type_check {
+        float_conf = { float_conf, 'table' },
+    }
     local columns = vim.o.columns
     local height = vim.o.lines - vim.o.cmdheight - float_conf.top_offset
     local width = math.floor(columns * float_conf.relative_width)
@@ -21,6 +27,9 @@ local get_float_opts = function(float_conf)
 end
 
 local get_cursor_opts = function(cursor_conf)
+    type_check {
+        cursor_conf = { cursor_conf, 'table' },
+    }
     local opts = {
         relative = 'cursor',
         col = 2,

@@ -1,27 +1,21 @@
 local M = {}
 
--- INFO :加载的规则 [LuaRule]
-M.replace_rules = {
-    'order',
-    'Trans.+',
-}
-
 M.conf = {
     style = {
-        window = {
+        ui = {
             input = 'float',
             cursor = 'cursor',
             select = 'cursor'
         },
         order = {
-            'title',
-            'tag',
-            'pos',
-            'exchange',
-            'zh',
-            'en',
+            'Title',
+            'Tag',
+            'Pos',
+            'Exchange',
+            'Translation',
+            'Definition',
         },
-        conf = {
+        window = {
             -- NOTE :可选的风格：['fixed', 'relative', .. TODO]
             -- width 和 height说明：
             -- 大于1：
@@ -44,6 +38,12 @@ M.conf = {
                 width = 0.8,
                 height = 0.9,
             },
+            -- NOTE :如果你想限制某个组件的行数，可以设置 (名称与order相同)
+            -- Example:
+            -- limit = {
+            --     En = 1, -- 只显示第一行，（一般为最广泛的释义）
+            -- },
+            limit = nil, 
         },
     },
     ui = {
@@ -105,6 +105,12 @@ M.conf = {
     -- }
 
     -- TODO register word
+}
+
+-- INFO :加载的规则 [LuaRule]
+M.replace_rules = {
+    'order',
+    'Trans.+',
 }
 
 return M

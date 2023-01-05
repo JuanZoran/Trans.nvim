@@ -6,7 +6,7 @@ local buf_opts = {
 
 local buf = vim.api.nvim_create_buf(false, true)
 for k, v in pairs(buf_opts) do
-    vim.api.nvim_buf_set_options(buf, k, v)
+    vim.api.nvim_buf_set_option(buf, k, v)
 end
 
 M.buf = buf
