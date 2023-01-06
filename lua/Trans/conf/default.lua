@@ -16,24 +16,12 @@ M.conf = {
             'Definition',
         },
         window = {
-            -- NOTE :可选的风格：['fixed', 'relative', .. TODO]
-            -- width 和 height说明：
-            -- 大于1：
-                -- 如果style为fixed ,    则为固定的长宽
-                -- 如果style为relative , 则为最大长宽
-            -- 小于1:
-                -- 如果style为fixed ,    则为默认
-                -- 如果style为relative , 则为无限制
-            -- 0 ~ 1:
-                -- 相对长宽
             cursor = {
-                style = 'fixed',
                 border = 'rounded',
                 width = 30,
                 height = 30,
             },
             float = {
-                style = 'fixed',
                 border = 'rounded',
                 width = 0.8,
                 height = 0.9,
@@ -43,7 +31,7 @@ M.conf = {
             -- limit = {
             --     En = 1, -- 只显示第一行，（一般为最广泛的释义）
             -- },
-            limit = nil, 
+            limit = nil,
         },
     },
     ui = {
@@ -97,6 +85,9 @@ M.conf = {
             type_check = true,
             unknown_conf = true,
         },
+    },
+    map = {
+        -- TODO
     },
     -- TODO  add online translate engine
     -- online_search = {

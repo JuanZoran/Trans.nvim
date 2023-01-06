@@ -1,6 +1,6 @@
 local M = {}
 
-M.to_lines = function (field)
+M.to_content = function (field)
     -- TODO 
 end
 
