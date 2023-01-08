@@ -5,52 +5,29 @@ local type_check = require("Trans.util.debug").type_check
 -- NOTE :中文字符及占两个字节宽，但是在lua里是3个字节长度
 -- 为了解决中文字符在lua的长度和neovim显示不一致的问题
 function string:width()
-    local wid = 0
-    local bytes = { self:byte(1, #self) }
-    local index = 1
-    while true do
-        local char = bytes[index]
-        if char > 0 and char <= 127 then -- 英文[1]
-            wid = wid + 1
-            index = index + 1
-        elseif char >= 224 and char <= 239 then -- 中文[3]
-            index = index + 3 -- 原本的宽度
-            wid = wid + 2
-            -- elseif char >= 194 and char <= 223 then -- TODO :2
-            --     width = width + 2
-            --     index = index + 2
-            -- elseif char >=240 and char <= 247 then -- TODO :4
-            --     width = width + 4
-            -- index = index + 4
-        else
-            error('unknown char len:' .. tostring(char))
-        end
-
-        if index > #bytes then
-            return wid
-        end
-    end
+    return vim.fn.strdisplaywidth(self)
 end
 
 -- 各种风格的基础宽度
 local style_width = {
-    float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
-    cursor = require("Trans.conf.window").cursor.width,
+    -- float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
+    -- cursor = require("Trans.conf.window").cursor.width,
+    cursor = 50
 }
 
 local s_to_b = true -- 从小到大排列
 
 local m_win_width -- 需要被格式化窗口的高度
 local m_fields -- 待格式化的字段
-local m_indent -- 每行的行首缩进
-local m_length -- 所有字段加起来的长度(不包括缩进和间隔)
+local m_tot_width -- 所有字段加起来的长度(不包括缩进和间隔)
 local m_item_width -- 每个字段的宽度
 local m_interval -- 每个字段的间隔
+local m_size -- 字段的个数
 
 local function caculate_format()
     local width = m_win_width - m_item_width[1]
     local cols = 0
-    for i = 2, #m_fields do
+    for i = 2, m_size do
         width = width - m_item_width[i] - m_interval
         if width < 0 then
             cols = i - 1
@@ -60,14 +37,20 @@ local function caculate_format()
         end
     end
 
-    return math.ceil(#m_fields / cols), cols
+    return math.ceil(m_size / cols), cols
 end
 
 local function format_to_line()
     local line = m_fields[1]
-    local space = math.floor((m_win_width - m_length) / #m_fields)
-    for i = 2, #m_fields do
-        line = line .. (' '):rep(space) .. m_fields[i]
+    if m_size == 1 then
+        --- Center Align
+        local space = math.floor((m_win_width - m_item_width[1]) / 2)
+        line = (' '):rep(space) .. line
+    else
+        local space = math.floor((m_win_width - m_tot_width) / m_size - 1)
+        for i = 2, m_size do
+            line = line .. (' '):rep(space) .. m_fields[i]
+        end
     end
     return line
 end
@@ -82,37 +65,39 @@ local function sort_tables()
     end)
 end
 
-local function format_to_multilines()
+local function format_to_multilines(rows, cols)
     local lines = {}
-    sort_tables()
 
-    --- NOTE ： 计算应该格式化成多少行和列
-    local rows, cols = caculate_format()
-    local rest = #m_fields % cols
+    local rest = m_size % cols
     if rest == 0 then
         rest = cols
     end
 
     local s_width = m_item_width[1] -- 列中最宽的字符串宽度
-    -- NOTE : 第一列不需要加空格
     for i = 1, rows do
         local idx = s_to_b and rows - i + 1 or i
+        lines[idx] = {}
+
         local space = (' '):rep(s_width - m_item_width[i])
-        lines[idx] = m_fields[i] .. space -- NOTE  由大到小
+        local item = m_fields[i] .. space
+
+        lines[idx][1] = item
+        lines[idx].interval = m_interval
     end
 
+
     local index = rows + 1 -- 最宽字符的下标
-    local interval = (' '):rep(m_interval) -- 每个字符串间的间隙
 
     for j = 2, cols do -- 以列为单位遍历
         s_width = m_item_width[index]
         local stop = (j > rest and rows - 1 or rows)
         for i = 1, stop do
             local idx   = s_to_b and stop - i + 1 or i -- 当前操作的行数
-            local item  = index + i - 1 -- 当前操作的字段数
-            local space = (' '):rep(s_width - m_item_width[item]) -- 对齐空格
+            local item_idx  = index + i - 1            -- 当前操作的字段数
+            local space = (' '):rep(s_width - m_item_width[item_idx]) -- 对齐空格
+            local item = m_fields[item_idx] .. space
 
-            lines[idx] = lines[idx] .. interval .. m_fields[item] .. space -- NOTE  从大到小
+            lines[idx][j] = item -- 插入图标
         end
         index = index + stop -- 更新最宽字符的下标
     end
@@ -123,18 +108,15 @@ end
 local function formatted_lines()
     local lines = {}
     -- NOTE : 判断能否格式化成一行
-    if m_length + (#m_fields * m_indent) > m_win_width then
-        lines = format_to_multilines()
+    if m_tot_width + (m_size * m_indent) > m_win_width then
+        sort_tables()
+        --- NOTE ： 计算应该格式化成多少行和列
+        local rows, cols = caculate_format()
+        lines = format_to_multilines(rows, cols)
     else
         lines[1] = format_to_line()
     end
 
-    -- NOTE :进行缩进
-    if m_indent and m_indent > 0 then
-        for i, v in ipairs(lines) do
-            lines[i] = (' '):rep(m_indent) .. v
-        end
-    end
     return lines
 end
 
@@ -155,18 +137,35 @@ M.to_lines = function(style, fields, indent)
     local item_size = {}
     for i, v in ipairs(fields) do
         width = v:width()
-        items_size[i] = width
+        item_size[i] = width
         length = length + width
     end
 
-    m_indent     = indent or 0
     m_win_width  = style_width[style] - m_indent
     m_fields     = fields
-    m_length     = length
+    m_size       = #m_fields
+    m_tot_width  = length
     m_item_width = item_size
     m_interval   = m_win_width > 50 and 6 or 4
 
     return formatted_lines()
 end
+
+---合并多个数组, 第一个数组将会被使用
+---@param ... string[] 需要被合并的数组
+---@return table res   合并后的数组
+M.extend_array = function(...)
+    local arrays = { ... }
+    local res = arrays[1]
+    local index = #res
+    for i = 2, #arrays do
+        for _, value in ipairs(arrays[i]) do
+            res[index] = value
+            index = index + 1
+        end
+    end
+    return res
+end
+
 
 return M

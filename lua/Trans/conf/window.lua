@@ -54,7 +54,7 @@ local get_cursor_opts = function(cursor_conf)
     return opts
 end
 
-M.get_float_opts = get_float_opts(conf.float)
+M.float_opts = get_float_opts(conf.float)
 
 M.cursor_opts = get_cursor_opts(conf.cursor)
 

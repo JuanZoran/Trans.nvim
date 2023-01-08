@@ -5,30 +5,7 @@ local M = {}
 -- NOTE :中文字符及占两个字节宽，但是在lua里是3个字节长度
 -- 为了解决中文字符在lua的长度和neovim显示不一致的问题
 function string:width()
-    local width = 0
-    local bytes = { self:byte(1, #self) }
-    local index = 1
-    while true do
-        local char = bytes[index]
-        if char > 0 and char <= 127 then -- 英文[1]
-            width = width + 1
-            index = index + 1
-        elseif char >= 224 and char <= 239 then -- 中文[3]
-            index = index + 3 -- 原本的宽度
-            width = width + 2
-            -- elseif char >= 194 and char <= 223 then -- TODO :2
-            --     width = width + 2
-            --     index = index + 2
-            -- elseif char >=240 and char <= 247 then -- TODO :4
-            --     width = width + 4
-            -- index = index + 4
-        else
-            error('unknown char len:' .. tostring(char))
-        end
-        if index > #bytes then
-            return width
-        end
-    end
+    return vim.fn.strdisplaywidth(self)
 end
 
 -- 各种风格的基础宽度
@@ -40,10 +17,11 @@ local s_to_b = true -- 从小到大排列
 
 local m_fields     -- 待格式化的字段
 local m_indent     -- 每行的行首缩进
-local m_length     -- 所有字段加起来的长度(不包括缩进和间隔)
+local m_tot_width     -- 所有字段加起来的长度(不包括缩进和间隔)
 local m_interval   -- 每个字段的间隔
 local m_win_width  -- 需要被格式化窗口的高度
 local m_item_width -- 每个字段的宽度
+local m_size
 
 local function caculate_format()
     local width = m_win_width - m_item_width[1]
@@ -63,9 +41,15 @@ end
 
 local function format_to_line()
     local line = m_fields[1]
-    local space = math.floor((m_win_width - m_length) / #m_fields)
-    for i = 2, #m_fields do
-        line = line .. (' '):rep(space) .. m_fields[i]
+    if m_size == 1 then
+        --- Center Align
+        local space = math.floor((m_win_width - m_item_width[1]) / 2)
+        line = (' '):rep(space) .. line
+    else
+        local space = math.floor((m_win_width - m_tot_width) / m_size - 1)
+        for i = 2, m_size do
+            line = line .. (' '):rep(space) .. m_fields[i]
+        end
     end
     return line
 end
@@ -124,7 +108,7 @@ end
 local function get_formatted_lines()
     local lines = {}
     -- NOTE : 判断能否格式化成一行
-    local line_size = m_length + (#m_fields * m_interval)
+    local line_size = m_tot_width + (#m_fields * m_interval)
     if line_size > m_win_width then
         lines = format_to_multilines()
     else
@@ -159,20 +143,17 @@ M.to_lines = function(style, fields, indent)
     m_indent = indent or 0
     m_win_width  = style_width[style] - m_indent
     m_fields = fields
-    m_length = length
+    m_tot_width = length
     m_item_width = item_size
     m_interval = m_win_width > 50 and 6 or 4
+    m_size = #fields
 
     return get_formatted_lines()
 end
 
 local test = {
-    'ajlkasj',
-    'jklasjldajjnn测试',
-    'ljlklkjjlIi戳',
-    '测试将安得拉蓝色',
-    '戳将安塞',
-    'isjlkajsldj',
+    'isjlk测试dj',
+    '测试一下..',
 }
 
 local lines = M.to_lines('cursor', test)
@@ -187,8 +168,8 @@ local lines = M.to_lines('cursor', test)
 
 -- print('type is :' .. type(lines) .. '  size is :' .. #lines[1])
 
-for _, v in ipairs(lines) do
-    print(v)
+for _, v in ipairs(test) do
+    print(v:width())
 end
 
 -- lines = M.to_lines('cursor', {

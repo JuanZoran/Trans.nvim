@@ -1,13 +1,8 @@
-local M = {}
-
-local a = {
-    b = 'test',
+local tmp = {
+    '1111',
+    '2222',
+    '3333',
+    interval = 4,
 }
 
-local c = a
-c.b = 'notest'
-
-
-
-print(a.b)
-return M
+print(table.concat(tmp, (' '):rep(tmp.interval)))
