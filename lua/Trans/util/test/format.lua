@@ -1,21 +1,21 @@
----@diagnostic disable: undefined-global
 local M = {}
-local type_check = require("Trans.util.debug").type_check
+-- local type_check = require("Trans.util.debug").type_check
+
 
 -- NOTE :中文字符及占两个字节宽，但是在lua里是3个字节长度
 -- 为了解决中文字符在lua的长度和neovim显示不一致的问题
 function string:width()
-    local wid = 0
+    local width = 0
     local bytes = { self:byte(1, #self) }
     local index = 1
     while true do
         local char = bytes[index]
         if char > 0 and char <= 127 then -- 英文[1]
-            wid = wid + 1
+            width = width + 1
             index = index + 1
         elseif char >= 224 and char <= 239 then -- 中文[3]
             index = index + 3 -- 原本的宽度
-            wid = wid + 2
+            width = width + 2
             -- elseif char >= 194 and char <= 223 then -- TODO :2
             --     width = width + 2
             --     index = index + 2
@@ -25,27 +25,25 @@ function string:width()
         else
             error('unknown char len:' .. tostring(char))
         end
-
         if index > #bytes then
-            return wid
+            return width
         end
     end
 end
 
 -- 各种风格的基础宽度
 local style_width = {
-    float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
-    cursor = require("Trans.conf.window").cursor.width,
+    -- float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
+    cursor = 60,
 }
-
 local s_to_b = true -- 从小到大排列
 
-local m_win_width -- 需要被格式化窗口的高度
-local m_fields -- 待格式化的字段
-local m_indent -- 每行的行首缩进
-local m_length -- 所有字段加起来的长度(不包括缩进和间隔)
+local m_fields     -- 待格式化的字段
+local m_indent     -- 每行的行首缩进
+local m_length     -- 所有字段加起来的长度(不包括缩进和间隔)
+local m_interval   -- 每个字段的间隔
+local m_win_width  -- 需要被格式化窗口的高度
 local m_item_width -- 每个字段的宽度
-local m_interval -- 每个字段的间隔
 
 local function caculate_format()
     local width = m_win_width - m_item_width[1]
@@ -72,15 +70,17 @@ local function format_to_line()
     return line
 end
 
+
 local function sort_tables()
-    table.sort(m_item_width, function(a, b)
+    table.sort(m_item_width, function (a, b)
         return a > b
     end)
 
-    table.sort(m_fields, function(a, b)
-        return a:width() > b:width() -- 需要按照width排序
+    table.sort(m_fields, function (a, b)
+        return a:width() > b:width()
     end)
 end
+
 
 local function format_to_multilines()
     local lines = {}
@@ -101,15 +101,15 @@ local function format_to_multilines()
         lines[idx] = m_fields[i] .. space -- NOTE  由大到小
     end
 
-    local index = rows + 1 -- 最宽字符的下标
+    local index = rows + 1                 -- 最宽字符的下标
     local interval = (' '):rep(m_interval) -- 每个字符串间的间隙
 
     for j = 2, cols do -- 以列为单位遍历
         s_width = m_item_width[index]
         local stop = (j > rest and rows - 1 or rows)
         for i = 1, stop do
-            local idx   = s_to_b and stop - i + 1 or i -- 当前操作的行数
-            local item  = index + i - 1 -- 当前操作的字段数
+            local idx   = s_to_b and stop - i + 1 or i            -- 当前操作的行数
+            local item  = index + i - 1                           -- 当前操作的字段数
             local space = (' '):rep(s_width - m_item_width[item]) -- 对齐空格
 
             lines[idx] = lines[idx] .. interval .. m_fields[item] .. space -- NOTE  从大到小
@@ -117,20 +117,22 @@ local function format_to_multilines()
         index = index + stop -- 更新最宽字符的下标
     end
 
-    return lines -- TODO : evaluate the width
+    return lines
 end
 
-local function formatted_lines()
+
+local function get_formatted_lines()
     local lines = {}
     -- NOTE : 判断能否格式化成一行
-    if m_length + (#m_fields * m_indent) > m_win_width then
+    local line_size = m_length + (#m_fields * m_interval)
+    if line_size > m_win_width then
         lines = format_to_multilines()
     else
         lines[1] = format_to_line()
     end
 
     -- NOTE :进行缩进
-    if m_indent and m_indent > 0 then
+    if m_indent > 0 then
         for i, v in ipairs(lines) do
             lines[i] = (' '):rep(m_indent) .. v
         end
@@ -141,32 +143,63 @@ end
 ---将组件格式化成相应的vim支持的lines格式
 ---@param style string 窗口的风格
 ---@param fields string[] 需要格式化的字段
----@param indent number 缩进的长度
+---@param indent? number 缩进的长度
 ---@return string[] lines 便于vim.api.nvim_buf_set_lines
 M.to_lines = function(style, fields, indent)
-    type_check {
-        style = { style, { 'string' } },
-        fields = { fields, { 'table' } },
-        indent = { indent, { 'number' }, true },
-    }
 
     local length = 0
     local width = 0
     local item_size = {}
     for i, v in ipairs(fields) do
         width = v:width()
-        items_size[i] = width
+        item_size[i] = width
         length = length + width
     end
 
-    m_indent     = indent or 0
+    m_indent = indent or 0
     m_win_width  = style_width[style] - m_indent
-    m_fields     = fields
-    m_length     = length
+    m_fields = fields
+    m_length = length
     m_item_width = item_size
-    m_interval   = m_win_width > 50 and 6 or 4
+    m_interval = m_win_width > 50 and 6 or 4
 
-    return formatted_lines()
+    return get_formatted_lines()
 end
 
+local test = {
+    'ajlkasj',
+    'jklasjldajjnn测试',
+    'ljlklkjjlIi戳',
+    '测试将安得拉蓝色',
+    '戳将安塞',
+    'isjlkajsldj',
+}
+
+local lines = M.to_lines('cursor', test)
+
+-- print('===========================================')
+-- for _, v in ipairs(test) do
+--     print(v .. '                width:', v:width())
+-- end
+-- print('===========================================')
+-- print('===========================================')
+-- print('===========================================')
+
+-- print('type is :' .. type(lines) .. '  size is :' .. #lines[1])
+
+for _, v in ipairs(lines) do
+    print(v)
+end
+
+-- lines = M.to_lines('cursor', {
+--     'ajlkasj',
+--     'jklasjldajjnn测试',
+--     '测试将安得拉蓝色',
+--     'cool this',
+-- }, 4)
+
+-- for _, v in ipairs(lines) do
+--     print(v)
+-- end
 return M
+

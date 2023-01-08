@@ -18,7 +18,7 @@ local query_field = {
 }
 
 -- INFO : init database
-local path = require("Trans.conf").base.db_path
+local path = require("Trans.conf.loader").loaded.conf.base.db_path
 local dict = db:open(path)
 
 -- INFO :Auto Close

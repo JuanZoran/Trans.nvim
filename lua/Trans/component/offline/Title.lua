@@ -1,6 +1,6 @@
 local M = {}
 
-local display = require("Tran.conf").ui.display
+local display = require("Trans.conf.loader").loaded.conf.ui.display
 -- Example:
 -- local content = {
 --     width = 1,

@@ -1,5 +1,5 @@
 local M = {}
-local conf = require("Trans.conf").style.window
+local conf = require("Trans.conf.loader").loaded_conf.style.window
 local type_check = require("Trans.util.debug").type_check
 
 -- FIXME 

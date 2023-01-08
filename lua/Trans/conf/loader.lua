@@ -1,52 +1,56 @@
----@diagnostic disable: unused-local, unused-function
+-- -@diagnostic disable: unused-local, unused-function, lowercase-global
 local M = {}
 
 local replace_rules = require("Trans.conf.default").replace_rules
-local conf          = require("Trans.conf.default").conf
-local user_conf     = require("Trans").conf
-local type_check    = require("Trans.util.debug").type_check
-local is_loaded = false
 
-local function need_extend(name)
-    type_check {
-        name = { name, 'string' }
-    }
-    for _, rule in ipairs(replace_rules) do
-        if name:match(rule) then
-            return false
+local star_format = [[
+local def, usr = default_conf.%s, user_conf.%s
+if def and usr then
+    for k, v in pairs(usr) do
+        def[k] = v
+        usr[k] = nil
+    end
+end
+]]
+
+local plain_format = [[
+default_conf.%s = user_conf.%s or default_conf.%s
+]]
+
+local function pre_process()
+    if replace_rules then
+        for _, v in ipairs(replace_rules) do
+            local start = v:find('.*', 1, true)
+            local operation
+            if start then
+                -- 替换表内所有键
+                v = v:sub(1, start - 1)
+                -- print('v is :', v)
+                operation = string.format(star_format, v, v)
+            else
+                operation = plain_format:format(v, v, v)
+            end
+            -- print(operation)
+            pcall(loadstring(operation))
         end
     end
-    return true
 end
 
--- 加载用户自定义的配置
----@param t1 table
----@param t2 table
-local function extend(t1, t2)
-    type_check {
-        t1 = { t1, 'table' },
-        t2 = { t2, 'table' },
-    }
-    for k, v in pairs(t2) do
-        if type(v) == 'table' and need_extend(k) then
-            extend(t1[k], v)
-        else
-            t1[k] = v
-        end
+
+
+M.load_conf = function(conf)
+    if #M.loaded_conf == 0 then
+        user_conf = conf or {}
+        default_conf  = require("Trans.conf.default").conf
+        pre_process()
+        M.loaded_conf = vim.tbl_deep_extend('force', default_conf, user_conf)
+        user_conf = nil
+        default_conf = nil
+    else
+        vim.notify('Configuration has been loaded...')
     end
 end
 
-M.get_conf = function()
-    if not is_loaded then
-        M.load_conf()
-    end
-    return conf
-end
-
-M.load_conf = function()
-    -- loaded_conf = default_conf:extend(user_conf)
-    extend(conf, user_conf)
-    is_loaded = true
-end
+M.loaded_conf = {}
 
 return M

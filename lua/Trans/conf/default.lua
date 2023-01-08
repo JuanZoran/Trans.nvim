@@ -7,14 +7,6 @@ M.conf = {
             cursor = 'cursor',
             select = 'cursor'
         },
-        order = {
-            'Title',
-            'Tag',
-            'Pos',
-            'Exchange',
-            'Translation',
-            'Definition',
-        },
         window = {
             cursor = {
                 border = 'rounded',
@@ -34,8 +26,21 @@ M.conf = {
             limit = nil,
         },
     },
+    order = {
+        offline = {
+            'Title',
+            'Tag',
+            'Pos',
+            'Exchange',
+            'Translation',
+            'Definition',
+        },
+        -- online = {
+        --     -- TODO 
+        -- },
+    },
     ui = {
-        highligh = {
+        highlight = {
             TransWord = {
                 fg = '#7ee787',
                 bold = true,
@@ -79,16 +84,19 @@ M.conf = {
     base = {
         db_path = '$HOME/.vim/dict/ultimate.db',
         auto_close = true,
-        lazy_load = false,
         debug = {
             enable = true,
             type_check = true,
             unknown_conf = true,
         },
+        engine = {
+            -- TODO
+        }
     },
-    map = {
-        -- TODO
-    },
+    -- map = {
+    --     -- TODO
+    -- },
+
     -- TODO  add online translate engine
     -- online_search = {
     --     enable = false,
@@ -100,8 +108,8 @@ M.conf = {
 
 -- INFO :加载的规则 [LuaRule]
 M.replace_rules = {
-    'order',
-    'Trans.+',
+    'order.*',
+    'ui.highlight.*',
 }
 
 return M

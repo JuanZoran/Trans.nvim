@@ -1,7 +1,7 @@
 local M = {}
 
 -- INFO : get loaded debug conf
-local base = require("Trans").conf.base
+local base = require("Trans.conf.loader").loaded_conf.base
 local debug = require("Trans.conf.default").conf.base.debug
 if base and base.debug then
     debug = vim.tbl_extend('force', debug, base)
