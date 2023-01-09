@@ -1,21 +1,35 @@
 local type_check = require("Trans.util.debug").type_check
-local format = require("Trans.util.format")
 
 
--- NOTE : 将请求得到的字段进行处理
--- local offline_dir = debug.getinfo(1, "S").source:sub(2):match('.*Trans') .. '/component/offline'
+local function format(items, interval)
+
+end
+
+
 local function process (opts)
     type_check {
-        opts = { opts, 'table' }
+        opts = { opts, 'table' },
+        ['opts.field']  = { opts.field, 'table'  },
+        ['opts.order']  = { opts.order, 'table'  },
+        ['opts.win']    = { opts.win, 'table'    },
+        ['opts.engine'] = { opts.engine, 'table' },
     }
+
     local content = require('Trans.component.content'):new()
 
     for _, v in ipairs(opts.order) do
-        local component = format.format(opts.win_style, require("Trans.component" .. opts.engine .. v))
-        content:insert(component)
+        local items = format(require("Trans.component." .. opts.engine .. '.' .. v), 4)
+        content:insert(items)
     end
 
-    return content:lines()
+    local lines, __highlight = content:data()
+    vim.api.nvim_buf_set_lines(opts.bufnr, 0, lines)
+
+    for line, l_hl in ipairs(__highlight) do
+        for _, hl in ipairs(l_hl) do
+            vim.api.nvim_buf_add_highlight(opts.bufnr, line, hl.name, hl._start, hl._end)
+        end
+    end
 end
 
 

@@ -64,7 +64,7 @@ end
 ---     end
 ---@return table line
 ---@return table highlight
-function M:lines()
+function M:data()
     -- NOTE 返回格式化的行，如果需要高亮，则第二个参数返回高亮
     local lines = {}
     local highlights = {}

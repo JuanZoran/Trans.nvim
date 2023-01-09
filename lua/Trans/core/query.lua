@@ -1,7 +1,5 @@
-local M = {}
-
 local type_check = require("Trans.util.debug").type_check
-local query = require("Trans.database").query
+local query = require("Trans.api").query
 
 local function get_select()
     local s_start = vim.fn.getpos("'<")
@@ -14,44 +12,29 @@ local function get_select()
     return word
 end
 
-
-local function get_word(method)
-    if not method then
-        local mode = vim.api.nvim_get_mode()
-        if mode == 'n' then
-            return vim.fn.expand('<cword>')
-        elseif mode == 'v' then
-            return get_select()
-        else
-            error('invalid mode')
-        end
-    end
-
-    if method == 'input' then
-        return vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
-
-    -- TODO : other method
-    else
-        error('invalid method')
-    end
-end
-
-M.get_query_res = function(method)
+local query_wrapper = function(opts)
     type_check {
-        method = { method, 'string' },
+        opts = { opts, 'table' },
+        ['opts.method'] = { opts.method, 'string' },
     }
+
     local word = ''
-    if method == 'cursor' then
+
+    if opts.method == 'input' then
+        word = vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
+
+    elseif opts.method == 'n' then
         word = vim.fn.expand('<cword>')
-    elseif method == 'select' then
-        word = get_select():match('%S+')
-    elseif method == 'input' then
+
+    elseif opts.mehotd == 'v' then
+        word = get_select()
+        -- TODO : other method
+
     else
-        error('unknown method')
+        error('invalid method' .. opts.method)
     end
 
     return query(word)
 end
 
-
-return M
+return query_wrapper

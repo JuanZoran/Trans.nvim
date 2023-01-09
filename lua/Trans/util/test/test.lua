@@ -1,5 +1,8 @@
-local a = nil
+local a = 'test'
 
 
+local b = a
 
-print((' '):rep(a))
+b = b .. 'test'
+
+print(a, b)

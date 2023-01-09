@@ -29,11 +29,11 @@ M.conf = {
     order = {
         offline = {
             'Title',
-            'Tag',
-            'Pos',
-            'Exchange',
-            'Translation',
-            'Definition',
+            -- 'Tag',
+            -- 'Pos',
+            -- 'Exchange',
+            -- 'Translation',
+            -- 'Definition',
         },
         -- online = {
         --     -- TODO 
@@ -61,10 +61,10 @@ M.conf = {
             TransPos = {
                 link = 'TransTag',
             },
-            TransZh = {
+            TransTranslation = {
                 link = 'TransWord',
             },
-            TransEn = {
+            TransDefinition = {
                 fg = '#bc8cff',
             },
         },
@@ -84,11 +84,6 @@ M.conf = {
     base = {
         db_path = '$HOME/.vim/dict/ultimate.db',
         auto_close = true,
-        debug = {
-            enable = true,
-            type_check = true,
-            unknown_conf = true,
-        },
         engine = {
             -- TODO
             'local',

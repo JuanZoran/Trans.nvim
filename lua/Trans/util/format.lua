@@ -143,10 +143,10 @@ end
 
 ---@alias formatted_items table
 ---将组件格式化成相应的vim支持的lines格式
----@param style string 窗口的风格
+---@param win_size string 窗口的宽度和高度
 ---@param component table 需要格式化的字段
 ---@return formatted_items[] lines
-M.format = function(style, component)
+M.format = function(win_width, component)
     type_check {
         style = { style, { 'string' } },
         component = { component, { 'table' } },
@@ -161,17 +161,14 @@ M.format = function(style, component)
         length = length + width
     end
 
-    m_win_width  = style_width[style] - m_indent
+    m_win_width  = win_width
     m_fields     = fields
     m_size       = #m_fields
     m_tot_width  = length
     m_item_width = item_size
-    m_interval   = m_win_width > 50 and 6 or 4
 
     return formatted_lines()
 end
-
-
 
 
 ---合并多个数组, 第一个数组将会被使用

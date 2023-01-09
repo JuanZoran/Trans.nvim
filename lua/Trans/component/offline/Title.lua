@@ -1,7 +1,7 @@
 local M = {}
 
-local display = require("Trans.conf.loader").loaded.conf.ui.display
-local icon = require("Trans.conf.loader").loaded.conf.ui.icon
+local display = require("Trans.conf.loader").loaded_conf.ui.display
+local icon = require("Trans.conf.loader").loaded_conf.ui.icon
 
 -- {
 --   collins = 3,

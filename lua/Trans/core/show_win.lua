@@ -1,10 +1,5 @@
 local type_check = require("Trans.util.debug").type_check
 
-local buf_opts = {
-    filetype = 'Trans',
-    modifiable = false,
-}
-
 -- local win_opts = {
 --     winhl = 'Normal:TransWinNormal, FloatBorder:TransWinBorder'
 -- }
@@ -15,17 +10,14 @@ local function caculate_format(height, width)
     return row, col
 end
 
+
 local function show_win(opts)
     type_check {
         opts = { opts, 'table' },
         win = { opts.win, 'table' },
+        border = { opts.border, 'string' },
         highlight = { opts.highlight, 'table', true },
     }
-
-    local bufnr = vim.api.nvim_create_buf(false, true)
-    for k, v in pairs(buf_opts) do
-        vim.api.nvim_buf_set_option(bufnr, k, v)
-    end
 
     local is_float = opts.style == 'float'
     local win_opts = {
@@ -33,7 +25,7 @@ local function show_win(opts)
         width = opts.width,
         height = opts.height,
         style = 'minimal',
-        border = 'rounded',
+        border = opts.border,
         title = 'Trans',
         title_pos = 'center',
         focusable = true,
@@ -45,7 +37,16 @@ local function show_win(opts)
         win_opts.row = 2
         win_opts.col = 2
     end
+
     local winid = vim.api.nvim_open_win(bufnr, is_float, win_opts)
+
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, opts.lines)
+
+    for line, l_hl in ipairs(opts.highlight) do
+        for i, hl in ipairs(l_hl) do
+            vim.api.nvim_buf_add_highlight(bufnr, line, hl.name, i, hl._start, hl._end)
+        end
+    end
 
     return bufnr, winid
 end

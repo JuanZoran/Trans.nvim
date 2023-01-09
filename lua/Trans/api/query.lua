@@ -11,14 +11,13 @@ local dict = db:open(path)
 
 -- INFO :Auto Close
 vim.api.nvim_create_autocmd('VimLeavePre', {
-    group = require("Trans.conf.base").autogroup,
+    group = require("Trans").augroup,
     callback = function()
         if db:isopen() then
             db:close()
         end
     end
 })
-
 
 local query_field = {
     'word',
