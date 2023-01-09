@@ -15,6 +15,27 @@ local function get_select()
 end
 
 
+local function get_word(method)
+    if not method then
+        local mode = vim.api.nvim_get_mode()
+        if mode == 'n' then
+            return vim.fn.expand('<cword>')
+        elseif mode == 'v' then
+            return get_select()
+        else
+            error('invalid mode')
+        end
+    end
+
+    if method == 'input' then
+        return vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
+
+    -- TODO : other method
+    else
+        error('invalid method')
+    end
+end
+
 M.get_query_res = function(method)
     type_check {
         method = { method, 'string' },
@@ -25,7 +46,6 @@ M.get_query_res = function(method)
     elseif method == 'select' then
         word = get_select():match('%S+')
     elseif method == 'input' then
-        word = vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
     else
         error('unknown method')
     end

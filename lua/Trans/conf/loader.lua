@@ -13,6 +13,7 @@ if def and usr then
 end
 ]]
 
+
 local plain_format = [[
 default_conf.%s = user_conf.%s or default_conf.%s
 ]]
@@ -36,21 +37,15 @@ local function pre_process()
     end
 end
 
-
-
 M.load_conf = function(conf)
-    if #M.loaded_conf == 0 then
-        user_conf = conf or {}
-        default_conf  = require("Trans.conf.default").conf
-        pre_process()
-        M.loaded_conf = vim.tbl_deep_extend('force', default_conf, user_conf)
-        user_conf = nil
-        default_conf = nil
-    else
-        vim.notify('Configuration has been loaded...')
-    end
+    user_conf    = conf or {}
+    default_conf = require("Trans.conf.default").conf
+    pre_process()
+    M.loaded_conf = vim.tbl_deep_extend('force', default_conf, user_conf)
+    user_conf = nil
+    default_conf = nil
 end
 
-M.loaded_conf = {}
+M.loaded_conf = nil
 
 return M

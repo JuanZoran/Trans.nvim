@@ -4,7 +4,7 @@ M.conf = {
     style = {
         ui = {
             input = 'float',
-            cursor = 'cursor',
+            normal = 'cursor',
             select = 'cursor'
         },
         window = {
@@ -114,5 +114,6 @@ M.replace_rules = {
     'order.*',
     'ui.highlight.*',
 }
+
 
 return M

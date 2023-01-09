@@ -5,18 +5,6 @@ if not _ then
 end
 local type_check = require("Trans.util.debug").type_check
 
-local query_field = {
-    'word',
-    'phonetic',
-    'definition',
-    'translation',
-    'pos',
-    'collins',
-    'oxford',
-    'tag',
-    'exchange',
-}
-
 -- INFO : init database
 local path = require("Trans.conf.loader").loaded_conf.base.db_path
 local dict = db:open(path)
@@ -31,6 +19,20 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
+
+local query_field = {
+    'word',
+    'phonetic',
+    'definition',
+    'translation',
+    'pos',
+    'collins',
+    'oxford',
+    'tag',
+    'exchange',
+}
+
+-- NOTE : local query
 M.query = function(arg)
     -- TODO : more opts
     type_check {
@@ -44,5 +46,6 @@ M.query = function(arg)
     })
     return res[1]
 end
+
 
 return M

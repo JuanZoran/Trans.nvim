@@ -79,14 +79,14 @@
 ```lua
 vim.keymap.set('n', 'mi', function ()
     require('Trans').translate({
-        method = 'input',
+        method = 'input', -- 不填则自动判断mode获取查询的单词
         engine = { -- 异步查询所有的引擎, 按照列表
             'local',
             'youdao',
             'baidu'
         },
-        -- view = 'cursor'
-        view = {
+        -- win = 'cursor'
+        win = {
             style = 'cursor',
             height = 50,
             width = 30,

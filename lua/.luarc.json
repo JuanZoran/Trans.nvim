@@ -3,5 +3,10 @@
     "Lua.diagnostics.disable": [
         "empty-block",
         "trailing-space"
+    ],
+    "Lua.diagnostics.globals": [
+        "vim",
+        "user_conf",
+        "default_conf"
     ]
 }
