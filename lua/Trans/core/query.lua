@@ -14,24 +14,24 @@ local function get_select()
     return word
 end
 
+
 M.get_query_res = function(method)
     type_check {
         method = { method, 'string' },
     }
-
-    -- NOTE : get query word
     local word = ''
     if method == 'cursor' then
         word = vim.fn.expand('<cword>')
     elseif method == 'select' then
-        word = get_select():match('%s+')
+        word = get_select():match('%S+')
     elseif method == 'input' then
         word = vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
     else
         error('unknown method')
     end
-    -- FIXME
+
     return query(word)
 end
+
 
 return M

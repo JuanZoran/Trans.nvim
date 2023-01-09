@@ -12,21 +12,33 @@ function M:new()
     return content
 end
 
---- NOTE :highlight 格式说明:
---- 1. 字符串
 
 
-function M:insert_items_to_line(items, opts)
+-- NOTE :
+-- local items = {
+--     -- style1: string 不需要单独设置高亮的情况
+--     'text', 
+--     -- style2: string[] 需要设置高亮，第二个名称为高亮组
+--     {'text2', 'highlight name'}, 
+-- }
+
+-- local opts = {
+--     -- 可选的参数
+--     highlight = 'highlight name' -- string 该行的高亮
+--     indent = 4 -- integer 该行的应该在开头的缩进
+--     interval = 4 -- integer 该行组件的间隔
+-- }
+function M:insert_items_to_line(items)
     type_check {
         items = { items, 'table' },
-        opts = { opts, 'table', true },
     }
+
     self.size = self.size + 1 -- line数加一
 
     local line = {
-        space = (' '):rep(opts.interval),
-        indent = opts.indent,
-        highlight = opts.highlight,
+        space = (' '):rep(items.interval),
+        indent = items.indent,
+        highlight = items.highlight,
     }
     local highlight = {}
 
@@ -45,7 +57,7 @@ function M:insert_items_to_line(items, opts)
     self.lines[self.size] = line
 end
 
----遍历lines和高亮的迭代器
+
 ---Usage:
 ---     local buffer_id
 ---     local lines, highlights = M:lines()

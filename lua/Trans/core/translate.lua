@@ -1,31 +1,19 @@
 local M          = {}
-local api        = vim.api
-local conf       = require("Trans").conf
-local display    = conf.display
-local icon       = conf.icon
-local order      = conf.order
-local auto_close = conf.auto_close
-local view       = conf.view
 
 
-local highlight = {
-    word     = 'TransWord',
-    phonetic = 'TransPhonetic',
-    ref      = 'TransRef',
-    tag      = 'TransTag',
-    exchange = 'TransExchange',
-    pos      = 'TransPos',
-    zh       = 'TransZh',
-    en       = 'TransEn',
+local opt = {
+    method = 'select',
+    view = 'cursor',
 }
 
-
-
-
-M.TransLate = function(opts)
+M.Translate = function(opts)
     local res = get_query_res(opts.method)
     -- TODO <++>
 end
+
+-- M.Translate_online = function ()
+--     -- TOOD
+-- end
 
 
 -- local win = 0

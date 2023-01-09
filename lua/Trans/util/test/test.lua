@@ -1,8 +1,5 @@
-local tmp = {
-    '1111',
-    '2222',
-    '3333',
-    interval = 4,
-}
+local a = nil
 
-print(table.concat(tmp, (' '):rep(tmp.interval)))
+
+
+print((' '):rep(a))

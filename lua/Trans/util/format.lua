@@ -10,9 +10,9 @@ end
 
 -- 各种风格的基础宽度
 local style_width = {
-    -- float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
-    -- cursor = require("Trans.conf.window").cursor.width,
-    cursor = 50
+    float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
+    cursor = require("Trans.conf.window").cursor.width,
+    -- cursor = 50
 }
 
 local s_to_b = true -- 从小到大排列
@@ -92,10 +92,10 @@ local function format_to_multilines(rows, cols)
         s_width = m_item_width[index]
         local stop = (j > rest and rows - 1 or rows)
         for i = 1, stop do
-            local idx   = s_to_b and stop - i + 1 or i -- 当前操作的行数
-            local item_idx  = index + i - 1            -- 当前操作的字段数
-            local space = (' '):rep(s_width - m_item_width[item_idx]) -- 对齐空格
-            local item = m_fields[item_idx] .. space
+            local idx      = s_to_b and stop - i + 1 or i -- 当前操作的行数
+            local item_idx = index + i - 1 -- 当前操作的字段数
+            local space    = (' '):rep(s_width - m_item_width[item_idx]) -- 对齐空格
+            local item     = m_fields[item_idx] .. space
 
             lines[idx][j] = item -- 插入图标
         end
@@ -120,16 +120,46 @@ local function formatted_lines()
     return lines
 end
 
+-- EXAMPLE : 接受的形式
+-- local content = {
+--     { word, 'TransWord' },
+--     { phonetic, 'TransPhonetic' },
+--     collins,
+--     oxford
+--     -- { phonetic, 'TransPhonetic' },
+--  NOTE :
+-- 可选的:
+-- 1. highlight 整个content的高亮
+-- 2. indent    缩进
+-- 2. space     各个组件的及间隔
+-- }
+
+
+-- EXAMPLE : 返回的形式
+local lines = {
+    { items, opts },
+    { items, opts },
+    { items, opts },
+    -- items: string[]
+    -- opts {
+    --     highlight
+    --     indent
+    -- }
+}
+
+local function format_stuff(stuff)
+
+end
+
+---@alias formatted_items table
 ---将组件格式化成相应的vim支持的lines格式
 ---@param style string 窗口的风格
----@param fields string[] 需要格式化的字段
----@param indent number 缩进的长度
----@return string[] lines 便于vim.api.nvim_buf_set_lines
-M.to_lines = function(style, fields, indent)
+---@param component table 需要格式化的字段
+---@return formatted_items[] lines
+M.format = function(style, component)
     type_check {
         style = { style, { 'string' } },
-        fields = { fields, { 'table' } },
-        indent = { indent, { 'number' }, true },
+        component = { component, { 'table' } },
     }
 
     local length = 0
@@ -150,6 +180,11 @@ M.to_lines = function(style, fields, indent)
 
     return formatted_lines()
 end
+
+
+
+
+
 
 ---合并多个数组, 第一个数组将会被使用
 ---@param ... string[] 需要被合并的数组

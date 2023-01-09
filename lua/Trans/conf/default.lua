@@ -96,6 +96,9 @@ M.conf = {
     -- map = {
     --     -- TODO
     -- },
+    -- history = {
+    --     -- TOOD 
+    -- }
 
     -- TODO  add online translate engine
     -- online_search = {

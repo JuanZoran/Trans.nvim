@@ -3,7 +3,6 @@ local M = {}
 local display = require("Trans.conf.loader").loaded.conf.ui.display
 local icon = require("Trans.conf.loader").loaded.conf.ui.icon
 
-local m_field = {}
 -- {
 --   collins = 3,
 --   definition = "n. an expression of greeting",
@@ -17,64 +16,53 @@ local m_field = {}
 -- }
 
 
-local content = {
-    lines = {
-        need_format = {
-            {}, -- line
-            {}, -- line
-            {}, -- line
-            {}, -- line
-        }
-    },
-    highlight = {
-        [2] = { -- 第几行第几个组件的高亮
-            [1] = 'highlightname',
-        },
-    }
-}
+-- local data = {
+--     { word, 'TransWord' },
+--     -- NOTE :如果平配置设置显示，并且数据库中存在则有以下字段
+--     { phonetic, 'TransPhonetic' },
+--     collins,
+--     oxford
+--     -- { phonetic, 'TransPhonetic' },
+-- }
 
-local function get_items()
-    local items = {
-        m_field.word,
+---@alias stuff
+---| 'data'       # 所有组件的信息
+---| 'highlight?' # 整个组件的高亮
+---| 'indent?'    # 每行整体的缩进
+---| 'interval?'  # 每个组件的间隔
+---@alias component stuff[]
+
+---从查询结果中获取字符串
+---@param field table 查询的结果
+---@return component component 提取的组件信息[包含多个组件]
+M.component = function(field)
+    local component = {}
+    local stuffs = {}
+    local data = {
+        {field.word, 'TransWord'},
     }
-    if display.phonetic then
-        table.insert(items, '[' .. m_field.phonetic .. ']')
+
+    if display.phonetic and field.phonetic then
+        table.insert(data, {
+            '[' .. field.phonetic .. ']', 'TransPhonetic'
+        })
     end
 
-    if display.collins_star then
-        table.insert(items, icon.star:rep(m_field.collins))
+    if display.collins and field.collins then
+        table.insert(data, {
+            icon.star:rep(field.collins)
+        })
     end
 
-    if display.oxford then
-        local item
-        if m_field.oxford and m_field.oxford == 1 then
-            item = icon.isOxford
-        else
-            item = icon.notOxford
-        end
-        table.insert(items, item)
+    if display.oxford and field.oxford then
+        table.insert(data, {
+            field.oxford
+        })
     end
 
-    return items
-end
-
-M.content = function(field)
-    -- TODO
-    m_field = field or {}
-    local content = {}
-
-
-    content.lines = {
-        need_format = {
-            get_items()
-        },
-        highlight = {
-            [1] = { -- 第一行
-                'Trans',
-            }
-        }
-    }
-    return content
+    stuffs.data = data
+    component[1] = stuffs
+    return component
 end
 
 return M
