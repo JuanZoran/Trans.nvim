@@ -38,6 +38,7 @@ function M:insert(items)
         indent = items.indent,
         highlight = items.highlight,
     }
+
     local highlight = {}
 
 

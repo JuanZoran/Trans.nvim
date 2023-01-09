@@ -1,25 +1,28 @@
 local type_check = require("Trans.util.debug").type_check
 
 
-local function format(items, interval)
 
+local function format(component, interval)
 end
 
 
 local function process (opts)
     type_check {
         opts = { opts, 'table' },
-        ['opts.field']  = { opts.field, 'table'  },
-        ['opts.order']  = { opts.order, 'table'  },
-        ['opts.win']    = { opts.win, 'table'    },
-        ['opts.engine'] = { opts.engine, 'table' },
+        ['opts.field']  = { opts.field  , 'table' },
+        ['opts.order']  = { opts.order  , 'table' },
+        ['opts.win']    = { opts.win    , 'table' },
+        ['opts.engine'] = { opts.engine , 'table' },
     }
 
     local content = require('Trans.component.content'):new()
 
     for _, v in ipairs(opts.order) do
-        local items = format(require("Trans.component." .. opts.engine .. '.' .. v), 4)
-        content:insert(items)
+        local component = require("Trans.component." .. opts.engine .. '.' .. v)
+        for _, items in ipairs(component) do
+            format(items)
+            content:insert(items)
+        end
     end
 
     local lines, __highlight = content:data()

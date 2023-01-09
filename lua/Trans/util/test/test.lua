@@ -1,8 +1,8 @@
-local a = 'test'
+local a = {
+    'test1',
+    'test2',
+    'test3'
+}
 
-
-local b = a
-
-b = b .. 'test'
 
 print(a, b)
