@@ -15,8 +15,8 @@ M.conf = {
             },
             float = {
                 border = 'rounded',
-                width = 0.8,
-                height = 0.9,
+                width = 0.9,
+                height = 0.8,
             },
             -- NOTE :如果你想限制某个组件的行数，可以设置 (名称与order相同)
             -- Example:
@@ -91,6 +91,7 @@ M.conf = {
         },
         engine = {
             -- TODO
+            'local',
         }
     },
     -- map = {

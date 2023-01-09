@@ -12,14 +12,12 @@ function M:new()
     return content
 end
 
-
-
 -- NOTE :
 -- local items = {
 --     -- style1: string 不需要单独设置高亮的情况
---     'text', 
+--     'text',
 --     -- style2: string[] 需要设置高亮，第二个名称为高亮组
---     {'text2', 'highlight name'}, 
+--     {'text2', 'highlight name'},
 -- }
 
 -- local opts = {
@@ -28,7 +26,7 @@ end
 --     indent = 4 -- integer 该行的应该在开头的缩进
 --     interval = 4 -- integer 该行组件的间隔
 -- }
-function M:insert_items_to_line(items)
+function M:insert(items)
     type_check {
         items = { items, 'table' },
     }
@@ -56,7 +54,6 @@ function M:insert_items_to_line(items)
     self.highlight[self.size] = highlight
     self.lines[self.size] = line
 end
-
 
 ---Usage:
 ---     local buffer_id
@@ -93,7 +90,8 @@ function M:lines()
             for i = 2, #l do
                 line = line .. l.space .. l[i]
                 if hl[i] then
-                    table.insert(highlight, { name = hl[i], _start = #line - #l[i], _end = #line })
+                    local _end = #line
+                    table.insert(highlight, { name = hl[i], _start = _end - #l[i], _end = _end })
                 end
             end
         end

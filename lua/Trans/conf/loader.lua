@@ -40,8 +40,22 @@ end
 M.load_conf = function(conf)
     user_conf    = conf or {}
     default_conf = require("Trans.conf.default").conf
+    if user_conf.style and user_conf.window then
+    end
+
     pre_process()
     M.loaded_conf = vim.tbl_deep_extend('force', default_conf, user_conf)
+    local width = M.loaded_conf.style.window.cursor.float.width
+    local height = M.loaded_conf.style.window.cursor.float.height
+
+    if width > 0 and width <= 1 then
+        M.loaded_conf.style.window.cursor.float.width = math.floor(width * vim.o.columns)
+    end
+
+    if height > 0 and height <= 1 then
+        M.loaded_conf.style.window.cursor.float.height = math.floor(height * (vim.o.lines - vim.o.cmdheight))
+    end
+
     user_conf = nil
     default_conf = nil
 end

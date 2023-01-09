@@ -1,4 +1,3 @@
----@diagnostic disable: undefined-global
 local M = {}
 local type_check = require("Trans.util.debug").type_check
 
@@ -8,12 +7,6 @@ function string:width()
     return vim.fn.strdisplaywidth(self)
 end
 
--- 各种风格的基础宽度
-local style_width = {
-    float = require("Trans.conf.window").float.width, -- NOTE : need window parsed conf
-    cursor = require("Trans.conf.window").cursor.width,
-    -- cursor = 50
-}
 
 local s_to_b = true -- 从小到大排列
 
@@ -136,20 +129,17 @@ end
 
 
 -- EXAMPLE : 返回的形式
-local lines = {
-    { items, opts },
-    { items, opts },
-    { items, opts },
-    -- items: string[]
-    -- opts {
-    --     highlight
-    --     indent
-    -- }
-}
+-- local lines = {
+--     { items, opts },
+--     { items, opts },
+--     { items, opts },
+--     -- items: string[]
+--     -- opts {
+--     --     highlight
+--     --     indent
+--     -- }
+-- }
 
-local function format_stuff(stuff)
-
-end
 
 ---@alias formatted_items table
 ---将组件格式化成相应的vim支持的lines格式
@@ -180,8 +170,6 @@ M.format = function(style, component)
 
     return formatted_lines()
 end
-
-
 
 
 

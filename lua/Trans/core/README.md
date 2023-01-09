@@ -53,7 +53,7 @@
     - `history`
 
 - 查询引擎(engine): `string | table`
-    - `local` 本地的数据库
+    - `offline` 离线的数据库
     - `youcao` 有道api
     - `baidu` 百度api
     - `google` 谷歌api
@@ -81,7 +81,7 @@ vim.keymap.set('n', 'mi', function ()
     require('Trans').translate({
         method = 'input', -- 不填则自动判断mode获取查询的单词
         engine = { -- 异步查询所有的引擎, 按照列表
-            'local',
+            'offline',
             'youdao',
             'baidu'
         },
