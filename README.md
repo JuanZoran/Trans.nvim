@@ -30,7 +30,7 @@
 - 支持 `normal`和 `visual`模式
 > 不支持 visual-block mode
   
-- 词库单词量: `43w`
+- 本地词库单词量: `430w`
   
 ## 屏幕截图
 ![ScreenShot](./screenshot.gif)
