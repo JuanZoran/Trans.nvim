@@ -4,14 +4,13 @@ local core = require("Trans.core")
 
 
 local function get_opts(opts)
+
+    local mode = vim.api.nvim_get_mode().mode
     local default_conf = {
-        method = vim.api.nvim_get_mode().mode,
-        engine = {
-            'offline',
-            -- TODO : other engine
-        },
+        method = mode,
+        engine = conf.base.engine,
         win = {
-            style = 'cursor',
+            style = conf.style.ui[opts.method or mode],
             width = conf.style.window.cursor.width,
             height = conf.style.window.cursor.height
         },
@@ -35,7 +34,6 @@ local function get_opts(opts)
 
     return vim.tbl_extend('force', default_conf, opts)
 end
-
 
 -- EXAMPLE :
 -- require('Trans').translate({
@@ -84,7 +82,6 @@ local function create_win(win)
     local winid = vim.api.nvim_open_win(bufnr, is_float, win_opts)
     return bufnr, winid
 end
-
 
 local function translate(opts)
     vim.validate {

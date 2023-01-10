@@ -4,13 +4,13 @@ M.conf = {
     style = {
         ui = {
             input = 'float',
-            normal = 'cursor',
-            select = 'cursor'
+            n = 'cursor',
+            v = 'cursor',
         },
         window = {
             cursor = {
                 border = 'rounded',
-                width = 50,
+                width = 40,
                 height = 50,
             },
             float = {
@@ -18,14 +18,9 @@ M.conf = {
                 width = 0.9,
                 height = 0.8,
             },
-            -- NOTE :如果你想限制某个组件的行数，可以设置 (名称与order相同)
-            -- Example:
-            -- limit = {
-            --     En = 1, -- 只显示第一行，（一般为最广泛的释义）
-            -- },
-            limit = nil,
         },
     },
+
     order = {
         offline = {
             'Title',
@@ -33,6 +28,7 @@ M.conf = {
             'Pos',
             'Exchange',
             'Translation',
+            -- NOTE :如果你想限制某个组件的行数，可以设置max_size
             -- { 'Definition', max_size = 4 },
         },
         -- online = {
