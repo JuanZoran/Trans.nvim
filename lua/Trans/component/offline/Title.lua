@@ -37,15 +37,15 @@ local icon = require("Trans.conf.loader").loaded_conf.ui.icon
 ---@return component component 提取的组件信息[包含多个组件]
 M.component = function(field)
     local component = {}
-    local stuffs = {}
     local data = {
-        {field.word, 'TransWord'},
+        { field.word, 'TransWord' },
     }
 
-    if display.phonetic and field.phonetic then
-        table.insert(data, {
-            '[' .. field.phonetic .. ']', 'TransPhonetic'
-        })
+    if display.phnoetic and field.phonetic ~= '' then
+        table.insert(
+            data,
+            { '[' .. field.phonetic .. ']', 'TransPhonetic' }
+        )
     end
 
     if display.collins and field.collins then
@@ -55,13 +55,12 @@ M.component = function(field)
     end
 
     if display.oxford and field.oxford then
-        table.insert(data, {
-            field.oxford
-        })
+        table.insert(data,
+            { field.oxford == 1 and icon.isOxford or icon.notOxford, }
+        )
     end
 
-    stuffs.data = data
-    component[1] = stuffs
+    component[1] = data
     return component
 end
 

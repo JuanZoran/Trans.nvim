@@ -7,7 +7,7 @@ local function get_opts(opts)
     local default_conf = {
         method = vim.api.nvim_get_mode().mode,
         engine = {
-            'local',
+            'offline',
             -- TODO : other engine
         },
         win = {
@@ -52,18 +52,16 @@ end
 -- })
 
 
-local function create_win(opts)
+local function create_win(win)
     local bufnr = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_option(bufnr, 'filetype', 'Trans')
-    vim.api.nvim_buf_set_option(bufnr, 'modifiable', false)
 
-    local is_float = opts.style == 'float'
+    local is_float = win.style == 'float'
     local win_opts = {
         relative = is_float and 'editor' or 'cursor',
-        width = opts.width,
-        height = opts.height,
+        width = win.width,
+        height = win.height,
         style = 'minimal',
-        border = conf.style.window[opts.win.style].border,
+        border = conf.style.window[win.style].border,
         title = 'Trans',
         title_pos = 'center',
         focusable = true,
@@ -98,10 +96,10 @@ local function translate(opts)
     local proc_opts = {
         bufnr = bufnr,
         winid = winid,
+        win = opts.win,
         field = field,
         order = conf.order['offline'],
         engine = { 'offline' },
-        win_opts = opts.win,
     }
 
     core.process(proc_opts)

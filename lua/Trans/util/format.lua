@@ -7,7 +7,6 @@ function string:width()
     return vim.fn.strdisplaywidth(self)
 end
 
-
 local s_to_b = true -- 从小到大排列
 
 local m_win_width -- 需要被格式化窗口的高度

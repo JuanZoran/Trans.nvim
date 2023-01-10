@@ -43,16 +43,21 @@ end
 -- curl --data {{'{"name":"bob"}'}} --header {{'Content-Type: application/json'}} {{http://example.com/users/1234}}
 
 local function query_word(q)
-    local field = (
-        [[curl -s --header 'Content-Type: application/x-www-form-urlencoded' https://openapi.youdao.com/api]])
-    for k, v in pairs(q) do
-        field = field .. ([[ -d '%s=%s']]):format(k, v)
+    local ok, curl = pcall(require, 'plenary.curl')
+    if ok then
+        -- TODO 
+    else
+        local field = (
+            [[curl -s --header 'Content-Type: application/x-www-form-urlencoded' https://openapi.youdao.com/api]])
+
+        for k, v in pairs(q) do
+            field = field .. ([[ -d '%s=%s']]):format(k, v)
+        end
+
+        local output = vim.fn.system(field)
+        local tb = vim.fn.json_decode(output)
+        return tb
     end
-    -- vim.pretty_print(field)
-    local output = vim.fn.system(field)
-    local tb = vim.fn.json_decode(output)
-    -- print(type(output))
-    -- vim.pretty_print(tb.basic)
 end
 
 M.test = function(query)

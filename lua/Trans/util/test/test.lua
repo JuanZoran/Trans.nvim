@@ -5,4 +5,14 @@ local a = {
 }
 
 
-print(a, b)
+local function test(tmp)
+    tmp = {
+        'bbbbbb'
+    }
+end
+
+
+test(a)
+for i, v in ipairs(a) do
+    print(v)
+end

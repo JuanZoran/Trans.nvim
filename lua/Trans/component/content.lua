@@ -69,6 +69,7 @@ function M:data()
     -- NOTE 返回格式化的行，如果需要高亮，则第二个参数返回高亮
     local lines = {}
     local highlights = {}
+
     for index = 1, #self.lines do
         local line = ''
         local highlight = {}

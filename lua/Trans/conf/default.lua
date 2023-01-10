@@ -75,7 +75,7 @@ M.conf = {
         },
         display = {
             phnoetic = true,
-            collins_star = true,
+            collins = true,
             oxford = true,
             -- TODO
             -- history = false,
