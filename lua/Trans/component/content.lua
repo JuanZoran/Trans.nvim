@@ -3,7 +3,9 @@ local type_check = require("Trans.util.debug").type_check
 M.__index = M
 M.lines = {}
 M.highlight = {}
-M.size = 0
+M.height = 0
+M.width = 0
+M.interval = '    '
 
 
 function M:new()
@@ -31,10 +33,9 @@ function M:insert(items)
         items = { items, 'table' },
     }
 
-    self.size = self.size + 1 -- line数加一
+    self.height = self.height + 1 -- line数加一
 
     local line = {
-        space = (' '):rep(items.interval),
         indent = items.indent,
         highlight = items.highlight,
     }
@@ -52,8 +53,8 @@ function M:insert(items)
         end
     end
 
-    self.highlight[self.size] = highlight
-    self.lines[self.size] = line
+    self.highlight[self.height] = highlight
+    self.lines[self.height] = line
 end
 
 ---Usage:
@@ -78,9 +79,11 @@ function M:data()
         if l.indent then
             line = (' '):rep(l.indent)
         end
+
         if l.highlight then
-            line = line .. table.concat(l, l.space)
+            line = line .. table.concat(l, self.interval)
             highlight[1] = { name = l.highlight, _start = 1, _end = -1 }
+
         else
             line = line .. l[1]
 
@@ -90,7 +93,7 @@ function M:data()
             end
 
             for i = 2, #l do
-                line = line .. l.space .. l[i]
+                line = line .. self.interval .. l[i]
                 if hl[i] then
                     local _end = #line
                     table.insert(highlight, { name = hl[i], _start = _end - #l[i], _end = _end })
@@ -98,11 +101,37 @@ function M:data()
             end
         end
 
-        -- return line, highlights
         lines[index] = line
+        local len = #line
+        if self.width < len then
+            self.width = len
+        end
         highlights[index] = highlight
     end
     return lines, highlights
+end
+
+function M:attach(bufnr, winid)
+    local height = vim.api.nvim_win_get_height(winid)
+    local width = vim.api.nvim_win_get_width(winid)
+
+    vim.api.nvim_win_set_height(winid, self.height)
+    local lines, hls = self:data()
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+
+    for line, l_hl in ipairs(hls) do
+        for _, hl in ipairs(l_hl) do
+            vim.api.nvim_buf_add_highlight(bufnr, -1, hl.name, line - 1, hl._start, hl._end)
+        end
+    end
+
+    if self.height < height then
+        vim.api.nvim_win_set_height(winid, self.height)
+    end
+
+    if self.width < width then
+        vim.api.nvim_win_set_width(winid, self.width)
+    end
 end
 
 return M

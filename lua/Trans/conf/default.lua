@@ -10,8 +10,8 @@ M.conf = {
         window = {
             cursor = {
                 border = 'rounded',
-                width = 30,
-                height = 30,
+                width = 40,
+                height = 20,
             },
             float = {
                 border = 'rounded',
@@ -29,11 +29,11 @@ M.conf = {
     order = {
         offline = {
             'Title',
-            -- 'Tag',
-            -- 'Pos',
-            -- 'Exchange',
-            -- 'Translation',
-            -- 'Definition',
+            'Tag',
+            'Pos',
+            'Exchange',
+            'Translation',
+            'Definition',
         },
         -- online = {
         --     -- TODO 
@@ -67,6 +67,13 @@ M.conf = {
             TransDefinition = {
                 fg = '#bc8cff',
             },
+            TransCursorWin = {
+                link = 'Normal',
+            },
+
+            TransCursorBorder = {
+                link = 'FloatBorder',
+            }
         },
         icon = {
             star = '⭐',

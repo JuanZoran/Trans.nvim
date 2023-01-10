@@ -21,6 +21,7 @@ local function get_opts(opts)
         opts.engine = { opts.engine }
     end
 
+
     if opts.win then
         local width, height = opts.win.width, opts.win.height
         if width and width > 0 and width <= 1 then
@@ -34,6 +35,7 @@ local function get_opts(opts)
 
     return vim.tbl_extend('force', default_conf, opts)
 end
+
 
 -- EXAMPLE :
 -- require('Trans').translate({
@@ -50,6 +52,7 @@ end
 --         width = 30,
 --     }
 -- })
+
 
 
 local function create_win(win)
@@ -80,6 +83,7 @@ local function create_win(win)
 
     return bufnr, winid
 end
+
 
 local function translate(opts)
     vim.validate {

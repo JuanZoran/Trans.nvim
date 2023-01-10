@@ -2,14 +2,17 @@ local type_check = require("Trans.util.debug").type_check
 local query = require("Trans.api").query
 
 local function get_select()
-    local s_start = vim.fn.getpos("'<")
-    local s_end = vim.fn.getpos("'>")
-    if s_start[2] ~= s_start[2] then
-        error('TODO: multiline translate')
+    local s_start = vim.fn.getpos("v")
+    local s_end = vim.fn.getpos(".")
+    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+    lines[1] = string.sub(lines[1], s_start[3], -1)
+    if n_lines == 1 then
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
+    else
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
     end
-    local lin = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)[1]
-    local word = string.sub(lin, s_start[3], s_end[3])
-    return word
+    return table.concat(lines, '\n')
 end
 
 local query_wrapper = function(opts)
@@ -21,15 +24,15 @@ local query_wrapper = function(opts)
     local word = ''
 
     if opts.method == 'input' then
+        ---@diagnostic disable-next-line: param-type-mismatch
         word = vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
 
     elseif opts.method == 'n' then
         word = vim.fn.expand('<cword>')
 
-    elseif opts.mehotd == 'v' then
+    elseif opts.method == 'v' then
         word = get_select()
         -- TODO : other method
-
     else
         error('invalid method' .. opts.method)
     end

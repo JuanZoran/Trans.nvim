@@ -1,6 +1,6 @@
 local M = {}
 
-M.to_content = function (field)
+M.component = function (field)
     -- TODO 
 end
 

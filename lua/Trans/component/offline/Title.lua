@@ -25,13 +25,13 @@ local icon = require("Trans.conf.loader").loaded_conf.ui.icon
 --     -- { phonetic, 'TransPhonetic' },
 -- }
 
----@alias stuff
----| 'data'       # 所有组件的信息
+
+---@alias items
+---| 'string[]'       # 所有组件的信息
+---| 'needformat?'# 是否需要格式化
 ---| 'highlight?' # 整个组件的高亮
 ---| 'indent?'    # 每行整体的缩进
----| 'interval?'  # 每个组件的间隔
----@alias component stuff[]
-
+---@alias component items[]
 ---从查询结果中获取字符串
 ---@param field table 查询的结果
 ---@return component component 提取的组件信息[包含多个组件]
@@ -41,7 +41,7 @@ M.component = function(field)
         { field.word, 'TransWord' },
     }
 
-    if display.phnoetic and field.phonetic ~= '' then
+    if display.phnoetic and field.phonetic and field.phonetic ~= '' then
         table.insert(
             data,
             { '[' .. field.phonetic .. ']', 'TransPhonetic' }

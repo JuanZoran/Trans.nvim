@@ -69,7 +69,7 @@
         - `vsplit` 在左边或者右边分屏
 
     - 高度(height):
-        - `value > 1` 实际高度
+        - `value > 1` 最大高度
         - `0 <= value <= 1` 相对高度
         - `0 < value` 无限制
 
