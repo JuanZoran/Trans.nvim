@@ -1,4 +1,4 @@
-local type_check = require("Trans.util.debug").type_check
+local type_check = vim.validate
 local query = require("Trans.api").query
 
 local function get_select()

@@ -5,14 +5,14 @@ end
 vim.api.nvim_create_user_command('Translate', function ()
     require("Trans").translate()
 end, {
-    desc = '翻译单词',
+    desc = '  单词翻译',
 })
 
 vim.api.nvim_create_user_command('TranslateInput', function ()
     require("Trans").translate {
         method = 'input',
     }
-end, {desc = '翻译单词'})
+end, {desc = '  搜索翻译'})
 
 -- TODO 
 -- vim.api.nvim_create_user_command('TranslateHistory', require("Trans.core").query_input, {

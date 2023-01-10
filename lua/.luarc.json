@@ -8,5 +8,6 @@
         "vim",
         "user_conf",
         "default_conf"
-    ]
+    ],
+    "Lua.workspace.checkThirdParty": false
 }

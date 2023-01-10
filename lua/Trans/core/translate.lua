@@ -59,6 +59,7 @@ local function create_win(win)
     local bufnr = vim.api.nvim_create_buf(false, true)
 
     local is_float = win.style == 'float'
+
     local win_opts = {
         relative = is_float and 'editor' or 'cursor',
         width = win.width,
@@ -79,8 +80,8 @@ local function create_win(win)
         win_opts.col = 2
     end
 
-    local winid = vim.api.nvim_open_win(bufnr, is_float, win_opts)
 
+    local winid = vim.api.nvim_open_win(bufnr, is_float, win_opts)
     return bufnr, winid
 end
 

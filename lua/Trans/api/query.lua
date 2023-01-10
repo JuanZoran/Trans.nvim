@@ -3,7 +3,7 @@ local _, db = pcall(require, 'sqlite.db')
 if not _ then
     error('Please check out sqlite.lua')
 end
-local type_check = require("Trans.util.debug").type_check
+local type_check = vim.validate
 
 -- INFO : init database
 local path = require("Trans.conf.loader").loaded_conf.base.db_path

@@ -1,4 +1,4 @@
-local type_check = require("Trans.util.debug").type_check
+local type_check = vim.validate
 
 -- NOTE :中文字符及占两个字节宽，但是在lua里是3个字节长度
 -- 为了解决中文字符在lua的长度和neovim显示不一致的问题
@@ -8,11 +8,15 @@ local function format(win_width, items)
     local size = #items
     local tot_width = 0
 
+    if items.indent then
+        win_width = win_width - items.indent
+    end
+
     for i = 1, size do
         if type(items[i]) == 'string' then
             items[i] = { items[i] }
         end
-        tot_width = tot_width + get_width(items[i][1]) + 4
+        tot_width = tot_width + #items[i][1] + 4
     end
 
 
@@ -23,22 +27,38 @@ local function format(win_width, items)
 
         -- 行内字符串按照宽度排序
         table.sort(items, function(a, b)
-            return get_width(a[1]) > get_width(b[1])
+            return #a[1] > #b[1]
         end)
 
         local cols = 1
-        win_width = win_width - get_width(items[1][1])
+        win_width = win_width - #items[1][1]
+
         while win_width > 0 and cols < size do
             cols = cols + 1
-            win_width = win_width - get_width(items[cols][1]) + 4
+            win_width = win_width - #items[cols][1] + 4
         end
-        cols = cols - 1
+        if cols > 1 then
+            cols = cols - 1
+        end
+
+        if cols == 1 then -- 只能放在一行时就对齐了
+            for i = size, 1, -1 do
+                lines[i] = {
+                    items[i][1],
+                    highlight = items.highlight,
+                    indent = items.indent,
+                }
+            end
+            return lines, true
+        end
+
 
         local rows = math.ceil(size / cols)
         local rest = size % cols
         if rest == 0 then
             rest = cols
         end
+
         local max_width = get_width(items[1][1])
         local index = 1 -- 当前操作的字符串下标
         for i = rows, 1, -1 do -- 当前操作的行号
@@ -48,6 +68,10 @@ local function format(win_width, items)
             }
 
             local item = items[index]
+            -- if not item then
+            --     error('item nil ' .. tostring(index) .. '   rows:' .. tostring(rows) .. vim.inspect(items) )
+            -- end
+
             item[1] = item[1] .. (' '):rep(max_width - get_width(item[1]))
             lines[i][1] = items[index]
             index = index + 1
@@ -69,9 +93,8 @@ local function format(win_width, items)
         end
 
         return lines, true
-    else
-        return items
     end
+    return items
 end
 
 local function process(opts)
@@ -88,11 +111,16 @@ local function process(opts)
         vim.api.nvim_buf_set_lines(opts.bufnr, 0, -1, false, lines)
         vim.api.nvim_win_set_height(opts.winid, 1)
         vim.api.nvim_win_set_width(opts.winid, get_width(lines[1]))
-
     else
-        local content = require('Trans.component.content'):new()
+        local content = require('Trans.component.content'):new(opts)
         for _, v in ipairs(opts.order) do
-            local component = require("Trans.component." .. 'offline' --[[ opts.engine ]] .. '.' .. v).component(opts.field)
+            local component
+            if type(v) == 'table' then
+                component = require("Trans.component." .. 'offline' --[[ opts.engine ]] .. '.' .. v[1]).component(opts.field
+                    , v.max_size)
+            else
+                component = require("Trans.component." .. 'offline' --[[ opts.engine ]] .. '.' .. v).component(opts.field)
+            end
             if component then
                 for _, items in ipairs(component) do
 
@@ -105,23 +133,25 @@ local function process(opts)
                         else
                             content:insert(formatted_items)
                         end
-
                     else
                         content:insert(items)
                     end
 
+                    if items.emptyline then
+                        content:insert({ '' })
+                    end
                 end
             end
 
         end
 
-        content:attach(opts.bufnr, opts.winid)
-
+        content:attach()
     end
 
     vim.api.nvim_buf_set_option(opts.bufnr, 'modifiable', false)
     vim.api.nvim_buf_set_option(opts.bufnr, 'filetype', 'Trans')
 
+    vim.api.nvim_win_set_option(opts.winid, 'wrap', true)
     vim.api.nvim_win_set_option(opts.winid, 'winhl', 'Normal:TransCursorWin,FloatBorder:TransCursorBorder')
     if opts.win.style == 'cursor' then
         vim.api.nvim_create_autocmd(

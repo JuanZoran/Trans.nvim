@@ -1,14 +1,20 @@
 local M = {}
-local type_check = require("Trans.util.debug").type_check
+local type_check = vim.validate
 M.__index = M
 M.lines = {}
 M.highlight = {}
 M.height = 0
 M.width = 0
 M.interval = '    '
+M.opts = {}
 
 
-function M:new()
+
+function M:new(opts)
+    if opts then
+        self.opts = opts
+    end
+
     local content = {}
     setmetatable(content, self)
     return content
@@ -111,26 +117,26 @@ function M:data()
     return lines, highlights
 end
 
-function M:attach(bufnr, winid)
-    local height = vim.api.nvim_win_get_height(winid)
-    local width = vim.api.nvim_win_get_width(winid)
 
-    vim.api.nvim_win_set_height(winid, self.height)
+function M:attach()
+    local height = self.opts.win.height
+    local width = self.opts.win.width
+
     local lines, hls = self:data()
-    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+    vim.api.nvim_buf_set_lines(self.opts.bufnr, 0, -1, false, lines)
 
     for line, l_hl in ipairs(hls) do
         for _, hl in ipairs(l_hl) do
-            vim.api.nvim_buf_add_highlight(bufnr, -1, hl.name, line - 1, hl._start, hl._end)
+            vim.api.nvim_buf_add_highlight(self.opts.bufnr, -1, hl.name, line - 1, hl._start, hl._end)
         end
     end
 
     if self.height < height then
-        vim.api.nvim_win_set_height(winid, self.height)
+        vim.api.nvim_win_set_height(self.opts.winid, self.height)
     end
 
     if self.width < width then
-        vim.api.nvim_win_set_width(winid, self.width)
+        vim.api.nvim_win_set_width(self.opts.winid, self.width)
     end
 end
 

@@ -10,8 +10,8 @@ M.conf = {
         window = {
             cursor = {
                 border = 'rounded',
-                width = 40,
-                height = 20,
+                width = 50,
+                height = 50,
             },
             float = {
                 border = 'rounded',
@@ -33,10 +33,10 @@ M.conf = {
             'Pos',
             'Exchange',
             'Translation',
-            'Definition',
+            -- { 'Definition', max_size = 4 },
         },
         -- online = {
-        --     -- TODO 
+        --     -- TODO
         -- },
     },
     ui = {
@@ -46,7 +46,7 @@ M.conf = {
                 bold = true,
             },
             TransPhonetic = {
-                fg = '#8b949e',
+                link = 'Linenr'
             },
             TransRef = {
                 fg = '#75beff',
@@ -65,7 +65,8 @@ M.conf = {
                 link = 'TransWord',
             },
             TransDefinition = {
-                fg = '#bc8cff',
+                -- fg = '#bc8cff',
+                link = 'Moremsg',
             },
             TransCursorWin = {
                 link = 'Normal',
@@ -93,14 +94,14 @@ M.conf = {
         auto_close = true,
         engine = {
             -- TODO
-            'local',
+            'offline',
         }
     },
     -- map = {
     --     -- TODO
     -- },
     -- history = {
-    --     -- TOOD 
+    --     -- TOOD
     -- }
 
     -- TODO  add online translate engine

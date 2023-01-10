@@ -25,17 +25,16 @@ M.component = function(field)
             needformat = true,
             highlight = 'TransTag',
             indent = 4,
+            emptyline = true,
         }
 
         for _tag in vim.gsplit(field.tag, ' ', true) do
-            if _tag ~= '' then
-                local tag = tag_map[_tag]
+            local tag = tag_map[_tag]
 
-                if tag then
-                    table.insert(tags, tag)
-                else
-                    error('add tag_map for [' .. _tag .. ']')
-                end
+            if tag then
+                table.insert(tags, tag)
+            else
+                error('add tag_map for [' .. _tag .. ']')
             end
         end
 
