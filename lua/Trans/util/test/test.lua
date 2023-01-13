@@ -1,18 +1,12 @@
-local a = {
-    'test1',
-    'test2',
-    'test3'
-}
+-- 记录开始时间
+local starttime = os.clock(); --> os.clock()用法
 
-
-local function test(tmp)
-    tmp = {
-        'bbbbbb'
-    }
+for i = 1, 10, 2 do
+    print(i)
 end
 
 
-test(a)
-for i, v in ipairs(a) do
-    print(v)
-end
+-- 记录结束时间
+local endtime = os.clock(); --> os.clock()用法
+print(string.format("end time   : %.4f", endtime));
+print(string.format("cost time  : %.4f", endtime - starttime));
