@@ -42,7 +42,7 @@ function M.init(view)
         opts.col = 2
     end
 
-    M.id = api.nvim_open_win(M.bufnr, M.float, opts)
+    M.id = api.nvim_open_win(M.bufnr, is_float, opts)
 end
 
 M.draw = function(content)
@@ -57,22 +57,15 @@ M.draw = function(content)
         end
     end
     M.load_opts()
-    if content.len == 1 then
-        api.nvim_win_set_width(M.id, content.get_width(content.lines[1]))
-    end
 end
 
 
 M.load_opts = function()
     api.nvim_buf_set_option(M.bufnr, 'modifiable', false)
     api.nvim_buf_set_option(M.bufnr, 'filetype', 'Trans')
-    api.nvim_win_set_option(M.id, 'winhl', ('Normal:Trans%sWin,FloatBorder:Trans%sBorder'):format(M.view, M.view))
-    local height = util.get_height(M.bufnr, M.id)
+    api.nvim_win_set_option(M.id, 'winhl', 'Normal:TransWin,FloatBorder:TransBorder')
     M['load_' .. M.view .. '_opts']()
 
-    if M.height > height then
-        api.nvim_win_set_height(M.id, height)
-    end
 end
 
 
@@ -94,7 +87,12 @@ M.load_hover_opts = function()
             end
         end,
     })
-    api.nvim_win_set_option(M.id, 'wrap', not M.float)
+    api.nvim_win_set_option(M.id, 'wrap', M.view ~= 'float')
+
+    local height = util.get_height(M.bufnr, M.id)
+    if M.height > height then
+        api.nvim_win_set_height(M.id, height)
+    end
 end
 
 M.load_float_opts = function()

@@ -145,4 +145,53 @@ M.hover = {
     end,
 }
 
+M.process = function(view, result)
+    local conf = require('Trans').conf
+    local content = require('Trans.core.content'):new(conf.window[view].width)
+    if result then
+        if view == 'hover' then
+            vim.tbl_map(function(handle)
+                M.hover[handle](result, content)
+            end, conf.order)
+
+        elseif view == 'float' then
+            -- TODO :
+
+        else
+            error('unknown view ' .. view)
+        end
+    else
+        M[view].failed(content)
+    end
+    return content
+end
+
+
+
+--- TODO :Content Handler for float view
+M.float = {
+    title = function(result, content)
+
+    end,
+    tag = function(result, content)
+
+    end,
+    pos = function(result, content)
+
+    end,
+    exchange = function(result, content)
+
+    end,
+    translation = function(result, content)
+
+    end,
+    definition = function(result, content)
+
+    end,
+    faild = function(result, content)
+
+    end,
+}
+
+
 return M

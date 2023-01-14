@@ -1,8 +1,8 @@
 local M = {}
 M.__index = M
 
-
 M.get_width = vim.fn.strwidth
+
 
 ---@alias block table add_hl(key, hl_name)
 ---返回分配的块状区域, e_col 设置为-1则为末尾

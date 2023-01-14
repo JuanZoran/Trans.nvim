@@ -48,10 +48,10 @@ local highlights = {
     TransDefinition = {
         link = 'Moremsg',
     },
-    TransHoverWin = {
+    TransWin = {
         link = 'Normal',
     },
-    TransHoverBorder = {
+    TransBorder = {
         link = 'FloatBorder',
     },
     TransCollins = {
