@@ -47,7 +47,7 @@ local exchange_map = {
     ['0'] = '原型        ',
     ['1'] = '类别        ',
     ['3'] = '第三人称单数',
-    -- ['f'] = '第三人称单数',
+    ['f'] = '第三人称单数',
 }
 
 local function exist(res)
