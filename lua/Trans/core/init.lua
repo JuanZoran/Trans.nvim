@@ -8,6 +8,10 @@ local handler = require('Trans.core.handler')
 local function get_select()
     local s_start = vim.fn.getpos("v")
     local s_end = vim.fn.getpos(".")
+    if s_start[2] > s_end[2] or s_start[3] > s_end[3] then
+        s_start, s_end = s_end, s_start
+    end
+
     local n_lines = math.abs(s_end[2] - s_start[2]) + 1
     local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
     lines[1] = string.sub(lines[1], s_start[3], -1)
@@ -34,6 +38,7 @@ local function get_word(method)
         error('unknown method' .. method)
     end
 end
+
 
 M.translate = function(method, view)
     method = method or vim.api.nvim_get_mode().mode

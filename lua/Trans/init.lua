@@ -34,7 +34,7 @@ M.conf = {
         -- },
     },
     icon = {
-        title = ' ',
+        title = ' ', -- 
         star = '',
         -- notfound = '',
         -- yes = '',

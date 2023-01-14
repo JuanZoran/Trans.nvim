@@ -102,6 +102,11 @@ M.load_float_opts = function()
         end
     end, { buffer = M.bufnr, silent = true })
 
+    vim.keymap.set('n', '<Esc>', function()
+        if api.nvim_win_is_valid(M.id) then
+            api.nvim_win_close(M.id, true)
+        end
+    end, { buffer = M.bufnr, silent = true })
 end
 
 
