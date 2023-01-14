@@ -55,11 +55,10 @@ local function exist(res)
 end
 
 local function expl(c, text)
-    local t = c:alloc_text()
-    t.add_text('', 'TransTitleRound')
-    t.add_text(text, 'TransTitle')
-    t.add_text('', 'TransTitleRound')
-    t.load()
+    local wrapper = c:text_wrapper()
+    wrapper('', 'TransTitleRound')
+    wrapper(text, 'TransTitle')
+    wrapper('', 'TransTitleRound')
 end
 
 local indent = '    '
@@ -134,14 +133,16 @@ M.hover = {
             expl(content, '英文注释')
 
             vim.tbl_map(function(def)
-                content:addline(def, 'TransDefinition')
+                def = def:gsub('%s+', '', 1)
+                content:addline(indent .. def, 'TransDefinition')
             end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
 
             content:addline('')
         end
     end,
+
     failed = function(content)
-        content:addline(icon.notfound .. indent .. '没有找到相关的翻译')
+        content:addline(icon.notfound .. indent .. '没有找到相关的翻译', 'TransNotFound')
     end,
 }
 

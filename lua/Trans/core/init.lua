@@ -26,7 +26,7 @@ M.translate = function(method, view)
     local word
     if method == 'input' then
         ---@diagnostic disable-next-line: param-type-mismatch
-        word = vim.fn.input('请输入您要查询的单词:') -- TODO Use Telescope with fuzzy finder
+        word = vim.fn.input('请输入您要查询的单词: ') -- TODO Use Telescope with fuzzy finder
     elseif method == 'n' then
         word = vim.fn.expand('<cword>')
     elseif method == 'v' then

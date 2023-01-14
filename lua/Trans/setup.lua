@@ -24,6 +24,7 @@ local highlights = {
     TransTitle = {
         fg = '#0f0f15',
         bg = '#75beff',
+        bold = true,
     },
     TransTitleRound = {
         fg = '#75beff',
@@ -52,6 +53,9 @@ local highlights = {
     TransCollins = {
         fg = '#faf743',
         bold = true,
+    },
+    TransNotFound = {
+        fg = '#7aa89f',
     },
 }
 

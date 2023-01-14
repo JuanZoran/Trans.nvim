@@ -1,11 +1,12 @@
-local M    = {}
-local api  = vim.api
-local conf = require('Trans').conf
+local M      = {}
+local api    = vim.api
+local conf   = require('Trans').conf
 local action = require('Trans.core.action')
+local util   = require('Trans.util')
 
-M.id       = 0
-M.bufnr    = 0
-M.ns       = api.nvim_create_namespace('Trans')
+M.id    = 0
+M.bufnr = 0
+M.ns    = api.nvim_create_namespace('Trans')
 
 
 function M.init(view)
@@ -25,9 +26,9 @@ function M.init(view)
         style     = 'minimal',
         border    = conf.window.border,
         title     = {
-            {'', 'TransTitleRound'},
-            {'Trans', 'TransTitle'},
-            {'', 'TransTitleRound'},
+            { '', 'TransTitleRound' },
+            { 'Trans', 'TransTitle' },
+            { '', 'TransTitleRound' },
         },
         title_pos = 'center',
         focusable = true,
@@ -57,19 +58,20 @@ M.draw = function(content)
         end
     end
 
-    local len = #content.lines
-    if M.height > len then
-        api.nvim_win_set_height(M.id, len)
-    end
-    if len == 1 then
-        api.nvim_win_set_width(M.id, content.get_width(content.lines[1]))
-    end
-
-
     api.nvim_buf_set_option(M.bufnr, 'modifiable', false)
     api.nvim_buf_set_option(M.bufnr, 'filetype', 'Trans')
     api.nvim_win_set_option(M.id, 'wrap', not M.float)
     api.nvim_win_set_option(M.id, 'winhl', ('Normal:Trans%sWin,FloatBorder:Trans%sBorder'):format(M.view, M.view))
+
+    local height = util.get_height(M.bufnr, M.id)
+    if M.height > height then
+        api.nvim_win_set_height(M.id, height)
+    end
+
+    if height == 1 then
+        api.nvim_win_set_width(M.id, content.get_width(content.lines[1]))
+    end
+
 
     if M.float then
         vim.keymap.set('n', 'q', function()
@@ -82,6 +84,8 @@ M.draw = function(content)
         -- TODO : set keymaps for window
         M.auto_close()
     end
+
+    M['load_' .. M.view .. '_keymap']()
 end
 
 
@@ -100,15 +104,12 @@ M.auto_close = function()
 end
 
 
--- M.load_keymap = function (once)
---     local keymap = conf.keymap[M.view]
---     local function warp(func)
---         return func or function ()
---             vim.api.nvim_get_keymap(' th')
---         end
---     end
---
--- end
+M.load_hover_keymap = function()
+    local keymap = conf.keymap[M.view]
+    for act, key in pairs(keymap) do
+        vim.keymap.set('n', key, action[act](M.bufnr, M.id))
+    end
+end
 
 
 return M
