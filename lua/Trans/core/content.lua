@@ -1,9 +1,8 @@
 local M = {}
 M.__index = M
 
+
 M.get_width = vim.fn.strwidth
--- local get_width = vim.fn.strwidth
--- local get_width = vim.api.nvim_strwidth
 
 ---@alias block table add_hl(key, hl_name)
 ---返回分配的块状区域, e_col 设置为-1则为末尾
@@ -52,32 +51,31 @@ end
 
 function M:alloc_items()
     local items = {}
-    local len = 0
-    local size = 0
+    local width = 0 -- 所有item的总width
+    local size  = 0 -- item数目
     return {
         add_item = function(item, highlight)
             size = size + 1
             local wid = self.get_width(item)
             items[size] = { item, highlight }
-            len = len + wid
+            width = width + wid
         end,
 
         load = function()
             self.len = self.len + 1
-            local space = math.floor((self.width - len) / (size - 1))
+            local space = math.floor((self.width - width) / (size - 1))
             assert(space > 0)
             local interval = (' '):rep(space)
             local value = ''
             local function load_item(index)
                 if items[index][2] then
-                    local _start = #value
-                    local _end = _start + #items[index][1]
                     table.insert(self.highlights[self.len], {
                         name = items[index][2],
-                        _start = _start,
-                        _end = _end,
+                        _start = #value,
+                        _end = #value + #items[index][1],
                     })
                 end
+
                 value = value .. items[index][1]
             end
 
@@ -160,6 +158,10 @@ function M:new(width)
     })
 
     return setmetatable(new_content, M)
+end
+
+function M:clear()
+    require('table.clear')(self)
 end
 
 return M

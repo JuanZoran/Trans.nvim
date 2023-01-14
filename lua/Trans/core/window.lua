@@ -1,12 +1,11 @@
-local M      = {}
-local api    = vim.api
-local conf   = require('Trans').conf
-local action = require('Trans.core.action')
-local util   = require('Trans.util')
+local M    = {}
+local api  = vim.api
+local conf = require('Trans').conf
+local util = require('Trans.util')
 
 M.id    = 0
-M.bufnr = 0
 M.ns    = api.nvim_create_namespace('Trans')
+M.bufnr = api.nvim_create_buf(false, true)
 
 
 function M.init(view)
@@ -15,19 +14,19 @@ function M.init(view)
     }
 
     M.view = view
-    M.float = view == 'float'
+    local is_float = view == 'float'
     M.height = conf.window[view].height
     M.width = conf.window[view].width
 
     local opts = {
-        relative  = M.float and 'editor' or 'cursor',
+        relative  = is_float and 'editor' or 'cursor',
         width     = M.width,
         height    = M.height,
         style     = 'minimal',
         border    = conf.window.border,
         title     = {
             { '', 'TransTitleRound' },
-            { 'Trans', 'TransTitle' },
+            { conf.icon.title .. ' Trans', 'TransTitle' },
             { '', 'TransTitleRound' },
         },
         title_pos = 'center',
@@ -35,7 +34,7 @@ function M.init(view)
         zindex    = 100,
     }
 
-    if M.float then
+    if is_float then
         opts.row = math.floor((vim.o.lines - M.height) / 2)
         opts.col = math.floor((vim.o.columns - M.width) / 2)
     else
@@ -43,13 +42,13 @@ function M.init(view)
         opts.col = 2
     end
 
-    M.bufnr = api.nvim_create_buf(false, true)
     M.id = api.nvim_open_win(M.bufnr, M.float, opts)
 end
 
 M.draw = function(content)
-    api.nvim_buf_set_lines(M.bufnr, 0, -1, false, content.lines)
+    api.nvim_buf_set_option(M.bufnr, 'modifiable', true)
 
+    api.nvim_buf_set_lines(M.bufnr, 0, -1, false, content.lines)
     if content.highlights then
         for l, _hl in pairs(content.highlights) do
             for _, hl in ipairs(_hl) do
@@ -57,39 +56,34 @@ M.draw = function(content)
             end
         end
     end
-
-    api.nvim_buf_set_option(M.bufnr, 'modifiable', false)
-    api.nvim_buf_set_option(M.bufnr, 'filetype', 'Trans')
-    api.nvim_win_set_option(M.id, 'wrap', not M.float)
-    api.nvim_win_set_option(M.id, 'winhl', ('Normal:Trans%sWin,FloatBorder:Trans%sBorder'):format(M.view, M.view))
-
-    local height = util.get_height(M.bufnr, M.id)
-    if M.height > height then
-        api.nvim_win_set_height(M.id, height)
-    end
-
-    if height == 1 then
+    M.load_opts()
+    if content.len == 1 then
         api.nvim_win_set_width(M.id, content.get_width(content.lines[1]))
     end
-
-
-    if M.float then
-        vim.keymap.set('n', 'q', function()
-            if api.nvim_win_is_valid(M.id) then
-                api.nvim_win_close(M.id, true)
-            end
-        end, { buffer = M.bufnr, silent = true })
-
-    else
-        -- TODO : set keymaps for window
-        M.auto_close()
-    end
-
-    M['load_' .. M.view .. '_keymap']()
 end
 
 
-M.auto_close = function()
+M.load_opts = function()
+    api.nvim_buf_set_option(M.bufnr, 'modifiable', false)
+    api.nvim_buf_set_option(M.bufnr, 'filetype', 'Trans')
+    api.nvim_win_set_option(M.id, 'winhl', ('Normal:Trans%sWin,FloatBorder:Trans%sBorder'):format(M.view, M.view))
+    local height = util.get_height(M.bufnr, M.id)
+    M['load_' .. M.view .. '_opts']()
+
+    if M.height > height then
+        api.nvim_win_set_height(M.id, height)
+    end
+end
+
+
+M.load_hover_opts = function()
+    local keymap = conf.keymap[M.view]
+    local action = require('Trans.core.action')
+
+    for act, key in pairs(keymap) do
+        vim.keymap.set('n', key, action[act])
+    end
+
     api.nvim_create_autocmd(
         { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
@@ -100,15 +94,22 @@ M.auto_close = function()
             end
         end,
     })
+    api.nvim_win_set_option(M.id, 'wrap', not M.float)
+end
+
+M.load_float_opts = function()
+    vim.keymap.set('n', 'q', function()
+        if api.nvim_win_is_valid(M.id) then
+            api.nvim_win_close(M.id, true)
+        end
+    end, { buffer = M.bufnr, silent = true })
 
 end
 
 
-M.load_hover_keymap = function()
-    local keymap = conf.keymap[M.view]
-    for act, key in pairs(keymap) do
-        vim.keymap.set('n', key, action[act](M.bufnr, M.id))
-    end
+M.show = function()
+    M.init(M.view or 'float')
+    M.load_opts()
 end
 
 

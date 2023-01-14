@@ -24,15 +24,16 @@ M.translate = function(method, view)
     method = method or vim.api.nvim_get_mode().mode
     view = view or conf.view[method]
     local word
-    if method == 'input' then
+    if method == 'v' then
         ---@diagnostic disable-next-line: param-type-mismatch
         word = vim.fn.input('请输入您要查询的单词: ') -- TODO Use Telescope with fuzzy finder
     elseif method == 'n' then
         word = vim.fn.expand('<cword>')
-    elseif method == 'v' then
+    elseif method == 'input' then
         word = get_select()
+    elseif method == 'last' then
+        return win.show()
     end
-
 
     win.init(view)
     local result = api.query('offline', word)

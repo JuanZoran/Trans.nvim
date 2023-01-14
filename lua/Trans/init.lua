@@ -2,7 +2,7 @@ local M = {}
 
 M.conf = {
     view = {
-        input = 'hover',
+        input = 'float',
         n = 'hover',
         v = 'hover',
     },
@@ -10,7 +10,7 @@ M.conf = {
         border = 'rounded',
         hover = {
             width = 36,
-            height = 30,
+            height = 26,
         },
         float = {
             width = 0.8,
@@ -34,14 +34,15 @@ M.conf = {
         -- },
     },
     icon = {
+        title = ' ',
         star = '',
-        notfound = '',
-        yes = '',
-        no = ''
+        -- notfound = '',
+        -- yes = '',
+        -- no = ''
         -- star = '⭐',
-        -- notfound = '❔',
-        -- yes = '✔️',
-        -- no = '❌'
+        notfound = '❔',
+        yes = '✔️',
+        no = '❌'
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
     -- TODO :
@@ -52,8 +53,8 @@ M.conf = {
     keymap = {
         -- TODO
         hover = {
-            pageup = ']]',
-            -- pagedown = '<C-d>',
+            pageup = '[[',
+            pagedown = ']]',
         },
     },
     -- history = {

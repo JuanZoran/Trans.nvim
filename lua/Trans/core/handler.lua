@@ -127,7 +127,6 @@ M.hover = {
         content:addline('')
     end,
 
-
     definition = function(result, content)
         if exist(result.definition) then
             expl(content, '英文注释')

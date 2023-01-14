@@ -12,6 +12,10 @@ vim.api.nvim_create_user_command('TranslateInput', function()
     require("Trans").translate('input')
 end, { desc = '  搜索翻译' })
 
+vim.api.nvim_create_user_command('TranslateLast', function()
+    require("Trans").translate('last')
+end, { desc = '  显示上一次查询的内容' })
+
 
 local highlights = {
     TransWord = {
@@ -58,11 +62,6 @@ local highlights = {
         fg = '#7aa89f',
     },
 }
-
--- TODO
--- vim.api.nvim_create_user_command('TranslateHistory', require("Trans.core").query_input, {
---     desc = '翻译输入的单词',
--- })
 
 for highlight, opt in pairs(highlights) do
     vim.api.nvim_set_hl(0, highlight, opt)
