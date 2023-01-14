@@ -96,36 +96,73 @@ use {
 
 ## 配置
 ```lua
-require'Trans'.setup{
-    display = {
-       style        = 'minimal',
-       max_height   = 50,        -- 小于0代表无限制
-       max_width    = 50,
-       collins_star = true,      -- 是否显示柯林斯星级
-       oxford       = true,      -- 是否显示为牛津3000词汇
-       wrap         = true,      -- 是否折叠超出width的部分
-       border_style = 'rounded', -- 边框属性
-       view         = 'cursor',  -- TODO, 目前还未测试, 请不要更改
-       offset_x     = 2,         -- 弹窗相对光标的偏移
-       offset_y     = 2,
+require'Trans'.setup {
+    view = {
+        input = 'hover',
+        n = 'hover',
+        v = 'hover',
     },
-    order = {   -- 排版的顺序
-        'title', -- 如果你不想显示某一部分, 可以直接删除该部分
+    window = {
+        border = 'rounded',
+        hover = {
+            width = 36,
+            height = 23,
+        },
+        float = {
+            width = 0.8,
+            height = 0.8,
+        },
+    },
+
+    order = {
+        -- offline = {
+        'title',
         'tag',
         'pos',
         'exchange',
-        'zh',
-        'en',
+        'translation',
+        -- NOTE :如果你想限制某个组件的行数，可以设置max_size
+        -- { 'Definition', max_size = 4 },
+        'definition',
+        -- },
+        -- online = {
+        --     -- TODO
+        -- },
     },
-
-    db_path = '$HOME/.vim/dict/ultimate.db', -- 词典的数据库位置
-                                             -- 如果你是手动安装, 可以自定义
     icon = {
-        star = '⭐',        -- 柯林斯星级图标
-        isOxford = '✔',     -- 牛津3000词汇的标志
-        notOxford = ''
+        star = '',
+        notfound = '',
+        yes = '',
+        no = ''
+        -- star = '⭐',
+        -- notfound = '❔',
+        -- yes = '✔️',
+        -- no = '❌'
     },
-    auto_close = true,      -- 移动光标关闭弹窗
+    db_path = '$HOME/.vim/dict/ultimate.db',
+    -- TODO :
+    -- engine = {
+    --     -- TODO
+    --     'offline',
+    -- }
+    map = {
+        -- TODO
+        hover = {
+            pageup = '<C-u>',
+            pagedown = '<C-d>',
+        },
+    },
+    -- history = {
+    --     -- TOOD
+    -- }
+
+    -- TODO  add online translate engine
+    -- online_search = {
+    --     enable = false,
+    --     engine = {},
+    -- }
+
+    -- TODO register word
 }
 ```
 
@@ -134,25 +171,14 @@ require'Trans'.setup{
 > 示例中展示, 将`mm`映射成快捷键
 ```lua
 -- normal-mode
-vim.keymap.set('n', 'mm', '<Cmd>TranslateCursorWord<CR>')
-
--- visual-mode
-vim.keymap.set('v', 'mm', '<Esc><Cmd>TranslateSelectWord<CR>')
+vim.keymap.set({'n', 'v'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 
 ```
 
 ## 高亮组
 ```lua
-hlgroup = {
-    word     = 'TransWord',
-    phonetic = 'TransPhonetic',
-    ref      = 'TransRef',    -- 如: 标签: | 中文翻译: 之类的前导词
-    tag      = 'TransTag',
-    exchange = 'TransExchange',
-    pos      = 'TransPos',
-    zh       = 'TransZh',
-    en       = 'TransEn',
-}
+-- TODO : add explanation
 
 ```
 ## 声明

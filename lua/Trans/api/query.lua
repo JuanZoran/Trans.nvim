@@ -3,23 +3,12 @@ local _, db = pcall(require, 'sqlite.db')
 if not _ then
     error('Please check out sqlite.lua')
 end
-local type_check = vim.validate
 
 -- INFO : init database
-local path = require("Trans.conf.loader").loaded_conf.base.db_path
+local path = require('Trans').conf.db_path
 local dict = db:open(path)
 
--- INFO :Auto Close
-vim.api.nvim_create_autocmd('VimLeavePre', {
-    group = require("Trans").augroup,
-    callback = function()
-        if db:isopen() then
-            db:close()
-        end
-    end
-})
-
-local query_field = {
+local query_fields = {
     'word',
     'phonetic',
     'definition',
@@ -31,19 +20,40 @@ local query_field = {
     'exchange',
 }
 
+
+local routes = {
+    offline = function(word)
+        local res = dict:select('stardict', {
+            where = {
+                word = word,
+            },
+            keys = query_fields,
+        })
+        return res[1]
+    end,
+}
+
+
+-- INFO :Auto Close
+vim.api.nvim_create_autocmd('VimLeavePre', {
+    group = require("Trans").augroup,
+    callback = function()
+        if db:isopen() then
+            db:close()
+        end
+    end
+})
+
+
 -- NOTE : local query
-M.query = function(arg)
+M.query = function(engine, word)
     -- TODO : more opts
-    type_check {
-        arg = { arg, 'string' },
+    vim.validate {
+        word = {word, 's'},
+        engine = {word, 's'},
     }
-    local res = dict:select('stardict', {
-        where = {
-            word = arg,
-        },
-        keys = query_field,
-    })
-    return res[1]
+
+    return routes[engine](word)
 end
 
 
