@@ -36,23 +36,18 @@ M.translate = function(method, view)
 
     win.init(view)
     local result = api.query('offline', word)
+    local content = c:new(win.width)
+    local hd = handler[view]
 
     if result then
-        local content = c:new(win.width)
-
         for i = 1, #conf.order do
-            handler[conf.order[i]](result, content)
+            hd[conf.order[i]](result, content)
         end
 
-        win.draw(content)
     else
-        local line = { '⚠️   本地没有找到相应的结果' }
-        vim.api.nvim_buf_set_lines(win.bufnr, 0, -1, false, line)
-        local wid = vim.fn.strdisplaywidth(line[1])
-        vim.api.nvim_win_set_width(win.id, wid)
-        vim.api.nvim_win_set_height(win.id, #line)
-        win.auto_close()
+        hd.failed(content)
     end
+    win.draw(content)
 end
 
 

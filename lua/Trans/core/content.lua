@@ -1,7 +1,7 @@
 local M = {}
 M.__index = M
 
-local get_width = vim.fn.strdisplaywidth
+M.get_width = vim.fn.strdisplaywidth
 -- local get_width = vim.fn.strwidth
 -- local get_width = vim.api.nvim_strwidth
 
@@ -37,7 +37,7 @@ function M:alloc_block(s_row, s_col, height, width)
 
         __newindex = function(_, key, value)
             assert(0 < key and key <= height)
-            local wid = get_width(value)
+            local wid = self.get_width(value)
             if wid > width then
                 error('check out the str width: Max ->' .. self.width .. ' str ->' .. wid)
             else
@@ -50,20 +50,20 @@ function M:alloc_block(s_row, s_col, height, width)
     })
 end
 
-function M:alloc_newline()
-    self.len = self.len + 1
+function M:alloc_items()
     local items = {}
     local len = 0
     local size = 0
     return {
         add_item = function(item, highlight)
             size = size + 1
-            local wid = get_width(item)
+            local wid = self.get_width(item)
             items[size] = { item, highlight }
             len = len + wid
         end,
 
-        load_line = function()
+        load = function()
+            self.len = self.len + 1
             local space = math.floor((self.width - len) / (size - 1))
             assert(space > 0)
             local interval = (' '):rep(space)
@@ -71,7 +71,7 @@ function M:alloc_newline()
             local function load_item(index)
                 if items[index][2] then
                     local _start = #value
-                    local _end = _start + #items[index][2]
+                    local _end = _start + #items[index][1]
                     table.insert(self.highlights[self.len], {
                         name = items[index][2],
                         _start = _start,
@@ -92,12 +92,35 @@ function M:alloc_newline()
     }
 end
 
+function M:alloc_text()
+    local value = ''
+    return {
+        add_text = function(text, highlight)
+            if highlight then
+                local _start = #value
+                local _end = _start + #text
+                table.insert(self.highlights[self.len + 1], {
+                    name = highlight,
+                    _start = _start,
+                    _end = _end,
+                })
+            end
+            value = value .. text
+        end,
+        load = function ()
+            self.len = self.len + 1
+            self.lines[self.len] = value
+        end
+    }
+end
+
+
 function M:addline(text, highlight)
     self.len = self.len + 1
     if highlight then
         table.insert(self.highlights[self.len], {
             name = highlight,
-            _start = 1,
+            _start = 0,
             _end = -1
         })
     end

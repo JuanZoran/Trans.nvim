@@ -1,3 +1,4 @@
+local M = {}
 local icon = require('Trans').conf.icon
 
 -- local components = {
@@ -53,21 +54,32 @@ local function exist(res)
     return res and res ~= ''
 end
 
-M = {
+local function expl(c, text)
+    local t = c:alloc_text()
+    t.add_text('', 'TransTitleRound')
+    t.add_text(text, 'TransTitle')
+    t.add_text('', 'TransTitleRound')
+    t.load()
+end
+
+local indent = '    '
+
+M.hover = {
     title = function(result, content)
-        local line = content:alloc_newline()
+        local line = content:alloc_items()
         line.add_item(result.word, 'TransWord')
         local pho = ('[' .. (exist(result.phonetic) and result.phonetic or icon.notfound) .. ']')
         -- line.add_item(pho, 'TransPhonetic', #pho)
         line.add_item(pho, 'TransPhonetic')
-        line.add_item((exist(result.collins) and icon.star:rep(result.collins) or icon.notfound))
-        line.add_item((exist(result.oxford) and icon.yes or icon.no))
-        line.load_line()
+        line.add_item((exist(result.collins) and icon.star:rep(result.collins) or icon.notfound), 'TransCollins')
+        line.add_item((result.oxford == 1 and icon.yes or icon.no))
+        line.load()
     end,
 
     tag = function(result, content)
         if exist(result.tag) then
-            content:addline('标签:', 'TransRef')
+            expl(content, '标签')
+
             local tags = vim.tbl_map(function(tag)
                 return tag_map[tag]
             end, vim.split(result.tag, ' ', { plain = true, trimempry = true }))
@@ -75,7 +87,7 @@ M = {
             local size = #tags
             local i = 1
             while i <= size do
-                content:addline('    ' .. tags[i] .. '    ' .. (tags[i + 1] or '') .. '    ' .. (tags[i + 2] or ''),
+                content:addline(indent .. tags[i] .. '    ' .. (tags[i + 1] or '') .. '    ' .. (tags[i + 2] or ''),
                     'TransTag')
                 i = i + 3
             end
@@ -85,9 +97,9 @@ M = {
 
     pos = function(result, content)
         if exist(result.pos) then
-            content:addline('词性:', 'TransRef')
+            expl(content, '词性')
             vim.tbl_map(function(pos)
-                content:addline('    ' .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%', 'TransPos')
+                content:addline(indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%', 'TransPos')
             end, vim.split(result.pos, '/', { plain = true, trimempry = true }))
 
             content:addline('')
@@ -96,10 +108,10 @@ M = {
 
     exchange = function(result, content)
         if exist(result.exchange) then
-            content:addline('词性变化:', 'TransRef')
+            expl(content, '词形变化')
+
             vim.tbl_map(function(exc)
-                content:addline('    ' .. exchange_map[exc:sub(1, 1)] .. '    ' .. exc:sub(3), 'TransExchange')
-                -- content:addline('    ' .. exchange_map[exc:sub(1, 1)] .. exc:sub(2), 'TransExchange')
+                content:addline(indent .. exchange_map[exc:sub(1, 1)] .. '    ' .. exc:sub(3), 'TransExchange')
             end, vim.split(result.exchange, '/', { plain = true, trimempry = true }))
 
             content:addline('')
@@ -107,46 +119,30 @@ M = {
     end,
 
     translation = function(result, content)
-        if result.translation and result.translation ~= '' then
-            local ref = {
-                { '中文翻译:', 'TransRef' }
-            }
+        expl(content, '中文翻译')
 
-            local translations = {
-                highlight = 'TransTranslation',
-                indent = 4,
-                emptyline = true,
-            }
-            for trans in vim.gsplit(result.translation, '\n', true) do
-                table.insert(translations, trans)
-            end
+        vim.tbl_map(function(trs)
+            content:addline(indent .. trs, 'TransTranslation')
+        end, vim.split(result.translation, '\n', { plain = true, trimempry = true }))
 
-            return { ref, translations }
-        end
+        content:addline('')
     end,
 
 
     definition = function(result, content)
-        if result.definition and result.definition ~= '' then
-            local ref = {
-                { '英文注释:', 'TransRef' }
-            }
+        if exist(result.definition) then
+            expl(content, '英文注释')
 
-            local definitions = {
-                highlight = 'TransDefinition',
-                indent = 4,
-                emptyline = true,
-            }
+            vim.tbl_map(function(def)
+                content:addline(def, 'TransDefinition')
+            end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
 
-            for defin in vim.gsplit(result.definition, '\n', true) do
-                if defin ~= '' then
-                    table.insert(definitions, defin)
-                end
-            end
-
-            return { ref, definitions }
+            content:addline('')
         end
-    end
+    end,
+    failed = function(content)
+        content:addline(icon.notfound .. indent .. '没有找到相关的翻译')
+    end,
 }
 
 return M

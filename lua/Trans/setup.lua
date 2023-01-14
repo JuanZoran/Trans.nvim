@@ -21,9 +21,12 @@ local highlights = {
     TransPhonetic = {
         link = 'Linenr'
     },
-    TransRef = {
+    TransTitle = {
+        fg = '#0f0f15',
+        bg = '#75beff',
+    },
+    TransTitleRound = {
         fg = '#75beff',
-        bold = true,
     },
     TransTag = {
         fg = '#e5c07b',
@@ -38,16 +41,18 @@ local highlights = {
         link = 'TransWord',
     },
     TransDefinition = {
-        -- fg = '#bc8cff',
         link = 'Moremsg',
     },
-    TransCursorWin = {
+    TransHoverWin = {
         link = 'Normal',
     },
-
-    TransCursorBorder = {
+    TransHoverBorder = {
         link = 'FloatBorder',
-    }
+    },
+    TransCollins = {
+        fg = '#faf743',
+        bold = true,
+    },
 }
 
 -- TODO

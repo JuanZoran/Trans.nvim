@@ -24,19 +24,24 @@ M.conf = {
         'tag',
         'pos',
         'exchange',
-        -- 'translation',
+        'translation',
         -- NOTE :如果你想限制某个组件的行数，可以设置max_size
         -- { 'Definition', max_size = 4 },
+        'definition',
         -- },
         -- online = {
         --     -- TODO
         -- },
     },
     icon = {
-        star = '⭐',
-        notfound = '❔',
-        yes = '✔️',
-        no = '❌'
+        star = '',
+        notfound = '',
+        yes = '',
+        no = ''
+        -- star = '⭐',
+        -- notfound = '❔',
+        -- yes = '✔️',
+        -- no = '❌'
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
     -- TODO :
@@ -44,9 +49,13 @@ M.conf = {
     --     -- TODO
     --     'offline',
     -- }
-    -- map = {
-    --     -- TODO
-    -- },
+    map = {
+        -- TODO
+        hover = {
+            pageup = '<C-u>',
+            pagedown = '<C-d>',
+        },
+    },
     -- history = {
     --     -- TOOD
     -- }

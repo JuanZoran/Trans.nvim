@@ -1,6 +1,8 @@
 local M    = {}
 local api  = vim.api
 local conf = require('Trans').conf
+local action = require('Trans.core.action')
+
 M.id       = 0
 M.bufnr    = 0
 M.ns       = api.nvim_create_namespace('Trans')
@@ -22,7 +24,11 @@ function M.init(view)
         height    = M.height,
         style     = 'minimal',
         border    = conf.window.border,
-        title     = 'Trans',
+        title     = {
+            {'', 'TransTitleRound'},
+            {'Trans', 'TransTitle'},
+            {'', 'TransTitleRound'},
+        },
         title_pos = 'center',
         focusable = true,
         zindex    = 100,
@@ -53,14 +59,17 @@ M.draw = function(content)
 
     local len = #content.lines
     if M.height > len then
-        api.nvim_win_set_height(M.id, len + 1)
+        api.nvim_win_set_height(M.id, len)
+    end
+    if len == 1 then
+        api.nvim_win_set_width(M.id, content.get_width(content.lines[1]))
     end
 
 
     api.nvim_buf_set_option(M.bufnr, 'modifiable', false)
     api.nvim_buf_set_option(M.bufnr, 'filetype', 'Trans')
     api.nvim_win_set_option(M.id, 'wrap', not M.float)
-    api.nvim_win_set_option(M.id, 'winhl', 'Normal:TransCursorWin,FloatBorder:TransCursorBorder')
+    api.nvim_win_set_option(M.id, 'winhl', ('Normal:Trans%sWin,FloatBorder:Trans%sBorder'):format(M.view, M.view))
 
     if M.float then
         vim.keymap.set('n', 'q', function()
@@ -89,6 +98,17 @@ M.auto_close = function()
     })
 
 end
+
+
+-- M.load_keymap = function (once)
+--     local keymap = conf.keymap[M.view]
+--     local function warp(func)
+--         return func or function ()
+--             vim.api.nvim_get_keymap(' th')
+--         end
+--     end
+--
+-- end
 
 
 return M
