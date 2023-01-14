@@ -96,102 +96,62 @@ use {
 
 ## 配置
 ```lua
-require'Trans'.setu{
-    style = {
-        ui = {
-            input = 'float',
-            n = 'cursor',
-            v = 'cursor'
+require'Trans'.setup {
+    view = {
+        input = 'hover',
+        n = 'hover',
+        v = 'hover',
+    },
+    window = {
+        border = 'rounded',
+        hover = {
+            width = 36,
+            height = 23,
         },
-        window = {
-            cursor = {
-                border = 'rounded',
-                width = 50, -- 最大宽高
-                height = 50,
-            },
-            float = {
-                border = 'rounded',
-                width = 0.9, -- 相对宽高
-                height = 0.8,
-            },
-            limit = nil,
+        float = {
+            width = 0.8,
+            height = 0.8,
         },
     },
+
     order = {
-        offline = {
-            'Title',
-            'Tag',
-            'Pos',
-            'Exchange',
-            'Translation',
-            -- NOTE :如果你想限制某个组件的行数，可以设置max_size
-            -- { 'Definition', max_size = 4 }, -- TODO : better format
-        },
+        -- offline = {
+        'title',
+        'tag',
+        'pos',
+        'exchange',
+        'translation',
+        -- NOTE :如果你想限制某个组件的行数，可以设置max_size
+        -- { 'Definition', max_size = 4 },
+        'definition',
+        -- },
         -- online = {
         --     -- TODO
         -- },
     },
-    ui = {
-        highlight = {
-            TransWord = {
-                fg = '#7ee787',
-                bold = true,
-            },
-            TransPhonetic = {
-                link = 'Linenr'
-            },
-            TransRef = {
-                fg = '#75beff',
-                bold = true,
-            },
-            TransTag = {
-                fg = '#e5c07b',
-            },
-            TransExchange = {
-                link = 'TransTag',
-            },
-            TransPos = {
-                link = 'TransTag',
-            },
-            TransTranslation = {
-                link = 'TransWord',
-            },
-            TransDefinition = {
-                -- fg = '#bc8cff',
-                link = 'Moremsg',
-            },
-            TransCursorWin = {
-                link = 'Normal',
-            },
-
-            TransCursorBorder = {
-                link = 'FloatBorder',
-            }
-        },
-        icon = {
-            star = '⭐',
-            isOxford = '✔',
-            notOxford = ''
-        },
-        display = {
-            phnoetic = true,
-            collins = true,
-            oxford = true,
-            -- TODO
-            -- history = false,
-        },
+    icon = {
+        star = '',
+        notfound = '',
+        yes = '',
+        no = ''
+        -- star = '⭐',
+        -- notfound = '❔',
+        -- yes = '✔️',
+        -- no = '❌'
     },
-    base = {
-        db_path = '$HOME/.vim/dict/ultimate.db',
-        auto_close = true,
-        engine = {
-            -- TODO
-            'offline',
-        }
-    },
-    -- map = {
+    db_path = '$HOME/.vim/dict/ultimate.db',
+    -- TODO :
+    -- engine = {
     --     -- TODO
-    -- },
+    --     'offline',
+    -- }
+    map = {
+        -- TODO
+        hover = {
+            pageup = '<C-u>',
+            pagedown = '<C-d>',
+        },
+    },
     -- history = {
     --     -- TOOD
     -- }
