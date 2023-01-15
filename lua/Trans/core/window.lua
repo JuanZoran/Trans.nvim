@@ -119,7 +119,10 @@ M.close = function()
                     api.nvim_win_set_height(M.id, M.height)
                     vim.defer_fn(narrow, 13)
                 else
-                    api.nvim_win_close(M.id, true)
+                    -- Wait animation done
+                    vim.defer_fn(function ()
+                        api.nvim_win_close(M.id, true)
+                    end, 10)
                 end
             end
             vim.defer_fn(narrow, 10)
