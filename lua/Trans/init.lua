@@ -2,15 +2,16 @@ local M = {}
 
 M.conf = {
     view = {
-        input = 'hover',
+        input = 'float',
         n = 'hover',
         v = 'hover',
     },
     window = {
         border = 'rounded',
+        animation = true,
         hover = {
             width = 36,
-            height = 23,
+            height = 26,
         },
         float = {
             width = 0.8,
@@ -34,14 +35,15 @@ M.conf = {
         -- },
     },
     icon = {
+        title = ' ', -- 
         star = '',
-        notfound = '',
-        yes = '',
-        no = ''
+        -- notfound = '',
+        -- yes = '',
+        -- no = ''
         -- star = '⭐',
-        -- notfound = '❔',
-        -- yes = '✔️',
-        -- no = '❌'
+        notfound = '❔',
+        yes = '✔️',
+        no = '❌'
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
     -- TODO :
@@ -49,11 +51,11 @@ M.conf = {
     --     -- TODO
     --     'offline',
     -- }
-    map = {
+    keymap = {
         -- TODO
         hover = {
-            pageup = '<C-u>',
-            pagedown = '<C-d>',
+            pageup = '[[',
+            pagedown = ']]',
         },
     },
     -- history = {
@@ -82,7 +84,7 @@ M.setup = function(opts)
     window.float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * window.float.height)
     window.float.width = math.floor(vim.o.columns * window.float.width)
 
-    -- TODO : replace the height and width for float options
+
     M.translate = require('Trans.core').translate
     require("Trans.setup")
 end

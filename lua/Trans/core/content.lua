@@ -1,9 +1,8 @@
 local M = {}
 M.__index = M
 
-M.get_width = vim.fn.strdisplaywidth
--- local get_width = vim.fn.strwidth
--- local get_width = vim.api.nvim_strwidth
+M.get_width = vim.fn.strwidth
+
 
 ---@alias block table add_hl(key, hl_name)
 ---返回分配的块状区域, e_col 设置为-1则为末尾
@@ -52,32 +51,31 @@ end
 
 function M:alloc_items()
     local items = {}
-    local len = 0
-    local size = 0
+    local width = 0 -- 所有item的总width
+    local size  = 0 -- item数目
     return {
         add_item = function(item, highlight)
             size = size + 1
             local wid = self.get_width(item)
             items[size] = { item, highlight }
-            len = len + wid
+            width = width + wid
         end,
 
         load = function()
             self.len = self.len + 1
-            local space = math.floor((self.width - len) / (size - 1))
+            local space = math.floor((self.width - width) / (size - 1))
             assert(space > 0)
             local interval = (' '):rep(space)
             local value = ''
             local function load_item(index)
                 if items[index][2] then
-                    local _start = #value
-                    local _end = _start + #items[index][1]
                     table.insert(self.highlights[self.len], {
                         name = items[index][2],
-                        _start = _start,
-                        _end = _end
+                        _start = #value,
+                        _end = #value + #items[index][1],
                     })
                 end
+
                 value = value .. items[index][1]
             end
 
@@ -92,30 +90,28 @@ function M:alloc_items()
     }
 end
 
-function M:alloc_text()
-    local value = ''
-    return {
-        add_text = function(text, highlight)
-            if highlight then
-                local _start = #value
-                local _end = _start + #text
-                table.insert(self.highlights[self.len + 1], {
-                    name = highlight,
-                    _start = _start,
-                    _end = _end,
-                })
-            end
-            value = value .. text
-        end,
-        load = function ()
-            self.len = self.len + 1
-            self.lines[self.len] = value
+---返回新行的包装函数
+---@return function
+function M:text_wrapper()
+    local l = self.len + 1 -- 取出当前行
+    self.lines[l] = ''
+    self.len = l
+    return function(text, highlight)
+        if highlight then
+            local _start = #self.lines[l]
+            local _end = _start + #text
+            table.insert(self.highlights[l], {
+                name = highlight,
+                _start = _start,
+                _end = _end,
+            })
         end
-    }
+        self.lines[l] = self.lines[l] .. text
+    end
 end
 
-
 function M:addline(text, highlight)
+    assert(text, 'empty text')
     self.len = self.len + 1
     if highlight then
         table.insert(self.highlights[self.len], {
@@ -127,11 +123,11 @@ function M:addline(text, highlight)
     self.lines[self.len] = text
 end
 
--- 窗口宽度
 function M:new(width)
     vim.validate {
         width = { width, 'n' }
     }
+
     local default = (' '):rep(width) -- default value is empty line
     local new_content = {
         width = width,
@@ -142,7 +138,6 @@ function M:new(width)
                 return tbl[key]
             end
         }),
-
     }
 
     new_content.lines = setmetatable({}, {
@@ -152,17 +147,21 @@ function M:new(width)
         end,
 
         __newindex = function(tbl, key, value)
-            if value then
-                for _ = new_content.len + 1, key - 1 do
-                    rawset(tbl, key, '')
-                end
-
-                rawset(tbl, key, value)
-                new_content.len = key
+            assert(value, 'add no value as new line')
+            for i = new_content.len + 1, key - 1 do
+                rawset(tbl, i, '')
             end
+            rawset(tbl, key, value)
+
+            new_content.len = key
         end
     })
-    return setmetatable(new_content, self)
+
+    return setmetatable(new_content, M)
+end
+
+function M:clear()
+    require('table.clear')(self)
 end
 
 return M

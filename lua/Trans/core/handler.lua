@@ -1,3 +1,4 @@
+---@diagnostic disable: unused-local
 local M = {}
 local icon = require('Trans').conf.icon
 
@@ -55,11 +56,12 @@ local function exist(res)
 end
 
 local function expl(c, text)
-    local t = c:alloc_text()
-    t.add_text('', 'TransTitleRound')
-    t.add_text(text, 'TransTitle')
-    t.add_text('', 'TransTitleRound')
-    t.load()
+    local wrapper = c:text_wrapper()
+    -- wrapper('', 'TransTitleRound')
+    wrapper('', 'TransTitleRound')
+    wrapper(text, 'TransTitle')
+    -- wrapper('', 'TransTitleRound')
+    wrapper('', 'TransTitleRound')
 end
 
 local indent = '    '
@@ -128,21 +130,71 @@ M.hover = {
         content:addline('')
     end,
 
-
     definition = function(result, content)
         if exist(result.definition) then
             expl(content, '英文注释')
 
             vim.tbl_map(function(def)
-                content:addline(def, 'TransDefinition')
+                def = def:gsub('%s+', '', 1) -- TODO :判断是否需要分割空格
+                content:addline(indent .. def, 'TransDefinition')
             end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
 
             content:addline('')
         end
     end,
+
     failed = function(content)
-        content:addline(icon.notfound .. indent .. '没有找到相关的翻译')
+        content:addline(icon.notfound .. indent .. '没有找到相关的翻译', 'TransNotFound')
     end,
 }
+
+M.process = function(view, result)
+    local conf = require('Trans').conf
+    local content = require('Trans.core.content'):new(conf.window[view].width)
+    if result then
+        if view == 'hover' then
+            vim.tbl_map(function(handle)
+                M.hover[handle](result, content)
+            end, conf.order)
+
+        elseif view == 'float' then
+            -- TODO :
+
+        else
+            error('unknown view ' .. view)
+        end
+    else
+        M[view].failed(content)
+    end
+    return content
+end
+
+
+
+--- TODO :Content Handler for float view
+M.float = {
+    title = function(result, content)
+
+    end,
+    tag = function(result, content)
+
+    end,
+    pos = function(result, content)
+
+    end,
+    exchange = function(result, content)
+
+    end,
+    translation = function(result, content)
+
+    end,
+    definition = function(result, content)
+
+    end,
+    faild = function(result, content)
+
+    end,
+}
+
 
 return M

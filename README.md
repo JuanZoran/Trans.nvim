@@ -1,4 +1,6 @@
 # Trans.nvim
+
+<!--toc:start-->
 - [Trans.nvim](#transnvim)
   - [特点](#特点)
   - [屏幕截图](#屏幕截图)
@@ -8,7 +10,8 @@
   - [高亮组](#高亮组)
   - [声明](#声明)
   - [感谢](#感谢)
-- [TODO](#todo)
+  - [TODO](#todo)
+<!--toc:end-->
 
 
 ## 特点
@@ -27,8 +30,9 @@
   - 英文翻译  (不是英译中, 而是用英文解释)
   - 词根
   - etc
+- 舒服的排版和`动画`
 - 支持 `normal`和 `visual`模式
-> 不支持 visual-block mode
+    > 不支持 visual-block mode
   
 - 本地词库单词量: `430w`
   
@@ -63,11 +67,12 @@ use {
         { 'v', 'mm' }, -- 换成其他你想用的key即可
         { 'n', 'mm' },
     },
-    run = 'bash ./install.sh',
+    run = 'bash ./install.sh', -- 自动下载使用的本地词库
+    requires = 'kharji/sqlite.lua',
     config = function()
-        require("Trans").setup {}
-        vim.keymap.set("v", "mm", '<Esc><Cmd>TranslateSelectWord<CR>', { desc = ' Translate' })
-        vim.keymap.set("n", "mm", "<Cmd>TranslateCursorWord<CR>", { desc = ' Translate' })
+        require("Trans").setup {} -- 启动Trans
+        vim.keymap.set({"v", 'n'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
+        vim.keymap.set("n", "mi", "<Cmd>TranslateInput<CR>", { desc = ' Translate' })
     end
 }
 ```
@@ -90,7 +95,6 @@ use {
     > `sudo pacman -S sqlite # Arch`
     > `sudo apt-get install sqlite3 libsqlite3-dev # Ubuntu`
     
-  - `$HOME/.vim/dict` 文件夹是否存在
   > 后续会增加 `healthcheck` 进行检查
 
 
@@ -98,15 +102,16 @@ use {
 ```lua
 require'Trans'.setup {
     view = {
-        input = 'hover',
+        input = 'float',
         n = 'hover',
         v = 'hover',
     },
     window = {
         border = 'rounded',
+        animation = true,
         hover = {
             width = 36,
-            height = 23,
+            height = 26,
         },
         float = {
             width = 0.8,
@@ -121,8 +126,6 @@ require'Trans'.setup {
         'pos',
         'exchange',
         'translation',
-        -- NOTE :如果你想限制某个组件的行数，可以设置max_size
-        -- { 'Definition', max_size = 4 },
         'definition',
         -- },
         -- online = {
@@ -130,14 +133,15 @@ require'Trans'.setup {
         -- },
     },
     icon = {
+        title = ' ', -- 
         star = '',
-        notfound = '',
-        yes = '',
-        no = ''
+        -- notfound = '',
+        -- yes = '',
+        -- no = ''
         -- star = '⭐',
-        -- notfound = '❔',
-        -- yes = '✔️',
-        -- no = '❌'
+        notfound = '❔',
+        yes = '✔️',
+        no = '❌'
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
     -- TODO :
@@ -145,11 +149,11 @@ require'Trans'.setup {
     --     -- TODO
     --     'offline',
     -- }
-    map = {
-        -- TODO
+    keymap = {
+        -- TODO : More action support
         hover = {
-            pageup = '<C-u>',
-            pagedown = '<C-d>',
+            pageup = '[[',
+            pagedown = ']]',
         },
     },
     -- history = {
@@ -185,10 +189,16 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 - 本插件词典基于[ECDICT](https://github.com/skywind3000/ECDICT)
 
 ## 感谢
-- [ECDICT](https://github.com/skywind3000/ECDICT)
-- [sqlite.lua](https://github.com/kharji/sqlite.lua)
-- [T.vim](https://github.com/sicong-li/T.vim)
+- [ECDICT](https://github.com/skywind3000/ECDICT)       本地词典的提供
+- [sqlite.lua](https://github.com/kharji/sqlite.lua)    数据库访问
+- [T.vim](https://github.com/sicong-li/T.vim)           灵感来源
 
-# TODO
-- 多风格样式
+## TODO
 - ~~移动光标自动关闭窗口~~
+- 多风格样式
+- 历史查询结果保存
+- 在线多引擎异步查询
+- 快捷键定义
+- 自动读音
+- `句子翻译` | `中翻英` 的支持
+- 重新录制屏幕截图示例

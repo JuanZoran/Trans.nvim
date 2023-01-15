@@ -1,5 +1,20 @@
 # 字段说明
 
+<!--toc:start-->
+- [字段说明](#字段说明)
+  - [本地](#本地)
+  - [有道](#有道)
+    - [中英](#中英)
+  - [百度](#百度)
+    - [返回结果](#返回结果)
+  - [彩云小译](#彩云小译)
+  - [必应](#必应)
+  - [腾讯翻译君](#腾讯翻译君)
+  - [阿里翻译](#阿里翻译)
+  - [火山翻译](#火山翻译)
+  - [金山词霸](#金山词霸)
+<!--toc:end-->
+
 ## 本地
 - `word`  
 查询的字符串
@@ -56,3 +71,59 @@ sentenceBold	text	将查询内容加粗的例句
 translation	text	例句翻译
 wfs	text	单词形式变化
 exam_type	text	考试类型
+
+## 百度
+from	string	源语言	返回用户指定的语言，或者自动检测出的语种（源语言设为auto时）
+to	string	目标语言	返回用户指定的目标语言
+trans_result	array	翻译结果	返回翻译结果，包括src和dst字段
+trans_result.*.src	string	原文	接入举例中的“apple”
+trans_result.*dst	string	译文	接入举例中的“苹果”
+error_code	integer	错误码	仅当出现错误时显示
+以下字段仅开通了词典、tts用户可见
+src_tts	string	原文tts链接	mp3格式，暂时无法指定发音
+dst_tts	string	译文tts链接	mp3格式，暂时无法指定发音
+dict	string	中英词典资源	返回中文或英文词典资源，包含音标；简明释义等内容
+
+### 返回结果
+- 英-> 中
+```json
+{
+    "from": "en", 
+    "to": "zh", 
+    "trans_result": [
+        {
+            "src": "apple", 
+            "dst": "苹果"
+        }
+    ]
+}
+```
+- 中->英
+```json
+{
+    "from": "zh", 
+    "to": "en", 
+    "trans_result": [
+        {
+            "src": "中国", 
+            "dst": "China"
+        }
+    ]
+}
+```
+## 彩云小译
+句子翻译
+> sh xiaoyi.sh en2zh "You know some birds are not meant to be caged, their feathers are just too bright."
+> 你知道有些鸟不应该被关在笼子里，它们的羽毛太亮了。
+
+## 必应
+
+## 腾讯翻译君
+
+## 阿里翻译
+
+## 火山翻译
+
+## 金山词霸
+
+## Dictionary
