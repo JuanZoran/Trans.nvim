@@ -26,7 +26,9 @@ function M.init(view)
         border    = conf.window.border,
         title     = {
             { '', 'TransTitleRound' },
+            -- { '', 'TransTitleRound' },
             { conf.icon.title .. ' Trans', 'TransTitle' },
+            -- { '', 'TransTitleRound' },
             { '', 'TransTitleRound' },
         },
         title_pos = 'center',
@@ -122,16 +124,17 @@ M.close = function()
                     -- Wait animation done
                     vim.defer_fn(function ()
                         api.nvim_win_close(M.id, true)
-                    end, 10)
+                    end, 15)
                 end
             end
-            vim.defer_fn(narrow, 10)
 
+            narrow()
         else
             api.nvim_win_close(M.id, true)
         end
     end
 end
+
 
 M.show = function()
     M.init(M.view or 'float')

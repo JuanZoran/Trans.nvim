@@ -27,6 +27,7 @@ local function get_word(method)
     if method == 'n' then
         return vim.fn.expand('<cword>')
     elseif method == 'v' then
+        vim.api.nvim_input('<ESC>')
         return get_select()
     elseif method == 'input' then
         -- TODO Use Telescope with fuzzy finder

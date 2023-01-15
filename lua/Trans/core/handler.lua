@@ -57,9 +57,11 @@ end
 
 local function expl(c, text)
     local wrapper = c:text_wrapper()
-    wrapper('', 'TransTitleRound')
+    -- wrapper('', 'TransTitleRound')
+    wrapper('', 'TransTitleRound')
     wrapper(text, 'TransTitle')
-    wrapper('', 'TransTitleRound')
+    -- wrapper('', 'TransTitleRound')
+    wrapper('', 'TransTitleRound')
 end
 
 local indent = '    '
