@@ -81,19 +81,17 @@ M.load_hover_opts = function()
         { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
         once = true,
-        callback = function()
-            if api.nvim_win_is_valid(M.id) then
-                api.nvim_win_close(M.id, true)
-            end
-        end,
+        callback = M.close,
     })
     api.nvim_win_set_option(M.id, 'wrap', M.view ~= 'float')
 
     local height = util.get_height(M.bufnr, M.id)
     if M.height > height then
         api.nvim_win_set_height(M.id, height)
+        M.height = height
     end
 end
+
 
 M.load_float_opts = function()
     vim.keymap.set('n', 'q', function()
@@ -109,6 +107,28 @@ M.load_float_opts = function()
     end, { buffer = M.bufnr, silent = true })
 end
 
+
+
+
+M.close = function()
+    if api.nvim_win_is_valid(M.id) then
+        if conf.window.animation then
+            local function narrow()
+                if M.height > 1 then
+                    M.height = M.height - 1
+                    api.nvim_win_set_height(M.id, M.height)
+                    vim.defer_fn(narrow, 13)
+                else
+                    api.nvim_win_close(M.id, true)
+                end
+            end
+            vim.defer_fn(narrow, 10)
+
+        else
+            api.nvim_win_close(M.id, true)
+        end
+    end
+end
 
 M.show = function()
     M.init(M.view or 'float')

@@ -8,6 +8,7 @@ M.conf = {
     },
     window = {
         border = 'rounded',
+        animation = true,
         hover = {
             width = 36,
             height = 26,
