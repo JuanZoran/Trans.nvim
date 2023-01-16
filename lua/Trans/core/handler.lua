@@ -86,18 +86,18 @@ M.hover = {
         if exist(result.tag) then
             expl(content, '标签')
 
-            local tags = vim.tbl_map(function(tag)
-                return tag_map[tag]
-            end, vim.split(result.tag, ' ', { plain = true, trimempry = true }))
+            local tags = {}
+            local size = 0
+            for tag in vim.gsplit(result.tag, ' ', true) do
+                size = size + 1
+                tags[size] = tag_map[tag]
+            end
 
-            local size = #tags
-            local i = 1
-            while i <= size do
+            for i = 1, size, 3 do
                 content:addline(
                     indent .. tags[i] .. '    ' .. (tags[i + 1] or '') .. '    ' .. (tags[i + 2] or ''),
                     'TransTag'
                 )
-                i = i + 3
             end
             content:addline('')
         end
@@ -106,9 +106,13 @@ M.hover = {
     pos = function(result, content)
         if exist(result.pos) then
             expl(content, '词性')
-            vim.tbl_map(function(pos)
-                content:addline(indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%', 'TransPos')
-            end, vim.split(result.pos, '/', { plain = true, trimempry = true }))
+
+            for pos in vim.gsplit(result.pos, '/', true) do
+                content:addline(
+                    indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%',
+                    'TransPos'
+                )
+            end
 
             content:addline('')
         end
@@ -118,9 +122,12 @@ M.hover = {
         if exist(result.exchange) then
             expl(content, '词形变化')
 
-            vim.tbl_map(function(exc)
-                content:addline(indent .. exchange_map[exc:sub(1, 1)] .. '    ' .. exc:sub(3), 'TransExchange')
-            end, vim.split(result.exchange, '/', { plain = true, trimempry = true }))
+            for exc in vim.gsplit(result.exchange, '/', true) do
+                content:addline(
+                    indent .. exchange_map[exc:sub(1, 1)] .. '    ' .. exc:sub(3),
+                    'TransExchange'
+                )
+            end
 
             content:addline('')
         end
@@ -129,12 +136,12 @@ M.hover = {
     translation = function(result, content)
         expl(content, '中文翻译')
 
-        vim.tbl_map(function(trs)
+        for trs in vim.gsplit(result.translation, '\n', true) do
             content:addline(
                 indent .. trs,
                 'TransTranslation'
             )
-        end, vim.split(result.translation, '\n', { plain = true, trimempry = true }))
+        end
 
         content:addline('')
     end,
@@ -143,13 +150,13 @@ M.hover = {
         if exist(result.definition) then
             expl(content, '英文注释')
 
-            vim.tbl_map(function(def)
+            for def in vim.gsplit(result.definition, '\n', true) do
                 def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
                 content:addline(
                     indent .. def,
                     'TransDefinition'
                 )
-            end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
+            end
 
             content:addline('')
         end
