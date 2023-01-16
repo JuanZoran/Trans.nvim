@@ -8,26 +8,23 @@ end
 local path = require('Trans').conf.db_path
 local dict = db:open(path)
 
-local query_fields = {
-    'word',
-    'phonetic',
-    'definition',
-    'translation',
-    'pos',
-    'collins',
-    'oxford',
-    'tag',
-    'exchange',
-}
-
-
 local routes = {
     offline = function(word)
         local res = dict:select('stardict', {
             where = {
                 word = word,
             },
-            keys = query_fields,
+            keys = {
+                'word',
+                'phonetic',
+                'definition',
+                'translation',
+                'pos',
+                'collins',
+                'oxford',
+                'tag',
+                'exchange',
+            },
         })
         return res[1]
     end,
@@ -49,8 +46,8 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 M.query = function(engine, word)
     -- TODO : more opts
     vim.validate {
-        word = {word, 's'},
-        engine = {word, 's'},
+        word = { word, 's' },
+        engine = { word, 's' },
     }
 
     return routes[engine](word)

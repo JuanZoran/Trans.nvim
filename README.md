@@ -66,6 +66,7 @@ use {
     keys = {
         { 'v', 'mm' }, -- 换成其他你想用的key即可
         { 'n', 'mm' },
+        { 'n', 'mi' },
     },
     run = 'bash ./install.sh', -- 自动下载使用的本地词库
     requires = 'kharji/sqlite.lua',
@@ -133,11 +134,11 @@ require'Trans'.setup {
         -- },
     },
     icon = {
-        title = ' ', -- 
+        title = ' ', --  
         star = '',
-        -- notfound = '',
-        -- yes = '',
-        -- no = ''
+        -- notfound = ' ',
+        -- yes = ' ',
+        -- no = ' '
         -- star = '⭐',
         notfound = '❔',
         yes = '✔️',

@@ -135,7 +135,7 @@ M.hover = {
             expl(content, '英文注释')
 
             vim.tbl_map(function(def)
-                def = def:gsub('%s+', '', 1) -- TODO :判断是否需要分割空格
+                def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
                 content:addline(indent .. def, 'TransDefinition')
             end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
 

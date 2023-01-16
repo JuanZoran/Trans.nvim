@@ -49,6 +49,7 @@ function M:alloc_block(s_row, s_col, height, width)
     })
 end
 
+
 function M:alloc_items()
     local items = {}
     local width = 0 -- 所有item的总width
@@ -62,20 +63,19 @@ function M:alloc_items()
         end,
 
         load = function()
-            self.len = self.len + 1
+            local l = self.len + 1
             local space = math.floor((self.width - width) / (size - 1))
             assert(space > 0)
             local interval = (' '):rep(space)
             local value = ''
             local function load_item(index)
                 if items[index][2] then
-                    table.insert(self.highlights[self.len], {
+                    table.insert(self.highlights[l], {
                         name = items[index][2],
                         _start = #value,
                         _end = #value + #items[index][1],
                     })
                 end
-
                 value = value .. items[index][1]
             end
 
@@ -85,7 +85,8 @@ function M:alloc_items()
                 load_item(i)
             end
 
-            self.lines[self.len] = value
+            self.lines[l] = value
+            self.len = l
         end
     }
 end
