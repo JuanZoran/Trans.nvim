@@ -4,9 +4,7 @@ end
 
 vim.api.nvim_create_user_command('Translate', function()
     require("Trans").translate()
-end, {
-    desc = '  单词翻译',
-})
+end, { desc = '  单词翻译', })
 
 vim.api.nvim_create_user_command('TranslateInput', function()
     require("Trans").translate('input')
@@ -58,7 +56,7 @@ local highlights = {
         fg = '#faf743',
         bold = true,
     },
-    TransNotFound = {
+    TransFailed = {
         fg = '#7aa89f',
     },
 }

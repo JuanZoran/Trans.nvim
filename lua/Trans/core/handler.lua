@@ -2,14 +2,6 @@
 local M = {}
 local icon = require('Trans').conf.icon
 
--- local components = {
---     'title',
---     'tag',
---     'pos',
---     'exchange',
---     'translation',
---     'definition'
--- }
 
 local tag_map = {
     zk    = '中考',
@@ -37,7 +29,6 @@ local pos_map = {
     d = '限定词determiner',
 }
 
-
 local exchange_map = {
     ['p'] = '过去式      ',
     ['d'] = '过去分词    ',
@@ -60,8 +51,8 @@ local function expl(c, text)
     -- wrapper('', 'TransTitleRound')
     wrapper('', 'TransTitleRound')
     wrapper(text, 'TransTitle')
-    -- wrapper('', 'TransTitleRound')
     wrapper('', 'TransTitleRound')
+    -- wrapper('', 'TransTitleRound')
 end
 
 local indent = '    '
@@ -69,12 +60,25 @@ local indent = '    '
 M.hover = {
     title = function(result, content)
         local line = content:alloc_items()
-        line.add_item(result.word, 'TransWord')
-        local pho = ('[' .. (exist(result.phonetic) and result.phonetic or icon.notfound) .. ']')
-        -- line.add_item(pho, 'TransPhonetic', #pho)
-        line.add_item(pho, 'TransPhonetic')
-        line.add_item((exist(result.collins) and icon.star:rep(result.collins) or icon.notfound), 'TransCollins')
-        line.add_item((result.oxford == 1 and icon.yes or icon.no))
+        line.add_item(
+            result.word,
+            'TransWord'
+        )
+
+        line.add_item(
+            '[' .. (exist(result.phonetic) and result.phonetic or icon.notfound) .. ']',
+            'TransPhonetic'
+        )
+
+        line.add_item(
+            (exist(result.collins) and icon.star:rep(result.collins) or icon.notfound),
+            'TransCollins'
+        )
+
+        line.add_item(
+            (result.oxford == 1 and icon.yes or icon.no)
+        )
+
         line.load()
     end,
 
@@ -89,8 +93,10 @@ M.hover = {
             local size = #tags
             local i = 1
             while i <= size do
-                content:addline(indent .. tags[i] .. '    ' .. (tags[i + 1] or '') .. '    ' .. (tags[i + 2] or ''),
-                    'TransTag')
+                content:addline(
+                    indent .. tags[i] .. '    ' .. (tags[i + 1] or '') .. '    ' .. (tags[i + 2] or ''),
+                    'TransTag'
+                )
                 i = i + 3
             end
             content:addline('')
@@ -124,7 +130,10 @@ M.hover = {
         expl(content, '中文翻译')
 
         vim.tbl_map(function(trs)
-            content:addline(indent .. trs, 'TransTranslation')
+            content:addline(
+                indent .. trs,
+                'TransTranslation'
+            )
         end, vim.split(result.translation, '\n', { plain = true, trimempry = true }))
 
         content:addline('')
@@ -136,7 +145,10 @@ M.hover = {
 
             vim.tbl_map(function(def)
                 def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
-                content:addline(indent .. def, 'TransDefinition')
+                content:addline(
+                    indent .. def,
+                    'TransDefinition'
+                )
             end, vim.split(indent .. result.definition, '\n', { plain = true, trimempry = true }))
 
             content:addline('')
@@ -144,7 +156,10 @@ M.hover = {
     end,
 
     failed = function(content)
-        content:addline(icon.notfound .. indent .. '没有找到相关的翻译', 'TransNotFound')
+        content:addline(
+            icon.notfound .. indent .. '没有找到相关的翻译',
+            'TransFailed'
+        )
     end,
 }
 
