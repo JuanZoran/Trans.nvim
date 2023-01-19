@@ -172,7 +172,17 @@ local process = {
 }
 
 
-local function handle(word)
+local action = {
+    pageup = function()
+        m_window.normal('gg')
+    end,
+    pagedown = function()
+        m_window.normal('G')
+    end,
+}
+
+
+return function (word)
     vim.validate {
         word = { word, 's' },
     }
@@ -185,7 +195,6 @@ local function handle(word)
     hover.row      = 2
     m_window.init(false, hover)
 
-
     if m_result then
         for _, field in ipairs(conf.order) do
             process[field]()
@@ -197,15 +206,22 @@ local function handle(word)
     m_window.draw()
     -- Auto Close
     vim.api.nvim_create_autocmd(
-        { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
+        { --[[ 'InsertEnter', ]] 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
         once = true,
-        callback = m_window.try_close,
+        callback = function ()
+            m_window.try_close(13) -- NOTE :maybe can be passed by uesr
+        end,
     })
-
 
     m_window.set('wrap', true)
     m_window.adjust()
-end
 
-return handle
+    for act, key in pairs(conf.keymap.hover) do
+        vim.keymap.set('n', key, function()
+            if m_window.is_open() then
+                action[act]()
+            end
+        end)
+    end
+end

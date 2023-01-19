@@ -14,9 +14,7 @@ M.conf = {
             border = 'rounded',
             title = {
                 { '', 'TransTitleRound' },
-                -- { '', 'TransTitleRound' },
                 { ' Trans', 'TransTitle' },
-                -- { '', 'TransTitleRound' },
                 { '', 'TransTitleRound' },
             },
         },
@@ -26,9 +24,7 @@ M.conf = {
             border = 'rounded',
             title = {
                 { '', 'TransTitleRound' },
-                -- { '', 'TransTitleRound' },
                 { ' Trans', 'TransTitle' },
-                -- { '', 'TransTitleRound' },
                 { '', 'TransTitleRound' },
             },
         },
@@ -61,7 +57,7 @@ M.conf = {
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
     keymap = {
-        -- TODO
+        -- TODO :
         hover = {
             pageup = '[[',
             pagedown = ']]',
@@ -97,6 +93,7 @@ M.setup = function(opts)
 
     window.float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * window.float.height)
     window.float.width = math.floor(vim.o.columns * window.float.width)
+
     M.translate = require('Trans.translate')
     require("Trans.setup")
 end
