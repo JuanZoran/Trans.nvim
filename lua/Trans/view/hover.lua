@@ -182,18 +182,26 @@ local action = {
 }
 
 
-return function (word)
+return function(word)
     vim.validate {
         word = { word, 's' },
     }
 
     -- 目前只处理了本地数据库的查询
-    m_result       = require('Trans.query.offline')(word)
-    local hover    = conf.window.hover
-    hover.relative = 'cursor'
-    hover.col      = 2
-    hover.row      = 2
-    m_window.init(false, hover)
+    m_result    = require('Trans.query.offline')(word)
+    local hover = conf.hover
+    local opt = {
+        relative = 'cursor',
+        width    = hover.width,
+        height   = hover.height,
+        title    = hover.title,
+        border   = hover.border,
+        col      = 2,
+        row      = 2,
+    }
+
+
+    m_window.init(false, opt)
 
     if m_result then
         for _, field in ipairs(conf.order) do
@@ -209,15 +217,15 @@ return function (word)
         { --[[ 'InsertEnter', ]] 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
         once = true,
-        callback = function ()
-            m_window.try_close(13) -- NOTE :maybe can be passed by uesr
+        callback = function()
+            m_window.try_close(hover.animation) -- NOTE :maybe can be passed by uesr
         end,
     })
 
     m_window.set('wrap', true)
     m_window.adjust()
 
-    for act, key in pairs(conf.keymap.hover) do
+    for act, key in pairs(hover.keymap) do
         vim.keymap.set('n', key, function()
             if m_window.is_open() then
                 action[act]()
