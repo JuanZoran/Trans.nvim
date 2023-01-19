@@ -1,10 +1,3 @@
-local M = {}
-local conf = require('Trans').conf
-local api = require('Trans.api')
-local win = require('Trans.core.window')
-local handler = require('Trans.core.handler')
-
-
 local function get_select()
     local s_start = vim.fn.getpos("v")
     local s_end = vim.fn.getpos(".")
@@ -23,35 +16,33 @@ local function get_select()
     return table.concat(lines, '')
 end
 
-local function get_word(method)
-    if method == 'n' then
+local function get_word(mode)
+    if mode == 'n' then
         return vim.fn.expand('<cword>')
-    elseif method == 'v' then
+    elseif mode == 'v' then
         vim.api.nvim_input('<ESC>')
         return get_select()
-    elseif method == 'input' then
+    elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
         ---@diagnostic disable-next-line: param-type-mismatch
         return vim.fn.input('请输入您要查询的单词: ')
-    elseif method == 'last' then
-        return win.show()
     else
-        error('unknown method' .. method)
+        error('invalid mode: ' .. mode)
     end
 end
 
+local function translate(mode, view)
+    vim.validate {
+        mode = { mode, 's', true },
+        view = { view, 's', true }
+    }
 
-M.translate = function(method, view)
-    method = method or vim.api.nvim_get_mode().mode
-    view = view or conf.view[method]
-    local word = get_word(method)
-    if word then
-        win.init(view)
-        local result = api.query('offline', word)
-        local content = handler.process(view, result)
-        win.draw(content)
-    end
+    ---@diagnostic disable-next-line: undefined-field
+    mode = mode or vim.api.nvim_get_mode().mode
+    view = view or require('Trans').conf.view[mode]
+    assert(mode and view)
+    local word = get_word(mode)
+    require('Trans.view.' .. view)(word)
 end
 
-
-return M
+return translate
