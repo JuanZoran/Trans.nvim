@@ -2,20 +2,35 @@ local M = {}
 
 M.conf = {
     view = {
-        input = 'float',
+        i = 'float',
         n = 'hover',
         v = 'hover',
     },
     window = {
-        border = 'rounded',
-        animation = true,
+        -- animation = true,
         hover = {
             width = 36,
             height = 26,
+            border = 'rounded',
+            title = {
+                { '', 'TransTitleRound' },
+                -- { '', 'TransTitleRound' },
+                { ' Trans', 'TransTitle' },
+                -- { '', 'TransTitleRound' },
+                { '', 'TransTitleRound' },
+            },
         },
         float = {
             width = 0.8,
             height = 0.8,
+            border = 'rounded',
+            title = {
+                { '', 'TransTitleRound' },
+                -- { '', 'TransTitleRound' },
+                { ' Trans', 'TransTitle' },
+                -- { '', 'TransTitleRound' },
+                { '', 'TransTitleRound' },
+            },
         },
     },
 
@@ -35,22 +50,16 @@ M.conf = {
         -- },
     },
     icon = {
-        title = ' ', -- 
         star = '',
-        -- notfound = '',
-        -- yes = '',
-        -- no = ''
-        -- star = '⭐',
         notfound = '❔',
         yes = '✔️',
         no = '❌'
+        -- star = '⭐',
+        -- notfound = '',
+        -- yes = '',
+        -- no = ''
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
-    -- TODO :
-    -- engine = {
-    --     -- TODO
-    --     'offline',
-    -- }
     keymap = {
         -- TODO
         hover = {
@@ -58,6 +67,12 @@ M.conf = {
             pagedown = ']]',
         },
     },
+
+    -- TODO :
+    -- engine = {
+    --     -- TODO
+    --     'offline',
+    -- }
     -- history = {
     --     -- TOOD
     -- }
@@ -71,7 +86,6 @@ M.conf = {
     -- TODO register word
 }
 
-
 M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
@@ -83,12 +97,9 @@ M.setup = function(opts)
 
     window.float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * window.float.height)
     window.float.width = math.floor(vim.o.columns * window.float.width)
-
-
-    M.translate = require('Trans.core').translate
+    M.translate = require('Trans.translate')
     require("Trans.setup")
 end
-
 
 M.augroup = vim.api.nvim_create_augroup('Trans', { clear = true })
 

@@ -7,15 +7,14 @@ vim.api.nvim_create_user_command('Translate', function()
 end, { desc = '  单词翻译', })
 
 vim.api.nvim_create_user_command('TranslateInput', function()
-    require("Trans").translate('input')
+    require("Trans").translate('i')
 end, { desc = '  搜索翻译' })
 
-vim.api.nvim_create_user_command('TranslateLast', function()
-    require("Trans").translate('last')
-end, { desc = '  显示上一次查询的内容' })
+-- vim.api.nvim_create_user_command('TranslateLast', function()
+--     require("Trans").translate('last')
+-- end, { desc = '  显示上一次查询的内容' })
 
-
-local highlights = {
+local hls = {
     TransWord = {
         fg = '#7ee787',
         bold = true,
@@ -61,6 +60,6 @@ local highlights = {
     },
 }
 
-for highlight, opt in pairs(highlights) do
-    vim.api.nvim_set_hl(0, highlight, opt)
+for hl, opt in pairs(hls) do
+    vim.api.nvim_set_hl(0, hl, opt)
 end
