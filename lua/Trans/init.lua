@@ -20,6 +20,8 @@ M.conf = {
             -- TODO :
             pageup = '[[',
             pagedown = ']]',
+            pin = '_',
+            close = '+',
         },
         animation = {
             open = 'slid',

@@ -7,6 +7,13 @@ function string:width()
     return vim.fn.strwidth(self)
 end
 
+local busy = false
+local function check_busy()
+    while busy do
+        vim.wait(50)
+    end
+end
+
 ---@type window
 local window = {
     ---设置窗口的选项
@@ -95,26 +102,28 @@ local window = {
                 self:set_width(self.content.lines[1]:width())
             end
         end
-
-        self:open(10)
     end,
 
-    open = function(self)
+    open = function(self, callback)
         local animation = self.animation
         if animation.open then
-            local status = self:option('wrap')
-            self:set('wrap', false)
+            check_busy()
 
             local handler
             local function wrap(name, target)
                 local count = 0
                 return function()
                     if count < self[target] then
+                        busy = true
                         count = count + 1
                         api['nvim_win_set_' .. target](self.winid, count)
                         vim.defer_fn(handler[name], animation.interval)
+
                     else
-                        self:set('wrap', status)
+                        busy = false
+                        if type(callback) == 'function' then
+                            callback()
+                        end
                     end
                 end
             end
@@ -134,24 +143,35 @@ local window = {
         self.content:attach()
     end,
 
+
     ---安全的关闭窗口
-    try_close = function(self)
+    try_close = function(self, callback)
         if self:is_open() then
-            if self.animation.close then
-                local animation = self.animation
-                self:set('wrap', false)
+            check_busy()
+            self.config = api.nvim_win_get_config(self.winid)
+            local animation = self.animation
+            if animation.close then
 
                 local handler
                 local function wrap(name, target)
+                    local count = self[target]
                     return function()
-                        if self[target] > 1 then
-                            self[target] = self[target] - 1
-                            api['nvim_win_set_' .. target](self.winid, self[target])
+                        if count > 1 then
+                            busy = true
+                            count = count - 1
+                            api['nvim_win_set_' .. target](self.winid, count)
                             vim.defer_fn(handler[name], animation.interval)
+
                         else
                             vim.defer_fn(function()
                                 api.nvim_win_close(self.winid, true)
                                 self.winid = -1
+                                busy = false
+
+                                if type(callback) == 'function' then
+                                    callback()
+                                end
+
                             end, animation.interval + 2)
                         end
                     end
@@ -170,6 +190,19 @@ local window = {
             end
         end
     end,
+
+    reopen = function (self, entry, opt, callback)
+        check_busy()
+        self.config.win = nil
+        if opt then
+            for k, v in pairs(opt) do
+                self.config[k] = v
+            end
+        end
+
+        self.winid = api.nvim_open_win(self.bufnr, entry, self.config)
+        self:open(callback)
+    end
 }
 
 ---@class window
@@ -180,6 +213,7 @@ local window = {
 ---@field width integer 窗口当前的宽度
 ---@field height integer 窗口当前的高度
 ---@field hl integer 窗口highlight的namespace
+
 
 
 ---窗口对象的构造器
@@ -242,7 +276,6 @@ return function(entry, option)
         end })
 
     win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
-    win:bufset('bufhidden', 'wipe')
     win:bufset('filetype', 'Trans')
 
     ---@diagnostic disable-next-line: return-type-mismatch

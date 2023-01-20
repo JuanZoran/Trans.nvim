@@ -1,3 +1,4 @@
+local api = vim.api
 local conf = require('Trans').conf
 local icon = conf.icon
 
@@ -174,6 +175,16 @@ local process = {
 }
 
 
+local cmd_id
+
+local try_del_keymap = function()
+    for _, key in pairs(conf.hover.keymap) do
+        pcall(vim.keymap.del, 'n', key, { buffer = true })
+    end
+end
+
+
+local pin = false
 local action = {
     pageup = function()
         m_window:normal('gg')
@@ -181,6 +192,45 @@ local action = {
 
     pagedown = function()
         m_window:normal('G')
+    end,
+
+    pin = function()
+        if pin then
+            error('too many window')
+        end
+        api.nvim_del_autocmd(cmd_id)
+        m_window:set('wrap', false)
+
+        m_window:try_close(function()
+            m_window:reopen(false, {
+                relative = 'editor',
+                row = 1,
+                col = vim.o.columns - m_window.width - 3,
+            }, function ()
+                m_window:set('wrap', true)
+            end)
+
+            m_window:bufset('bufhidden', 'wipe')
+            vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
+
+            local buf = m_window.bufnr
+            pin = true
+
+            api.nvim_create_autocmd('BufWipeOut', {
+                callback = function(opt)
+                    if opt.buf == buf then
+                        pin = false
+                        api.nvim_del_autocmd(opt.id)
+                    end
+                end
+            })
+        end)
+    end,
+
+    close = function()
+        m_window:set('wrap', false)
+        m_window:try_close()
+        try_del_keymap()
     end,
 }
 
@@ -214,24 +264,25 @@ return function(word)
     else
         process.failed()
     end
-    m_window:set('wrap', true)
 
     m_window:draw(true)
+    m_window:open(function ()
+        m_window:set('wrap', true)
+    end)
+
     -- Auto Close
-    vim.api.nvim_create_autocmd(
-        { --[[ 'InsertEnter', ]] 'CursorMoved', 'BufLeave', }, {
+    cmd_id = api.nvim_create_autocmd(
+        { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
         once = true,
         callback = function()
-            m_window:try_close(hover.animation)
+            m_window:set('wrap', false)
+            m_window:try_close()
+            try_del_keymap()
         end,
     })
 
     for act, key in pairs(hover.keymap) do
-        vim.keymap.set('n', key, function()
-            if m_window:is_open() then
-                action[act]()
-            end
-        end, { buffer = true, silent = true })
+        vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
     end
 end
