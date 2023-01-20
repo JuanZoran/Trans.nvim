@@ -2,7 +2,7 @@ local conf = require('Trans').conf
 local icon = conf.icon
 
 local m_window
-local m_result 
+local m_result
 local m_content
 local m_indent = '    '
 
@@ -193,7 +193,7 @@ return function(word)
     -- 目前只处理了本地数据库的查询
     m_result    = require('Trans.query.offline')(word)
     local hover = conf.hover
-    local opt = {
+    local opt   = {
         relative = 'cursor',
         width    = hover.width,
         height   = hover.height,
@@ -204,6 +204,7 @@ return function(word)
     }
 
     m_window = require("Trans.window")(false, opt)
+    m_window.animation = hover.animation
     m_content = m_window.content
 
     if m_result then
@@ -231,6 +232,6 @@ return function(word)
             if m_window:is_open() then
                 action[act]()
             end
-        end)
+        end, { buffer = true, silent = true })
     end
 end

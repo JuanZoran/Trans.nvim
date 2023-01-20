@@ -1,11 +1,13 @@
 local api = vim.api
 
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
     return vim.fn.strwidth(self)
 end
 
+---@type window
 local window = {
     ---设置窗口的选项
     ---@param self table 需要设置的window
@@ -93,6 +95,37 @@ local window = {
                 self:set_width(self.content.lines[1]:width())
             end
         end
+
+        self:open(10)
+    end,
+
+    open = function(self)
+        local animation = self.animation
+        if animation.open then
+            local status = self:option('wrap')
+            self:set('wrap', false)
+
+            local handler
+            local function wrap(name, target)
+                local count = 0
+                return function()
+                    if count < self[target] then
+                        count = count + 1
+                        api['nvim_win_set_' .. target](self.winid, count)
+                        vim.defer_fn(handler[name], animation.interval)
+                    else
+                        self:set('wrap', status)
+                    end
+                end
+            end
+
+            handler = {
+                slid = wrap('slid', 'width'),
+                fold = wrap('fold', 'height'),
+            }
+
+            handler[animation.open]()
+        end
     end,
 
     ---**重新绘制内容**(标题不变)
@@ -102,37 +135,57 @@ local window = {
     end,
 
     ---安全的关闭窗口
-    ---@param self table 窗口对象
-    ---@param interval integer 动画的间隔
-    try_close = function(self, interval)
-        vim.validate {
-            interval = { interval, 'n' }
-        }
-
+    try_close = function(self)
         if self:is_open() then
-            local function narrow()
-                if self.height > 1 then
-                    self.height = self.height - 1
-                    api.nvim_win_set_height(self.winid, self.height)
-                    vim.defer_fn(narrow, interval)
-                else
-                    -- Wait animation done
-                    vim.defer_fn(function()
-                        api.nvim_win_close(self.winid, true)
-                        self.winid = -1
-                    end, interval + 2)
-                end
-            end
+            if self.animation.close then
+                local animation = self.animation
+                self:set('wrap', false)
 
-            narrow()
+                local handler
+                local function wrap(name, target)
+                    return function()
+                        if self[target] > 1 then
+                            self[target] = self[target] - 1
+                            api['nvim_win_set_' .. target](self.winid, self[target])
+                            vim.defer_fn(handler[name], animation.interval)
+                        else
+                            vim.defer_fn(function()
+                                api.nvim_win_close(self.winid, true)
+                                self.winid = -1
+                            end, animation.interval + 2)
+                        end
+                    end
+                end
+
+                handler = {
+                    slid = wrap('slid', 'width'),
+                    fold = wrap('fold', 'height'),
+                }
+
+                handler[animation.close]()
+
+            else
+                api.nvim_win_close(self.winid, true)
+                self.winid = -1
+            end
         end
     end,
 }
 
+---@class window
+---@field title table 窗口不变的title对象,载入后不可修改
+---@field winid integer 窗口的handle
+---@field bufnr integer 窗口对应buffer的handle
+---@field content table 窗口内容的对象, 和title一样是content类
+---@field width integer 窗口当前的宽度
+---@field height integer 窗口当前的高度
+---@field hl integer 窗口highlight的namespace
+
+
 ---窗口对象的构造器
 ---@param entry boolean 光标初始化时是否应该进入窗口
 ---@param option table 需要设置的选项
----@return table
+---@return window
 ---@nodiscard
 return function(entry, option)
     vim.validate {
@@ -161,10 +214,10 @@ return function(entry, option)
     local winid = api.nvim_open_win(bufnr, entry, opt)
 
     local win = setmetatable({
-        title   = nil,
-        content = nil,
         winid   = winid,
         bufnr   = bufnr,
+        title   = nil,
+        content = nil,
         width   = opt.width,
         height  = opt.height,
         hl      = api.nvim_create_namespace('TransWinHl'),
@@ -191,5 +244,7 @@ return function(entry, option)
     win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
     win:bufset('bufhidden', 'wipe')
     win:bufset('filetype', 'Trans')
+
+    ---@diagnostic disable-next-line: return-type-mismatch
     return win
 end
