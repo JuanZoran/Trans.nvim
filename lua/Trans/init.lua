@@ -20,8 +20,14 @@ M.conf = {
             -- TODO :
             pageup = '[[',
             pagedown = ']]',
+            pin = '_',
+            close = '+',
         },
-        animation = 13,
+        animation = {
+            open = 'slid',
+            close = 'slid',
+            interval = 12,
+        }
     },
     float = {
         width = 0.8,
@@ -35,7 +41,11 @@ M.conf = {
         keymap = {
             quit = 'q',
         },
-        animation = 9,
+        animation = {
+            open = 'slid',
+            close = 'slid',
+            interval = 8,
+        }
     },
     order = {
         -- offline = {
