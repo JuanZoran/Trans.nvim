@@ -1,12 +1,13 @@
 local conf = require('Trans').conf
 local icon = conf.icon
 
-local m_window = require('Trans.window')
-local m_result
+local m_window
+local m_result 
+local m_content
 local m_indent = '    '
 
 local title = function(str)
-    local wrapper = m_window.text_wrap()
+    local wrapper = m_content:line_wrap()
     -- wrapper('', 'TransTitleRound')
     wrapper('', 'TransTitleRound')
     wrapper(str, 'TransTitle')
@@ -61,7 +62,7 @@ end
 
 local process = {
     title = function()
-        local line = m_window.line_wrap()
+        local line = m_content:items_wrap()
         line.add_item(
             m_result.word,
             'TransWord'
@@ -94,12 +95,13 @@ local process = {
             end
 
             for i = 1, size, 3 do
-                m_window.addline(
+                m_content:addline(
                     m_indent .. tags[i] .. interval .. (tags[i + 1] or '') .. interval .. (tags[i + 2] or ''),
                     'TransTag'
                 )
             end
-            m_window.addline('')
+
+            m_content:addline('')
         end
     end,
 
@@ -108,13 +110,13 @@ local process = {
             title('词性')
 
             for pos in vim.gsplit(m_result.pos, '/', true) do
-                m_window.addline(
+                m_content:addline(
                     m_indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%',
                     'TransPos'
                 )
             end
 
-            m_window.addline('')
+            m_content:addline('')
         end
     end,
 
@@ -124,13 +126,13 @@ local process = {
             local interval = '    '
 
             for exc in vim.gsplit(m_result.exchange, '/', true) do
-                m_window.addline(
+                m_content:addline(
                     m_indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3),
                     'TransExchange'
                 )
             end
 
-            m_window.addline('')
+            m_content:addline('')
         end
     end,
 
@@ -138,13 +140,13 @@ local process = {
         title('中文翻译')
 
         for trs in vim.gsplit(m_result.translation, '\n', true) do
-            m_window.addline(
+            m_content:addline(
                 m_indent .. trs,
                 'TransTranslation'
             )
         end
 
-        m_window.addline('')
+        m_content:addline('')
     end,
 
     definition = function()
@@ -153,18 +155,18 @@ local process = {
 
             for def in vim.gsplit(m_result.definition, '\n', true) do
                 def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
-                m_window.addline(
+                m_content:addline(
                     m_indent .. def,
                     'TransDefinition'
                 )
             end
 
-            m_window.addline('')
+            m_content:addline('')
         end
     end,
 
     failed = function()
-        m_window.addline(
+        m_content:addline(
             icon.notfound .. m_indent .. '没有找到相关的翻译',
             'TransFailed'
         )
@@ -174,10 +176,11 @@ local process = {
 
 local action = {
     pageup = function()
-        m_window.normal('gg')
+        m_window:normal('gg')
     end,
+
     pagedown = function()
-        m_window.normal('G')
+        m_window:normal('G')
     end,
 }
 
@@ -200,8 +203,8 @@ return function(word)
         row      = 2,
     }
 
-
-    m_window.init(false, opt)
+    m_window = require("Trans.window")(false, opt)
+    m_content = m_window.content
 
     if m_result then
         for _, field in ipairs(conf.order) do
@@ -210,24 +213,22 @@ return function(word)
     else
         process.failed()
     end
+    m_window:set('wrap', true)
 
-    m_window.draw()
+    m_window:draw(true)
     -- Auto Close
     vim.api.nvim_create_autocmd(
         { --[[ 'InsertEnter', ]] 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
         once = true,
         callback = function()
-            m_window.try_close(hover.animation) -- NOTE :maybe can be passed by uesr
+            m_window:try_close(hover.animation)
         end,
     })
 
-    m_window.set('wrap', true)
-    m_window.adjust()
-
     for act, key in pairs(hover.keymap) do
         vim.keymap.set('n', key, function()
-            if m_window.is_open() then
+            if m_window:is_open() then
                 action[act]()
             end
         end)
