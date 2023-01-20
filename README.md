@@ -21,6 +21,7 @@
   - 悬浮大小
   - 排版顺序
   - 弹窗大小
+  - `舒服窗口动画`
   - etc (更多可以查看[配置](#配置))
 - **完全离线** 的单词翻译体验 (可能后面会支持在线翻译)
 - 支持显示:
@@ -37,7 +38,7 @@
 - 本地词库单词量: `430w`
   
 ## 屏幕截图
-![ScreenShot](./screenshot.gif)
+https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531-bf80-ba2cbc8b44ef.mp4
 
 
 ## 安装
@@ -45,6 +46,7 @@
 - [ECDICT](https://github.com/skywind3000/ECDICT): 插件所用的离线单词数据库
 - sqlite.lua: 操作数据库所用的库
 - sqlite3: 数据库
+
 
 由于目前本人只使用 `Packer.nvim` 作为包管理插件, 所以这里以Packer为例:  
 **考虑将以下代码复制到的Packer Startup中:**
@@ -54,9 +56,12 @@ use {
     run = 'bash ./install.sh',
     requires = 'kharji/sqlite.lua',
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
-    config = require'Trans'.setup
+    config = function ()
+        require'Trans'.setup{
+            -- your configuration here
+        }
+    end
 }
-
 ```
 
 **如果你想要使用Packer的惰性加载，这里有一个例子**  
@@ -103,23 +108,50 @@ use {
 ```lua
 require'Trans'.setup {
     view = {
-        input = 'float',
+        i = 'float',
         n = 'hover',
         v = 'hover',
     },
-    window = {
+    hover = {
+        width = 36,
+        height = 26,
         border = 'rounded',
-        animation = true,
-        hover = {
-            width = 36,
-            height = 26,
+        title = {
+            { '', 'TransTitleRound' },
+            { ' Trans', 'TransTitle' },
+            { '', 'TransTitleRound' },
         },
-        float = {
-            width = 0.8,
-            height = 0.8,
+        keymap = {
+            -- TODO :
+            pageup = '[[',
+            pagedown = ']]',
+            pin = '_', -- 将窗口固定在右上角, 参考demo
+            close = '+',
         },
+        animation = {
+            open = 'slid', -- 可选的样式: slid , fold 
+            close = 'slid',
+            interval = 12, -- 动画的帧间隔
+        }
     },
-
+    float = {
+        width = 0.8,
+        height = 0.8,
+        border = 'rounded',
+        title = {
+            { '', 'TransTitleRound' },
+            { ' Trans', 'TransTitle' },
+            { '', 'TransTitleRound' },
+        },
+        keymap = {
+            quit = 'q',
+        },
+        animation = {
+            open = 'fold',
+            close = 'fold',
+            interval = 10,
+        }
+    },
     order = {
         -- offline = {
         'title',
@@ -134,29 +166,22 @@ require'Trans'.setup {
         -- },
     },
     icon = {
-        title = ' ', --  
         star = '',
-        -- notfound = ' ',
-        -- yes = ' ',
-        -- no = ' '
-        -- star = '⭐',
         notfound = '❔',
         yes = '✔️',
         no = '❌'
+        -- star = '⭐',
+        -- notfound = '',
+        -- yes = '',
+        -- no = ''
     },
     db_path = '$HOME/.vim/dict/ultimate.db',
+
     -- TODO :
     -- engine = {
     --     -- TODO
     --     'offline',
     -- }
-    keymap = {
-        -- TODO : More action support
-        hover = {
-            pageup = '[[',
-            pagedown = ']]',
-        },
-    },
     -- history = {
     --     -- TOOD
     -- }

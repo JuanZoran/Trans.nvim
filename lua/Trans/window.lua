@@ -278,6 +278,7 @@ return function(entry, option)
 
     win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
     win:bufset('filetype', 'Trans')
+    win:bufset('buftype', 'nofile')
 
     ---@diagnostic disable-next-line: return-type-mismatch
     return win

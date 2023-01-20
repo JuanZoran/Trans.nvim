@@ -6,7 +6,6 @@ M.conf = {
         n = 'hover',
         v = 'hover',
     },
-    -- animation = true,
     hover = {
         width = 36,
         height = 26,
@@ -24,6 +23,8 @@ M.conf = {
             close = '+',
         },
         animation = {
+            -- open = 'fold',
+            -- close = 'fold',
             open = 'slid',
             close = 'slid',
             interval = 12,
@@ -42,9 +43,9 @@ M.conf = {
             quit = 'q',
         },
         animation = {
-            open = 'slid',
-            close = 'slid',
-            interval = 8,
+            open = 'fold',
+            close = 'fold',
+            interval = 10,
         }
     },
     order = {
@@ -54,8 +55,6 @@ M.conf = {
         'pos',
         'exchange',
         'translation',
-        -- NOTE :如果你想限制某个组件的行数，可以设置max_size
-        -- { 'Definition', max_size = 4 },
         'definition',
         -- },
         -- online = {
