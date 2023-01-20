@@ -10,7 +10,7 @@
   - [高亮组](#高亮组)
   - [声明](#声明)
   - [感谢](#感谢)
-  - [TODO](#todo)
+  - [待办 (画大饼)](#待办-画大饼)
 <!--toc:end-->
 
 
@@ -194,7 +194,7 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 - [sqlite.lua](https://github.com/kharji/sqlite.lua)    数据库访问
 - [T.vim](https://github.com/sicong-li/T.vim)           灵感来源
 
-## TODO
+## 待办 (画大饼)
 - ~~移动光标自动关闭窗口~~
 - 多风格样式
 - 历史查询结果保存
