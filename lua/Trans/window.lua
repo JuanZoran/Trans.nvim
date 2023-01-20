@@ -25,7 +25,7 @@ M.init = function(entry, opts)
         opts = { opts, 't' }
     }
     local opt = {
-        relative  = nil,
+       relative  = nil,
         width     = nil,
         height    = nil,
         border    = nil,
