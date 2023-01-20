@@ -1,6 +1,5 @@
 local api = vim.api
 
-
 ---@diagnostic disable-next-line: duplicate-set-field
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
@@ -112,11 +111,12 @@ local window = {
             local handler
             local function wrap(name, target)
                 local count = 0
+                local action = 'nvim_win_set_' .. target
                 return function()
                     if count < self[target] then
                         busy = true
                         count = count + 1
-                        api['nvim_win_set_' .. target](self.winid, count)
+                        api[action](self.winid, count)
                         vim.defer_fn(handler[name], animation.interval)
 
                     else
@@ -155,11 +155,12 @@ local window = {
                 local handler
                 local function wrap(name, target)
                     local count = self[target]
+                    local action = 'nvim_win_set_' .. target
                     return function()
                         if count > 1 then
                             busy = true
                             count = count - 1
-                            api['nvim_win_set_' .. target](self.winid, count)
+                            api[action](self.winid, count)
                             vim.defer_fn(handler[name], animation.interval)
 
                         else
@@ -191,7 +192,7 @@ local window = {
         end
     end,
 
-    reopen = function (self, entry, opt, callback)
+    reopen = function(self, entry, opt, callback)
         check_busy()
         self.config.win = nil
         if opt then
@@ -240,6 +241,7 @@ return function(entry, option)
         zindex    = 100,
         style     = 'minimal',
     }
+
     for k, v in pairs(option) do
         opt[k] = v
     end
@@ -277,6 +279,7 @@ return function(entry, option)
 
     win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
     win:bufset('filetype', 'Trans')
+    win:bufset('buftype', 'nofile')
 
     ---@diagnostic disable-next-line: return-type-mismatch
     return win
