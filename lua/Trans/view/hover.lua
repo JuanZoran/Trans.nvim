@@ -198,7 +198,11 @@ local action = {
         if pin then
             error('too many window')
         end
-        api.nvim_del_autocmd(cmd_id)
+        if cmd_id > 0 then
+            api.nvim_del_autocmd(cmd_id)
+            cmd_id = -1
+        end
+
         m_window:set('wrap', false)
 
         m_window:try_close(function()
@@ -206,7 +210,7 @@ local action = {
                 relative = 'editor',
                 row = 1,
                 col = vim.o.columns - m_window.width - 3,
-            }, function ()
+            }, function()
                 m_window:set('wrap', true)
             end)
 
@@ -228,6 +232,11 @@ local action = {
     end,
 
     close = function()
+        if cmd_id > 0 then
+            api.nvim_del_autocmd(cmd_id)
+            cmd_id = -1
+        end
+
         m_window:set('wrap', false)
         m_window:try_close()
         try_del_keymap()
@@ -266,7 +275,7 @@ return function(word)
     end
 
     m_window:draw(true)
-    m_window:open(function ()
+    m_window:open(function()
         m_window:set('wrap', true)
     end)
 
