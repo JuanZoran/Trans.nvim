@@ -176,6 +176,7 @@ local process = {
 
 
 local cmd_id
+local pin = false
 
 local try_del_keymap = function()
     for _, key in pairs(conf.hover.keymap) do
@@ -184,8 +185,8 @@ local try_del_keymap = function()
 end
 
 
-local pin = false
-local action = {
+local action
+action = {
     pageup = function()
         m_window:normal('gg')
     end,
@@ -217,14 +218,19 @@ local action = {
             m_window:bufset('bufhidden', 'wipe')
             vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
 
+
+
+            --- NOTE : 只允许存在一个pin窗口
             local buf = m_window.bufnr
             pin = true
-
-            api.nvim_create_autocmd('BufWipeOut', {
+            api.nvim_create_autocmd({ 'BufWipeOut', 'BufLeave' }, {
                 callback = function(opt)
-                    if opt.buf == buf then
+                    if opt.event == 'BufLeave' or opt.buf == buf then
                         pin = false
                         api.nvim_del_autocmd(opt.id)
+                        if opt.event == 'BufLeave' then
+                            action.close()
+                        end
                     end
                 end
             })
@@ -283,11 +289,11 @@ return function(word)
     cmd_id = api.nvim_create_autocmd(
         { 'InsertEnter', 'CursorMoved', 'BufLeave', }, {
         buffer = 0,
-        once = true,
         callback = function()
             m_window:set('wrap', false)
             m_window:try_close()
             try_del_keymap()
+            api.nvim_del_autocmd(cmd_id)
         end,
     })
 

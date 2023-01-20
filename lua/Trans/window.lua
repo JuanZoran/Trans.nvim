@@ -191,7 +191,7 @@ local window = {
         end
     end,
 
-    reopen = function (self, entry, opt, callback)
+    reopen = function(self, entry, opt, callback)
         check_busy()
         self.config.win = nil
         if opt then
@@ -240,6 +240,7 @@ return function(entry, option)
         zindex    = 100,
         style     = 'minimal',
     }
+
     for k, v in pairs(option) do
         opt[k] = v
     end
