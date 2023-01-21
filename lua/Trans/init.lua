@@ -19,9 +19,9 @@ M.conf = {
             -- TODO :
             pageup = '[[',
             pagedown = ']]',
-            pin = '+',
-            close = '_',
-            toggle_entry = '--',
+            pin = '<leader>[',
+            close = '<leader>]',
+            toggle_entry = '<leader>;',
         },
         animation = {
             -- open = 'fold',
@@ -77,6 +77,7 @@ M.conf = {
         -- yes = '',
         -- no = ''
     },
+
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     -- TODO :

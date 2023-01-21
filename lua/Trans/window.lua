@@ -83,24 +83,10 @@ local window = {
 
     ---**第一次**绘制窗口的内容
     ---@param self table 窗口的对象
-    ---@param adjust boolean 是否需要调整窗口的高度和宽度 (只有窗口只有一行时才会调整宽度)
-    draw = function(self, adjust)
+    draw = function(self)
         -- TODO :
-        if self.title then
-            self.title:attach()
-        end
+        self.title:attach()
         self.content:attach()
-
-        if adjust then
-            local height = self.content:actual_height() + self.title:actual_height()
-            if self.height > height then
-                self:set_height(height)
-            end
-
-            if self.content.size == 1 and self.title.size == 0 then
-                self:set_width(self.content.lines[1]:width())
-            end
-        end
     end,
 
     open = function(self, callback)

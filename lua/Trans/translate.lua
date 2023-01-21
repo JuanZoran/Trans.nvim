@@ -31,6 +31,7 @@ local function get_word(mode)
     end
 end
 
+
 local function translate(mode, view)
     vim.validate {
         mode = { mode, 's', true },

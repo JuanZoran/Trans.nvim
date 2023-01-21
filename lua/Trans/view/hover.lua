@@ -283,13 +283,14 @@ return function(word)
         end
     else
         process.failed()
+        m_window:set_width(m_content.lines[1]:width())
     end
 
-    m_window:draw(true)
+    m_window:draw()
+    m_window.height = m_content:actual_height(true)
     m_window:open(function()
         m_window:set('wrap', true)
     end)
-
 
 
     -- Auto Close

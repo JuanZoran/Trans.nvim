@@ -58,8 +58,9 @@ local content = {
         self.window:bufset('modifiable', false)
     end,
 
-    actual_height = function(self)
-        if self.window:option('wrap') then
+    actual_height = function(self, wrap)
+        wrap = wrap or self.window:option('wrap')
+        if  wrap then
             local height = 0
             local width = self.window.width
             local lines = self.lines
@@ -67,6 +68,7 @@ local content = {
                 height = height + math.max(1, (math.ceil(lines[i]:width() / width)))
             end
             return height
+
         else
             return self.size
         end
