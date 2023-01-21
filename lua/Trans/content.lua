@@ -41,15 +41,16 @@ local content = {
         self.size = 0
     end,
 
-    attach = function(self)
+    ---将内容连接上对应的窗口
+    ---@param self table content对象
+    ---@param offset integer 起始行
+    attach = function(self, offset)
         if self.size == 0 then
             return
         end
 
         self.window:bufset('modifiable', true)
         local window = self.window
-        local offset = self.offset
-
         api.nvim_buf_set_lines(window.bufnr, offset, offset + 1, true, self.lines)
 
         for _, hl in ipairs(self.highlights) do
@@ -153,13 +154,12 @@ local content = {
 ---content的构造函数
 ---@param window table 链接的窗口
 ---@return table 构造好的content
-return function(window, offset)
+return function(window)
     vim.validate {
         window = { window, 't' },
     }
     return setmetatable({
         modifiable = true,
-        offset = offset or 0,
         window = window,
         size = 0,
         hl_size = 0,

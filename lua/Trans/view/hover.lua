@@ -275,7 +275,7 @@ return function(word)
 
     m_window = require("Trans.window")(false, opt)
     m_window.animation = hover.animation
-    m_content = m_window.content
+    m_content = m_window.contents[1]
 
     if m_result then
         for _, field in ipairs(conf.order) do
@@ -287,7 +287,12 @@ return function(word)
     end
 
     m_window:draw()
-    m_window.height = m_content:actual_height(true)
+
+    local height = m_content:actual_height(true)
+    if height < m_window.height then
+        m_window:set_height(height)
+    end
+
     m_window:open(function()
         m_window:set('wrap', true)
     end)
