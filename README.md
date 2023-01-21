@@ -98,7 +98,7 @@ use {
 - 安装后如果不能正常运行, 请尝试检查一下问题:
   - 本机是否已经安装了 `sqlite3`
     > Linux下安装:
-    > `sudo pacman -S sqlite # Arch`
+    > `sudo pacman -S sqlite # Arch`  
     > `sudo apt-get install sqlite3 libsqlite3-dev # Ubuntu`
     
   > 后续会增加 `healthcheck` 进行检查
@@ -207,9 +207,53 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 ```
 
 ## 高亮组
+> 默认定义
 ```lua
--- TODO : add explanation
-
+{
+    TransWord = {
+        fg = '#7ee787',
+        bold = true,
+    },
+    TransPhonetic = {
+        link = 'Linenr'
+    },
+    TransTitle = {
+        fg = '#0f0f15',
+        bg = '#75beff',
+        bold = true,
+    },
+    TransTitleRound = {
+        fg = '#75beff',
+    },
+    TransTag = {
+        fg = '#e5c07b',
+    },
+    TransExchange = {
+        link = 'TransTag',
+    },
+    TransPos = {
+        link = 'TransTag',
+    },
+    TransTranslation = {
+        link = 'TransWord',
+    },
+    TransDefinition = {
+        link = 'Moremsg',
+    },
+    TransWin = {
+        link = 'Normal',
+    },
+    TransBorder = {
+        link = 'FloatBorder',
+    },
+    TransCollins = {
+        fg = '#faf743',
+        bold = true,
+    },
+    TransFailed = {
+        fg = '#7aa89f',
+    },
+}
 ```
 ## 声明
 - 本插件词典基于[ECDICT](https://github.com/skywind3000/ECDICT)

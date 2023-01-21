@@ -19,8 +19,9 @@ M.conf = {
             -- TODO :
             pageup = '[[',
             pagedown = ']]',
-            pin = '_',
-            close = '+',
+            pin = '+',
+            close = '_',
+            toggle_entry = '--',
         },
         animation = {
             -- open = 'fold',
@@ -28,7 +29,12 @@ M.conf = {
             open = 'slid',
             close = 'slid',
             interval = 12,
-        }
+        },
+        auto_close_events = {
+            'InsertEnter',
+            'CursorMoved',
+            'BufLeave',
+        },
     },
     float = {
         width = 0.8,
