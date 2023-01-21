@@ -104,11 +104,13 @@ use {
   > 后续会增加 `healthcheck` 进行检查
 
 - **`auto_play`** 使用步骤:
+    > linux 只需要安装`festival`  
+    > sudo apt-get install festival festvox-kallpc16k
+
+    > 其他操作系统
     - 需要确保安装了`nodejs`
     - 进入插件的`tts`目录运行`npm install`
         > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
-    - linux 用户需要额外安装以下依赖:
-        > sudo apt-get install festival festvox-kallpc16k
 
 ## 配置
 ```lua

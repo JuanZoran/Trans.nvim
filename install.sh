@@ -14,5 +14,12 @@ wget https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdi
 
 unzip /tmp/dict.zip -d $HOME/.vim/dict
 
+
 rm -rf /tmp/dict.zip
-cd ./tts/ && npm install
+
+
+uNames=`uname -s`
+osName=${uNames: 0: 4}
+if [ "$osName" != "Linux" ];then
+    cd ./tts/ && npm install
+fi
