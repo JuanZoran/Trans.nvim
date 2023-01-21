@@ -2,6 +2,7 @@ if vim.fn.executable('sqlite3') ~= 1 then
     error('Please check out sqlite3')
 end
 
+
 vim.api.nvim_create_user_command('Translate', function()
     require("Trans").translate()
 end, { desc = '  单词翻译', })

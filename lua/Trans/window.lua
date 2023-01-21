@@ -83,23 +83,12 @@ local window = {
 
     ---**第一次**绘制窗口的内容
     ---@param self table 窗口的对象
-    ---@param adjust boolean 是否需要调整窗口的高度和宽度 (只有窗口只有一行时才会调整宽度)
-    draw = function(self, adjust)
+    draw = function(self)
         -- TODO :
-        if self.title then
-            self.title:attach()
-        end
-        self.content:attach()
-
-        if adjust then
-            local height = self.content:actual_height() + self.title:actual_height()
-            if self.height > height then
-                self:set_height(height)
-            end
-
-            if self.content.size == 1 and self.title.size == 0 then
-                self:set_width(self.content.lines[1]:width())
-            end
+        local offset = 0
+        for _, content in ipairs(self.contents) do
+            content:attach(offset)
+            offset = offset + content.size
         end
     end,
 
@@ -207,20 +196,18 @@ local window = {
 }
 
 ---@class window
----@field title table 窗口不变的title对象,载入后不可修改
 ---@field winid integer 窗口的handle
 ---@field bufnr integer 窗口对应buffer的handle
----@field content table 窗口内容的对象, 和title一样是content类
 ---@field width integer 窗口当前的宽度
 ---@field height integer 窗口当前的高度
 ---@field hl integer 窗口highlight的namespace
-
+---@field contents table[] 窗口内容的对象数组
 
 
 ---窗口对象的构造器
 ---@param entry boolean 光标初始化时是否应该进入窗口
 ---@param option table 需要设置的选项
----@return window
+---@return window win
 ---@nodiscard
 return function(entry, option)
     vim.validate {
@@ -249,34 +236,24 @@ return function(entry, option)
     local bufnr = api.nvim_create_buf(false, true)
     local winid = api.nvim_open_win(bufnr, entry, opt)
 
-    local win = setmetatable({
-        winid   = winid,
-        bufnr   = bufnr,
-        title   = nil,
-        content = nil,
-        width   = opt.width,
-        height  = opt.height,
-        hl      = api.nvim_create_namespace('TransWinHl'),
-    },
-        { __index = function(tbl, key)
-            if key == 'content' then
-                if tbl.title then
-                    tbl.content = require('Trans.content')(tbl, tbl.title.size)
-                    tbl.title.modifiable = false
-                else
-                    tbl.content = require('Trans.content')(tbl)
-                end
-                return tbl.content
 
-            elseif key == 'title' then
-                tbl.title = require('Trans.content')(tbl, 0)
-                return tbl.title
-
-            else
-                return window[key]
+    local win
+    win = {
+        winid    = winid,
+        bufnr    = bufnr,
+        width    = opt.width,
+        height   = opt.height,
+        hl       = api.nvim_create_namespace('TransWinHl'),
+        contents = setmetatable({}, {
+            __index = function(self, key)
+                assert(type(key) == 'number')
+                self[key] = require('Trans.content')(win)
+                return self[key]
             end
-        end })
+        })
+    }
 
+    setmetatable(win, { __index = window })
     win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')

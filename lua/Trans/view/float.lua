@@ -2,7 +2,7 @@ local m_window
 local m_result
 
 local function set_title()
-    local title = m_window.title
+    local title = m_window.contents[1]
     local github = 'https://github.com/JuanZoran/Trans.nvim'
 
     -- TODO :config this
@@ -10,7 +10,7 @@ local function set_title()
 end
 
 local action = {
-    quit = function ()
+    quit = function()
         m_window:try_close()
     end,
 }
@@ -21,7 +21,7 @@ return function(word)
     local float = require('Trans').conf.float
     m_result    = require('Trans.query.offline')(word)
 
-    local opt = {
+    local opt          = {
         relative = 'editor',
         width    = float.width,
         height   = float.height,
@@ -30,7 +30,7 @@ return function(word)
         row      = math.floor((vim.o.lines - float.height) / 2),
         col      = math.floor((vim.o.columns - float.width) / 2),
     }
-    m_window    = require('Trans.window')(true, opt)
+    m_window           = require('Trans.window')(true, opt)
     m_window.animation = float.animation
 
     set_title()

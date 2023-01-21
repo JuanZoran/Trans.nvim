@@ -186,6 +186,8 @@ end
 
 local action
 local next
+local _word
+
 action = {
     pageup = function()
         m_window:normal('gg')
@@ -251,7 +253,12 @@ action = {
         else
             vim.keymap.del('n', conf.hover.keymap.toggle_entry, { buffer = true })
         end
-    end
+    end,
+
+    play = function()
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua/') .. 'tts/say.js'
+        vim.fn.jobstart('node ' .. file .. ' ' .. _word)
+    end,
 }
 
 
@@ -259,11 +266,15 @@ return function(word)
     vim.validate {
         word = { word, 's' },
     }
-
+    _word       = word
     -- 目前只处理了本地数据库的查询
     m_result    = require('Trans.query.offline')(word)
     local hover = conf.hover
-    local opt   = {
+    if hover.auto_play then
+        action.play()
+    end
+
+    local opt = {
         relative = 'cursor',
         width    = hover.width,
         height   = hover.height,
@@ -275,7 +286,7 @@ return function(word)
 
     m_window = require("Trans.window")(false, opt)
     m_window.animation = hover.animation
-    m_content = m_window.content
+    m_content = m_window.contents[1]
 
     if m_result then
         for _, field in ipairs(conf.order) do
@@ -283,9 +294,16 @@ return function(word)
         end
     else
         process.failed()
+        m_window:set_width(m_content.lines[1]:width())
     end
 
-    m_window:draw(true)
+    m_window:draw()
+
+    local height = m_content:actual_height(true)
+    if height < m_window.height then
+        m_window:set_height(height)
+    end
+
     m_window:open(function()
         m_window:set('wrap', true)
     end)
@@ -304,7 +322,9 @@ return function(word)
         end,
     })
 
-    for act, key in pairs(hover.keymap) do
-        vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
+    if m_result then
+        for act, key in pairs(hover.keymap) do
+            vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
+        end
     end
 end

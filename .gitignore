@@ -1,6 +1,7 @@
 lua/Trans/util/
 lua/Trans/test/
 note/
-go/
 demo.mp4
 screenshot.gif
+tts/node_modules/
+tts/package-lock.json
