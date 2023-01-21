@@ -22,6 +22,7 @@ M.conf = {
             pin = '<leader>[',
             close = '<leader>]',
             toggle_entry = '<leader>;',
+            play = '_',
         },
         animation = {
             -- open = 'fold',
@@ -35,6 +36,7 @@ M.conf = {
             'CursorMoved',
             'BufLeave',
         },
+        auto_play = true,
     },
     float = {
         width = 0.8,
@@ -69,13 +71,13 @@ M.conf = {
     },
     icon = {
         star = '',
-        notfound = '❔',
-        yes = '✔️',
-        no = '❌'
+        -- notfound = '❔',
+        notfound = ' ',
+        yes = ' ',
+        no = ''
+        -- yes = '✔️',
+        -- no = '❌'
         -- star = '⭐',
-        -- notfound = '',
-        -- yes = '',
-        -- no = ''
     },
 
     db_path = '$HOME/.vim/dict/ultimate.db',

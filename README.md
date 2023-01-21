@@ -103,6 +103,12 @@ use {
     
   > 后续会增加 `healthcheck` 进行检查
 
+- **`auto_play`** 使用步骤:
+    - 需要确保安装了`nodejs`
+    - 进入插件的`tts`目录运行`npm install`
+        > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
+    - linux 用户需要额外安装以下依赖:
+        > sudo apt-get install festival festvox-kallpc16k
 
 ## 配置
 ```lua
@@ -125,14 +131,24 @@ require'Trans'.setup {
             -- TODO :
             pageup = '[[',
             pagedown = ']]',
-            pin = '_', -- 将窗口固定在右上角, 参考demo
-            close = '+',
+            pin = '<leader>[',
+            close = '<leader>]',
+            toggle_entry = '<leader>;',
+            play = '_',
         },
         animation = {
-            open = 'slid', -- 可选的样式: slid , fold 
+            -- open = 'fold',
+            -- close = 'fold',
+            open = 'slid',
             close = 'slid',
-            interval = 12, -- 动画的帧间隔
-        }
+            interval = 12,
+        },
+        auto_close_events = {
+            'InsertEnter',
+            'CursorMoved',
+            'BufLeave',
+        },
+        auto_play = true, -- WARN : 请阅读说明
     },
     float = {
         width = 0.8,
@@ -167,14 +183,15 @@ require'Trans'.setup {
     },
     icon = {
         star = '',
-        notfound = '❔',
-        yes = '✔️',
-        no = '❌'
+        -- notfound = '❔',
+        notfound = ' ',
+        yes = ' ',
+        no = ''
+        -- yes = '✔️',
+        -- no = '❌'
         -- star = '⭐',
-        -- notfound = '',
-        -- yes = '',
-        -- no = ''
     },
+
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     -- TODO :
