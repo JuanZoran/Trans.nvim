@@ -270,9 +270,6 @@ return function(word)
     -- 目前只处理了本地数据库的查询
     m_result    = require('Trans.query.offline')(word)
     local hover = conf.hover
-    if hover.auto_play then
-        action.play()
-    end
 
     local opt = {
         relative = 'cursor',
@@ -289,6 +286,10 @@ return function(word)
     m_content = m_window.contents[1]
 
     if m_result then
+        if hover.auto_play then
+            action.play()
+        end
+
         for _, field in ipairs(conf.order) do
             process[field]()
         end

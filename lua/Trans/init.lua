@@ -7,8 +7,8 @@ M.conf = {
         v = 'hover',
     },
     hover = {
-        width = 36,
-        height = 26,
+        width = 37,
+        height = 27,
         border = 'rounded',
         title = {
             { '', 'TransTitleRound' },

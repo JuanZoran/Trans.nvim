@@ -102,7 +102,7 @@ local content = {
             load = function()
                 assert(size > 1, 'no item need be loaded')
                 local space = math.floor((self.window.width - width) / (size - 1))
-                assert(space > 0, 'try to expand window width')
+                assert(space > 0, vim.inspect(items))
                 local interval = (' '):rep(space)
                 local line = ''
 
