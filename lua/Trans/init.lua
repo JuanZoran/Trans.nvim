@@ -71,13 +71,13 @@ M.conf = {
     },
     icon = {
         star = '',
-        -- notfound = '❔',
         notfound = ' ',
         yes = ' ',
         no = ''
+        -- star = '⭐',
+        -- notfound = '❔',
         -- yes = '✔️',
         -- no = '❌'
-        -- star = '⭐',
     },
 
     db_path = '$HOME/.vim/dict/ultimate.db',

@@ -51,7 +51,8 @@ local content = {
 
         self.window:bufset('modifiable', true)
         local window = self.window
-        api.nvim_buf_set_lines(window.bufnr, offset, offset + 1, true, self.lines)
+        --- NOTE : 使用-1 则需要按顺序设置
+        api.nvim_buf_set_lines(window.bufnr, offset, -1, true, self.lines)
 
         local hl
         for i = 1, self.hl_size  do

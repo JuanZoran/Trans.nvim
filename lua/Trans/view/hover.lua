@@ -28,19 +28,19 @@ local tag_map = {
 }
 
 local pos_map = {
-    a = '代词pron        ',
-    c = '连接词conj      ',
-    i = '介词prep        ',
-    j = '形容词adj       ',
-    m = '数词num         ',
-    n = '名词n           ',
-    p = '代词pron        ',
-    r = '副词adv         ',
-    u = '感叹词int       ',
-    v = '动词v           ',
-    x = '否定标记not     ',
-    t = '不定式标记infm  ',
-    d = '限定词determiner',
+    a = '代词pron         ',
+    c = '连接词conj       ',
+    i = '介词prep         ',
+    j = '形容词adj        ',
+    m = '数词num          ',
+    n = '名词n            ',
+    p = '代词pron         ',
+    r = '副词adv          ',
+    u = '感叹词int        ',
+    v = '动词v            ',
+    x = '否定标记not      ',
+    t = '不定式标记infm   ',
+    d = '限定词determiner ',
 }
 
 local exchange_map = {
@@ -306,6 +306,7 @@ return function(word)
         m_window:set_height(height)
     end
 
+    -- action.pageup()
     m_window:open(function()
         m_window:set('wrap', true)
     end)
