@@ -1,13 +1,43 @@
+local conf = require('Trans').conf
 local m_window
 local m_result
 local m_content
 
+
+local engine_map = {
+    ['本地'] = 'offline',
+    ['百度'] = 'baidu',
+    ['有道'] = 'youdao',
+}
+
+local function set_tag_hl(name, status)
+    local hl = conf.float.tag[status]
+    m_window:set_hl(name, {
+        fg = '#000000',
+        bg = hl,
+    })
+
+    m_window:set_hl(name .. 'round', {
+        fg = hl,
+    })
+end
 
 local function set_title()
     local title = m_window.contents[1]
     local github = '  https://github.com/JuanZoran/Trans.nvim'
 
     title:center_line(github, '@text.uri')
+
+    for i, engine_ch in ipairs(conf.float.engine) do
+        local engine_us = engine_map[engine_ch]
+        set_tag_hl(engine_us, 'wait')
+
+        local round = engine_us .. 'round'
+        local wrap = title:line_wrap()
+        wrap('', round)
+        wrap(engine_ch .. '(' .. i .. ')', engine_us)
+        wrap('', round)
+    end
 end
 
 local action = {
@@ -25,8 +55,11 @@ local handle = {
 
 return function(word)
     -- TODO :online query
-    local float = require('Trans').conf.float
-    m_result    = require('Trans.query.offline')(word)
+    local float = conf.float
+    local engine_ch = '本地'
+    local engine_us = engine_map[engine_ch]
+
+    m_result = require('Trans.query.' .. engine_us)(word)
 
     local opt = {
         relative = 'editor',
@@ -39,14 +72,19 @@ return function(word)
         zindex   = 50,
     }
 
-    m_window           = require('Trans.window')(true, opt)
+    m_window = require('Trans.window')(true, opt)
     m_window.animation = float.animation
 
     set_title()
-
     m_content = m_window.contents[2]
-    for _, proc in pairs(handle) do
-        proc()
+
+    if m_result then
+        set_tag_hl(engine_us, 'success')
+        for _, proc in pairs(handle) do
+            proc()
+        end
+    else
+        set_tag_hl(engine_us, 'fail')
     end
 
     m_window:draw()

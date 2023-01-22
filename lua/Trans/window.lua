@@ -179,7 +179,7 @@ local window = {
                 self.winid = -1
             end
         end
-    end,
+        end,
 
     reopen = function(self, entry, opt, callback)
         check_busy()
@@ -192,6 +192,10 @@ local window = {
 
         self.winid = api.nvim_open_win(self.bufnr, entry, self.config)
         self:open(callback)
+    end,
+
+    set_hl = function(self, name, hl)
+        api.nvim_set_hl(self.hl, name, hl)
     end
 }
 
@@ -258,6 +262,7 @@ return function(entry, option)
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')
 
+    api.nvim_win_set_hl_ns(win.winid, win.hl)
     ---@diagnostic disable-next-line: return-type-mismatch
     return win
 end

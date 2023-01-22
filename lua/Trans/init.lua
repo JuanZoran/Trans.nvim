@@ -54,20 +54,23 @@ M.conf = {
             open = 'fold',
             close = 'fold',
             interval = 10,
+        },
+        tag = {
+            wait = '#519aba',
+            fail = '#e46876',
+            success = '#10b981',
+        },
+        engine = {
+            '本地',
         }
     },
-    order = {
-        -- offline = {
+    order = { -- only work on hover mode
         'title',
         'tag',
         'pos',
         'exchange',
         'translation',
         'definition',
-        -- },
-        -- online = {
-        --     -- TODO
-        -- },
     },
     icon = {
         star = '',
