@@ -5,6 +5,7 @@
   - [特点](#特点)
   - [屏幕截图](#屏幕截图)
   - [安装](#安装)
+  - [Festival配置](#festival配置)
   - [配置](#配置)
   - [快捷键绑定](#快捷键绑定)
   - [高亮组](#高亮组)
@@ -105,12 +106,53 @@ use {
 
 - **`auto_play`** 使用步骤:
     > linux 只需要安装`festival`  
-    > sudo apt-get install festival festvox-kallpc16k
+    > sudo apt-get install festival festvox-kallpc16k  
+    > ***如果你想要设置音色，发音可以访问:*** [Festival官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
+    > 可以选择英音、美音、男声、女声
 
     > 其他操作系统
     - 需要确保安装了`nodejs`
     - 进入插件的`tts`目录运行`npm install`
         > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
+
+## Festival配置
+> 仅针对`linux`用户说明
+- 配置文件
+    - 全局配置: `/usr/share/festival/siteinit.scm`
+    - 用户配置: `~/.festivalrc`
+
+- 更改声音
+    - 在festival的voices文件内建立自己的文件夹
+        > 一般其默认配置目录在`/usr/share/festival/voices`  
+
+        示例:
+        > `sudo mkdir /usr/share/festival/voices/my_voices`
+
+    - 下载想要的voices文件并解压 
+        > 正常均需要   
+
+        - 试听[在这里](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html))
+        - 下载[在这里](http://festvox.org/packed/festival/2.5/voices/))
+        > 假设下载的文件在`Downloads`文件夹, 下载的文件为:`festvox_cmu_us_aew_cg.tar.gz`
+
+        示例:
+        > `cd ~/Downloads && tar -xf festvox_cmu_us_aew_cg.tar.gz`
+
+    - 将音频文件拷贝到festival文件夹
+        示例:
+        > `sudo cp -r festival/lib/voices/us/cmu_us_aew_cg/ /usr/share/festival/voices/my_voices/`
+
+    - 在配置文件中设置默认的声音
+        示例:
+        > 加入`(set! voice_default voice_cmu_indic_hin_ab_cg)`到配置文件
+
+    - 安装完成
+
+- 相关说明网站
+    > 正常均需要 
+    - [wiki](https://archlinux.org/packages/community/any/festival-us/) 查看更多详细配置
+    - [官方网站](http://festvox.org/dbs/index.html) 
+    - [用户手册](http://www.festvox.org/docs/manual-2.4.0/festival_toc.html) 
 
 ## 配置
 ```lua
@@ -288,5 +330,5 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 - [ ] 历史查询结果保存
 - [ ] 在线多引擎异步查询 
 - [ ] 快捷键定义 
-- [ ] 自动读音 
+- [x] 自动读音 
 - [ ] `句子翻译` | `中翻英` 的支持 

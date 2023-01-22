@@ -53,7 +53,9 @@ local content = {
         local window = self.window
         api.nvim_buf_set_lines(window.bufnr, offset, offset + 1, true, self.lines)
 
-        for _, hl in ipairs(self.highlights) do
+        local hl
+        for i = 1, self.hl_size  do
+            hl = self.highlights[i]
             api.nvim_buf_add_highlight(window.bufnr, window.hl, hl.name, offset + hl.line, hl._start, hl._end)
         end
         self.window:bufset('modifiable', false)

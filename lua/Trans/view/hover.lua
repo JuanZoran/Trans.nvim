@@ -175,15 +175,14 @@ local process = {
 }
 
 
-local cmd_id
-local pin = false
-
 local try_del_keymap = function()
     for _, key in pairs(conf.hover.keymap) do
         pcall(vim.keymap.del, 'n', key, { buffer = true })
     end
 end
 
+local cmd_id
+local pin = false
 local action
 local next
 local _word
@@ -255,13 +254,11 @@ action = {
         end
     end,
 
-    play = function()
-        if vim.fn.has('linux') == 1 then
-            vim.fn.jobstart('echo ' .. _word .. ' | festival --tts')
-        else
-            local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua/') .. 'tts/say.js'
-            vim.fn.jobstart('node ' .. file .. ' ' .. _word)
-        end
+    play = vim.fn.has('linux') == 1 and function()
+        vim.fn.jobstart('echo ' .. _word .. ' | festival --tts')
+    end or function()
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua/') .. 'tts/say.js'
+        vim.fn.jobstart('node ' .. file .. ' ' .. _word)
     end,
 }
 
