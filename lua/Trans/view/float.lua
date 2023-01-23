@@ -26,17 +26,26 @@ local function set_title()
     local title = m_window.contents[1]
     local github = '  https://github.com/JuanZoran/Trans.nvim'
 
-    title:center_line(github, '@text.uri')
+    local item = title.item_wrap
 
+    title:addline(
+        title:center(item(github, '@text.uri'))
+    )
+
+    local text = title.text_wrap
+    local format = '%s(%d)'
     for i, engine_ch in ipairs(conf.float.engine) do
         local engine_us = engine_map[engine_ch]
         set_tag_hl(engine_us, 'wait')
 
         local round = engine_us .. 'round'
-        local wrap = title:line_wrap()
-        wrap('', round)
-        wrap(engine_ch .. '(' .. i .. ')', engine_us)
-        wrap('', round)
+        title:addline(
+            text(
+                item('', round),
+                item(format:format(engine_ch, i), engine_us),
+                item('', round)
+            )
+        )
     end
 end
 

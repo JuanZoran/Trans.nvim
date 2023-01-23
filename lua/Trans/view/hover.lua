@@ -4,32 +4,44 @@ local conf = require('Trans').conf
 local m_window
 local m_result
 local m_content
+-- content utility
+local text
+local item
+
 local m_indent = '    '
 
+
 local title = function(str)
-    local wrapper = m_content:line_wrap()
-    wrapper('', 'TransTitleRound')
-    wrapper(str, 'TransTitle')
-    wrapper('', 'TransTitleRound')
+    m_content:addline(
+        text(
+            item('', 'TransTitleRound'),
+            item(str, 'TransTitle'),
+            item('', 'TransTitleRound')
+        )
+    )
 end
 
 local exist = function(str)
     return str and str ~= ''
 end
 
+
 local process = {
     title = function()
-        local line = m_content:items_wrap()
         local icon = conf.icon
 
-        line.add_item(m_result.word, 'TransWord')
-
-        line.add_item('[' .. (exist(m_result.phonetic) and m_result.phonetic or icon.notfound) .. ']', 'TransPhonetic')
-
-        line.add_item((exist(m_result.collins) and icon.star:rep(m_result.collins) or icon.notfound), 'TransCollins')
-
-        line.add_item((m_result.oxford == 1 and icon.yes or icon.no))
-        line.load()
+        m_content:addline(
+            m_content:format(
+                item(m_result.word, 'TransWord'),
+                text(
+                    item('['),
+                    item(exist(m_result.phonetic) and m_result.phonetic or icon.notfound, 'TransPhonetic'),
+                    item(']')
+                ),
+                item(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
+                item(m_result.oxford == 1 and icon.yes or icon.no)
+            )
+        )
     end,
 
     tag = function()
@@ -45,6 +57,7 @@ local process = {
                 toefl = '托福',
                 gre   = 'gre ',
             }
+
             local tags = {}
             local size = 0
             local interval = '    '
@@ -53,14 +66,20 @@ local process = {
                 tags[size] = tag_map[tag]
             end
 
+
             for i = 1, size, 3 do
                 m_content:addline(
-                    m_indent .. tags[i] .. interval .. (tags[i + 1] or '') .. interval .. (tags[i + 2] or ''),
-                    'TransTag'
+                    item(
+                        m_indent ..
+                        tags[i] ..
+                        (tags[i + 1] and interval .. tags[i + 1] ..
+                            (tags[i + 2] and interval .. tags[i + 2] or '') or ''),
+                        'TransTag'
+                    )
                 )
             end
 
-            m_content:addline('')
+            m_content:newline('')
         end
     end,
 
@@ -82,15 +101,13 @@ local process = {
                 t = '不定式标记infm   ',
                 d = '限定词determiner ',
             }
-
             for pos in vim.gsplit(m_result.pos, '/', true) do
                 m_content:addline(
-                    m_indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%',
-                    'TransPos'
+                    item(m_indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%', 'TransPos')
                 )
             end
 
-            m_content:addline('')
+            m_content:newline('')
         end
     end,
 
@@ -113,12 +130,11 @@ local process = {
 
             for exc in vim.gsplit(m_result.exchange, '/', true) do
                 m_content:addline(
-                    m_indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3),
-                    'TransExchange'
+                    item(m_indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3), 'TransExchange')
                 )
             end
 
-            m_content:addline('')
+            m_content:newline('')
         end
     end,
 
@@ -127,12 +143,11 @@ local process = {
 
         for trs in vim.gsplit(m_result.translation, '\n', true) do
             m_content:addline(
-                m_indent .. trs,
-                'TransTranslation'
+                item(m_indent .. trs, 'TransTranslation')
             )
         end
 
-        m_content:addline('')
+        m_content:newline('')
     end,
 
     definition = function()
@@ -142,17 +157,19 @@ local process = {
             for def in vim.gsplit(m_result.definition, '\n', true) do
                 def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
                 m_content:addline(
-                    m_indent .. def,
-                    'TransDefinition'
+                    item(m_indent .. def, 'TransDefinition')
                 )
             end
 
-            m_content:addline('')
+            m_content:newline('')
         end
     end,
 
     failed = function()
-        m_content:addline(conf.icon.notfound .. m_indent .. '没有找到相关的翻译', 'TransFailed')
+        m_content:addline(
+            item(conf.icon.notfound .. m_indent .. '没有找到相关的翻译', 'TransFailed')
+        )
+
         m_window:set_width(m_content.lines[1]:width())
     end,
 }
@@ -164,10 +181,10 @@ local try_del_keymap = function()
     end
 end
 
+
 local cmd_id
 local pin
 local next
-
 local action
 action = {
     pageup = function()
@@ -265,6 +282,11 @@ return function(word)
 
     m_window.animation = hover.animation
     m_content = m_window.contents[1]
+
+    if not text then
+        text = m_content.text_wrap
+        item = m_content.item_wrap
+    end
 
     if m_result then
         if hover.auto_play then action.play() end
