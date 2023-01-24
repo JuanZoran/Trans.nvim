@@ -1,12 +1,52 @@
+local conf = require('Trans').conf
 local m_window
 local m_result
+local m_content
+
+
+local engine_map = {
+    ['本地'] = 'offline',
+    ['百度'] = 'baidu',
+    ['有道'] = 'youdao',
+}
+
+local function set_tag_hl(name, status)
+    local hl = conf.float.tag[status]
+    m_window:set_hl(name, {
+        fg = '#000000',
+        bg = hl,
+    })
+
+    m_window:set_hl(name .. 'round', {
+        fg = hl,
+    })
+end
 
 local function set_title()
     local title = m_window.contents[1]
-    local github = 'https://github.com/JuanZoran/Trans.nvim'
+    local github = '  https://github.com/JuanZoran/Trans.nvim'
 
-    -- TODO :config this
-    title:center_line(github, '@text.uri')
+    local item = title.item_wrap
+
+    title:addline(
+        title:center(item(github, '@text.uri'))
+    )
+
+    local text = title.text_wrap
+    local format = '%s(%d)'
+    for i, engine_ch in ipairs(conf.float.engine) do
+        local engine_us = engine_map[engine_ch]
+        set_tag_hl(engine_us, 'wait')
+
+        local round = engine_us .. 'round'
+        title:addline(
+            text(
+                item('', round),
+                item(format:format(engine_ch, i), engine_us),
+                item('', round)
+            )
+        )
+    end
 end
 
 local action = {
@@ -16,24 +56,46 @@ local action = {
 }
 
 
+local handle = {
+    title = function()
+        -- TODO :
+    end,
+}
+
 return function(word)
     -- TODO :online query
-    local float = require('Trans').conf.float
-    m_result    = require('Trans.query.offline')(word)
+    local float = conf.float
+    local engine_ch = '本地'
+    local engine_us = engine_map[engine_ch]
 
-    local opt          = {
+    m_result = require('Trans.query.' .. engine_us)(word)
+
+    local opt = {
         relative = 'editor',
         width    = float.width,
         height   = float.height,
         border   = float.border,
         title    = float.title,
-        row      = math.floor((vim.o.lines - float.height) / 2),
-        col      = math.floor((vim.o.columns - float.width) / 2),
+        row      = bit.rshift((vim.o.lines - float.height), 1),
+        col      = bit.rshift((vim.o.columns - float.width), 1),
+        zindex   = 50,
     }
-    m_window           = require('Trans.window')(true, opt)
+
+    m_window = require('Trans.window')(true, opt)
     m_window.animation = float.animation
 
     set_title()
+    m_content = m_window.contents[2]
+
+    if m_result then
+        set_tag_hl(engine_us, 'success')
+        for _, proc in pairs(handle) do
+            proc()
+        end
+    else
+        set_tag_hl(engine_us, 'fail')
+    end
+
     m_window:draw()
     m_window:open()
     m_window:bufset('bufhidden', 'wipe')

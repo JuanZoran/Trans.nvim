@@ -1,4 +1,38 @@
 local api = vim.api
+
+
+local item_meta = {
+    load_hl = function(self, content, line, col)
+        if self.hl then
+            content:newhl {
+                name = self.hl,
+                line = line,
+                _start = col,
+                _end = col + #self.text,
+            }
+        end
+    end
+}
+
+local text_meta = {
+    load_hl = function(self, content, line, col)
+        for _, item in ipairs(self.items) do
+            item:load_hl(content, line, col)
+            col = col + #item.text
+        end
+    end,
+}
+
+local format_meta = {
+    load_hl = function(self, content, line, col)
+        local space = self.space
+        for _, item in ipairs(self.items) do
+            item:load_hl(content, line, col)
+            col = col + #item.text + space
+        end
+    end
+}
+
 local content = {
     newline = function(self, value)
         if not self.modifiable then
@@ -14,24 +48,6 @@ local content = {
         end
         self.hl_size = self.hl_size + 1
         self.highlights[self.hl_size] = opt
-    end,
-
-    center_line = function(self, text, highlight)
-        vim.validate {
-            text = { text, 's' }
-        }
-
-        local space = math.floor((self.window.width - text:width()) / 2)
-        local interval = (' '):rep(space)
-        self:newline(interval .. text)
-        if highlight then
-            self:newhl {
-                name   = highlight,
-                line   = self.size - 1,
-                _start = space,
-                _end   = space + #text,
-            }
-        end
     end,
 
     wipe = function(self)
@@ -51,9 +67,12 @@ local content = {
 
         self.window:bufset('modifiable', true)
         local window = self.window
-        api.nvim_buf_set_lines(window.bufnr, offset, offset + 1, true, self.lines)
+        --- NOTE : 使用-1 则需要按顺序设置
+        api.nvim_buf_set_lines(window.bufnr, offset, -1, true, self.lines)
 
-        for _, hl in ipairs(self.highlights) do
+        local hl
+        for i = 1, self.hl_size do
+            hl = self.highlights[i]
             api.nvim_buf_add_highlight(window.bufnr, window.hl, hl.name, offset + hl.line, hl._start, hl._end)
         end
         self.window:bufset('modifiable', false)
@@ -61,7 +80,7 @@ local content = {
 
     actual_height = function(self, wrap)
         wrap = wrap or self.window:option('wrap')
-        if  wrap then
+        if wrap then
             local height = 0
             local width = self.window.width
             local lines = self.lines
@@ -75,78 +94,70 @@ local content = {
         end
     end,
 
-    addline = function(self, newline, highlight)
-        self:newline(newline)
-        if highlight then
-            self:newhl {
-                name = highlight,
-                line = self.size - 1,
-                _start = 0,
-                _end = -1,
-            }
-        end
+    item_wrap = function(text, hl)
+        return setmetatable({
+            text = text,
+            hl = hl,
+        }, { __index = item_meta })
     end,
 
-    items_wrap = function(self)
-        local items = {}
-        local size = 0
+    text_wrap = function(...)
+        local items = { ... }
+        local strs = {}
+
+        for i, item in ipairs(items) do
+            strs[i] = item.text
+        end
+
+        return setmetatable({
+            text = table.concat(strs),
+            items = items,
+        }, { __index = text_meta })
+    end,
+
+    format = function(self, ...)
+        local nodes = { ... }
+        local size = #nodes
+        assert(size > 1, 'check items size')
         local width = 0
+        local strs = {}
+        for i, node in ipairs(nodes) do
+            local str = node.text
+            strs[i] = str
+            width = width + str:width()
+        end
 
-        return {
-            add_item = function(item, highlight)
-                size = size + 1
-                items[size] = { item, highlight }
-                width = width + item:width()
-            end,
-
-            load = function()
-                assert(size > 1, 'no item need be loaded')
-                local space = math.floor((self.window.width - width) / (size - 1))
-                assert(space > 0, 'try to expand window width')
-                local interval = (' '):rep(space)
-                local line = ''
-
-                local function load_item(idx)
-                    local item = items[idx]
-                    if item[2] then
-                        self:newhl {
-                            name = item[2],
-                            line = self.size, -- NOTE : 此时还没插入新行, size ==> 行号(zero index)
-                            _start = #line,
-                            _end = #line + #item[1],
-                        }
-                    end
-                    line = line .. item[1]
-                end
-
-                load_item(1)
-                for i = 2, size do
-                    line = line .. interval
-                    load_item(i)
-                end
-
-                self:newline(line)
-            end
-        }
+        local space = math.floor(((self.window.width - width) / (size - 1)))
+        assert(space > 0, 'try to expand window size')
+        local interval = (' '):rep(space)
+        return setmetatable({
+            text = table.concat(strs, interval),
+            items = nodes,
+            space = space,
+        }, { __index = format_meta })
     end,
 
-    line_wrap = function(self)
-        self:newline('')
-        local index = self.size
-        return function(text, highlight)
-            if highlight then
-                local _start = #self.lines[index]
-                local _end = _start + #text
-                self:newhl {
-                    name = highlight,
-                    line = index - 1,
-                    _start = _start,
-                    _end = _end,
-                }
-            end
-
-            self.lines[index] = self.lines[index] .. text
+    center = function(self, item)
+        local space = bit.rshift(self.window.width - item.text:width(), 1)
+        item.text = (' '):rep(space) .. item.text
+        local load_hl = item.load_hl
+        item.load_hl = function (this, content, line, col)
+            load_hl(this, content, line, col + space)
         end
+
+        return item
+    end,
+
+    addline = function(self, ...)
+        local strs = {}
+        local col = 0
+        for i, node in ipairs { ... } do
+            local str = node.text
+            strs[i] = str
+            node:load_hl(self, self.size, col)
+            col = col + #str
+        end
+        self:newline(table.concat(strs))
     end
 }
 
