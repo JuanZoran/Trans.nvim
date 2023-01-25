@@ -264,7 +264,9 @@ return function(entry, option)
     win:bufset('buftype', 'nofile')
 
     api.nvim_win_set_hl_ns(win.winid, win.hl)
-    win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder,NormalFloat:TransBorder')
+    win:set_hl('Normal', { link = 'TransWin' })
+    win:set_hl('FloatBorder', { link = 'TransBorder' })
+    win:set_hl('NormalFloat', { link = 'TransBorder' })
     ---@diagnostic disable-next-line: return-type-mismatch
     return win
 end
