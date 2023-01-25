@@ -44,7 +44,7 @@ https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531
 
 ### 主题
 > 如果你有更美观或者更适合的配色, 欢迎提PR  
-> 主题配色在: `lua/theme.lua`文件中，你只需要添加你主题的表就可以了
+> 主题配色在: `lua/Trans/theme.lua`文件中，你只需要添加你主题的表就可以了
 
 
 - `default`
