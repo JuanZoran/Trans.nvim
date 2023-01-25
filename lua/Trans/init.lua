@@ -83,24 +83,18 @@ M.conf = {
         -- no = '❌'
     },
     theme = 'default',
+    -- theme = 'dracula',
+    -- theme = 'tokyonight',
+
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     -- TODO :
-    -- engine = {
-    --     -- TODO
-    --     'offline',
-    -- }
+    -- register word
     -- history = {
     --     -- TOOD
     -- }
 
-    -- TODO  add online translate engine
-    -- online_search = {
-    --     enable = false,
-    --     engine = {},
-    -- }
-
-    -- TODO register word
+    -- TODO :add online translate engine
 }
 
 M.setup = function(opts)
