@@ -10,7 +10,6 @@ local item
 
 local m_indent = '    '
 
-
 local title = function(str)
     m_content:addline(
         text(
@@ -312,6 +311,7 @@ return function(word)
     m_window:open(function()
         m_window:set('wrap', true)
     end)
+
 
     -- Auto Close
     cmd_id = api.nvim_create_autocmd(

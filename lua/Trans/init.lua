@@ -82,7 +82,7 @@ M.conf = {
         -- yes = '✔️',
         -- no = '❌'
     },
-
+    theme = 'default',
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     -- TODO :
@@ -118,7 +118,24 @@ M.setup = function(opts)
     float.width = math.floor(vim.o.columns * float.width)
 
     M.translate = require('Trans.translate')
-    require("Trans.setup")
+
+    if vim.fn.executable('sqlite3') ~= 1 then
+        error('Please check out sqlite3')
+    end
+
+    vim.api.nvim_create_user_command('Translate', function()
+        require("Trans").translate()
+    end, { desc = '  单词翻译', })
+
+    vim.api.nvim_create_user_command('TranslateInput', function()
+        require("Trans").translate('i')
+    end, { desc = '  搜索翻译' })
+
+
+    local hls = require('Trans.theme')[M.conf.theme]
+    for hl, opt in pairs(hls) do
+        vim.api.nvim_set_hl(0, hl, opt)
+    end
 end
 
 M.augroup = vim.api.nvim_create_augroup('Trans', { clear = true })

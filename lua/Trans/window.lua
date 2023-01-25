@@ -179,7 +179,7 @@ local window = {
                 self.winid = -1
             end
         end
-        end,
+    end,
 
     reopen = function(self, entry, opt, callback)
         check_busy()
@@ -258,11 +258,13 @@ return function(entry, option)
     }
 
     setmetatable(win, { __index = window })
-    win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder')
+
+    -- FIXME  :config this
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')
 
     api.nvim_win_set_hl_ns(win.winid, win.hl)
+    win:set('winhl', 'Normal:TransWin,FloatBorder:TransBorder,NormalFloat:TransBorder')
     ---@diagnostic disable-next-line: return-type-mismatch
     return win
 end
