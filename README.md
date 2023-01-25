@@ -39,7 +39,22 @@
 - 本地词库单词量: `430w`
   
 ## 屏幕截图
+### 演示
 https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531-bf80-ba2cbc8b44ef.mp4
+
+### 主题
+> 如果你有更美观或者更适合的配色, 欢迎提PR  
+> 主题配色在: `lua/theme.lua`文件中，你只需要添加你主题的表就可以了
+
+
+- `default`
+![default](./theme/default.png) 
+
+- `dracula`
+![dracula](./theme/dracula.png) 
+
+- `tokyonight`
+![tokyonight](./theme/tokyonight.png) 
 
 
 ## 安装
