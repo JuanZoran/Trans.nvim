@@ -255,7 +255,6 @@ require'Trans'.setup {
 **示例:**
 > 示例中展示, 将`mm`映射成快捷键
 ```lua
--- normal-mode
 vim.keymap.set({'n', 'v'}, 'mm', '<Cmd>Translate<CR>')
 vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 

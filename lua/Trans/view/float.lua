@@ -3,7 +3,6 @@ local m_window
 local m_result
 local m_content
 
-
 local engine_map = {
     ['本地'] = 'offline',
     ['百度'] = 'baidu',
