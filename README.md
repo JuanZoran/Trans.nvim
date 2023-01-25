@@ -163,8 +163,8 @@ require'Trans'.setup {
         v = 'hover',
     },
     hover = {
-        width = 36,
-        height = 26,
+        width = 37,
+        height = 27,
         border = 'rounded',
         title = {
             { '', 'TransTitleRound' },
@@ -192,7 +192,7 @@ require'Trans'.setup {
             'CursorMoved',
             'BufLeave',
         },
-        auto_play = true, -- WARN : 请阅读说明
+        auto_play = true,
     },
     float = {
         width = 0.8,
@@ -210,42 +210,36 @@ require'Trans'.setup {
             open = 'fold',
             close = 'fold',
             interval = 10,
+        },
+        tag = {
+            wait = '#519aba',
+            fail = '#e46876',
+            success = '#10b981',
+        },
+        engine = {
+            '本地',
         }
     },
-    order = {
-        -- offline = {
+    order = { -- only work on hover mode
         'title',
         'tag',
         'pos',
         'exchange',
         'translation',
         'definition',
-        -- },
-        -- online = {
-        --     -- TODO
-        -- },
     },
     icon = {
         star = '',
-        -- notfound = '❔',
         notfound = ' ',
         yes = ' ',
         no = ''
+        -- star = '⭐',
+        -- notfound = '❔',
         -- yes = '✔️',
         -- no = '❌'
-        -- star = '⭐',
     },
-
+    theme = 'default', -- 目前可选的: default, tokyonight, dracula
     db_path = '$HOME/.vim/dict/ultimate.db',
-
-    -- TODO :
-    -- engine = {
-    --     -- TODO
-    --     'offline',
-    -- }
-    -- history = {
-    --     -- TOOD
-    -- }
 
     -- TODO  add online translate engine
     -- online_search = {

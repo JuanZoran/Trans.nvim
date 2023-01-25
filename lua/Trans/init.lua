@@ -82,25 +82,19 @@ M.conf = {
         -- yes = '✔️',
         -- no = '❌'
     },
+    theme = 'default',
+    -- theme = 'dracula',
+    -- theme = 'tokyonight',
 
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     -- TODO :
-    -- engine = {
-    --     -- TODO
-    --     'offline',
-    -- }
+    -- register word
     -- history = {
     --     -- TOOD
     -- }
 
-    -- TODO  add online translate engine
-    -- online_search = {
-    --     enable = false,
-    --     engine = {},
-    -- }
-
-    -- TODO register word
+    -- TODO :add online translate engine
 }
 
 M.setup = function(opts)
@@ -118,7 +112,24 @@ M.setup = function(opts)
     float.width = math.floor(vim.o.columns * float.width)
 
     M.translate = require('Trans.translate')
-    require("Trans.setup")
+
+    if vim.fn.executable('sqlite3') ~= 1 then
+        error('Please check out sqlite3')
+    end
+
+    vim.api.nvim_create_user_command('Translate', function()
+        require("Trans").translate()
+    end, { desc = '  单词翻译', })
+
+    vim.api.nvim_create_user_command('TranslateInput', function()
+        require("Trans").translate('i')
+    end, { desc = '  搜索翻译' })
+
+
+    local hls = require('Trans.theme')[M.conf.theme]
+    for hl, opt in pairs(hls) do
+        vim.api.nvim_set_hl(0, hl, opt)
+    end
 end
 
 M.augroup = vim.api.nvim_create_augroup('Trans', { clear = true })

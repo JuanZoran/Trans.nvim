@@ -56,11 +56,9 @@ local action = {
 }
 
 
-local handle = {
-    title = function()
-        -- TODO :
-    end,
-}
+local function process()
+    
+end
 
 return function(word)
     -- TODO :online query
@@ -89,9 +87,7 @@ return function(word)
 
     if m_result then
         set_tag_hl(engine_us, 'success')
-        for _, proc in pairs(handle) do
-            proc()
-        end
+        process()
     else
         set_tag_hl(engine_us, 'fail')
     end
