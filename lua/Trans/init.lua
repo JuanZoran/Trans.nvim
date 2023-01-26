@@ -1,7 +1,7 @@
 local M = {}
 
 
-local title = vim.fn.has('nvim-0.9') and {
+local title = vim.fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
