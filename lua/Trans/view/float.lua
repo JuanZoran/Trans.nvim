@@ -9,6 +9,11 @@ local engine_map = {
     ['有道'] = 'youdao',
 }
 
+local node = require("Trans.node")
+local t = node.text
+local it = node.item
+
+
 local function set_tag_hl(name, status)
     local hl = conf.float.tag[status]
     m_window:set_hl(name, {
@@ -25,13 +30,10 @@ local function set_title()
     local title = m_window.contents[1]
     local github = '  https://github.com/JuanZoran/Trans.nvim'
 
-    local item = title.item_wrap
-
     title:addline(
-        title:center(item(github, '@text.uri'))
+        title:center(it(github, '@text.uri'))
     )
 
-    local text = title.text_wrap
     local format = '%s(%d)'
     for i, engine_ch in ipairs(conf.float.engine) do
         local engine_us = engine_map[engine_ch]
@@ -39,10 +41,10 @@ local function set_title()
 
         local round = engine_us .. 'round'
         title:addline(
-            text(
-                item('', round),
-                item(format:format(engine_ch, i), engine_us),
-                item('', round)
+            t(
+                it('', round),
+                it(format:format(engine_ch, i), engine_us),
+                it('', round)
             )
         )
     end
@@ -56,7 +58,7 @@ local action = {
 
 
 local function process()
-    
+    -- TODO :
 end
 
 return function(word)

@@ -64,8 +64,7 @@ https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531
 - sqlite3: 数据库
 
 
-由于目前本人只使用 `Packer.nvim` 作为包管理插件, 所以这里以Packer为例:  
-**考虑将以下代码复制到的Packer Startup中:**
+- `Packer.nvim`示例
 ```lua
 use {
     'JuanZoran/Trans.nvim'
@@ -97,6 +96,24 @@ use {
         vim.keymap.set("n", "mi", "<Cmd>TranslateInput<CR>", { desc = ' Translate' })
     end
 }
+```
+
+- `lazy.nvim`示例
+```lua
+    {
+        "JuanZoran/Trans.nvim",
+        keys = {
+        -- 可以换成其他你想映射的键
+            { 'mm', mode = { 'n', 'x' }, '<Cmd>Translate<CR>', desc = ' Translate' },
+
+            -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
+            { 'mi', '<Cmd>TranslateInput<CR>', desc = ' Translate From Input' },
+        },
+        dependencies = { 'kkharji/sqlite.lua', lazy = true },
+        opts = {
+            -- your configuration there
+        }
+    }
 ```
 
 **注意事项**:

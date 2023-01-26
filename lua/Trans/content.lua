@@ -1,28 +1,5 @@
 local api = vim.api
 
-
-local item_meta = {
-    load_hl = function(self, content, line, col)
-        if self.hl then
-            content:newhl {
-                name = self.hl,
-                line = line,
-                _start = col,
-                _end = col + #self.text,
-            }
-        end
-    end
-}
-
-local text_meta = {
-    load_hl = function(self, content, line, col)
-        for _, item in ipairs(self.items) do
-            item:load_hl(content, line, col)
-            col = col + #item.text
-        end
-    end,
-}
-
 local format_meta = {
     load_hl = function(self, content, line, col)
         local space = self.space
@@ -94,26 +71,6 @@ local content = {
         end
     end,
 
-    item_wrap = function(text, hl)
-        return setmetatable({
-            text = text,
-            hl = hl,
-        }, { __index = item_meta })
-    end,
-
-    text_wrap = function(...)
-        local items = { ... }
-        local strs = {}
-
-        for i, item in ipairs(items) do
-            strs[i] = item.text
-        end
-
-        return setmetatable({
-            text = table.concat(strs),
-            items = items,
-        }, { __index = text_meta })
-    end,
 
     format = function(self, ...)
         local nodes = { ... }
@@ -141,7 +98,7 @@ local content = {
         local space = bit.rshift(self.window.width - item.text:width(), 1)
         item.text = (' '):rep(space) .. item.text
         local load_hl = item.load_hl
-        item.load_hl = function (this, content, line, col)
+        item.load_hl = function(this, content, line, col)
             load_hl(this, content, line, col + space)
         end
 

@@ -1,5 +1,12 @@
 local M = {}
 
+
+local title = vim.fn.has('nvim-0.9') and{
+            { '', 'TransTitleRound' },
+            { ' Trans', 'TransTitle' },
+            { '', 'TransTitleRound' },
+        }  or ' Trans'
+
 M.conf = {
     view = {
         i = 'float',
@@ -10,11 +17,7 @@ M.conf = {
         width = 37,
         height = 27,
         border = 'rounded',
-        title = {
-            { '', 'TransTitleRound' },
-            { ' Trans', 'TransTitle' },
-            { '', 'TransTitleRound' },
-        },
+        title = title,
         keymap = {
             -- TODO :
             pageup = '[[',
