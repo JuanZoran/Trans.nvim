@@ -213,8 +213,10 @@ return function(entry, option)
     end
 
     local bufnr = api.nvim_create_buf(false, true)
-    local winid = api.nvim_open_win(bufnr, entry, opt)
-
+    local ok, winid = pcall(api.nvim_open_win, bufnr, entry, opt)
+    if not ok then
+        error('open window faild: ' .. vim.inspect(opt))
+    end
 
     local win
     win = {
