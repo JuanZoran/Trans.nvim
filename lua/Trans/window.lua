@@ -15,51 +15,29 @@ end
 
 ---@type window
 local window = {
-    ---设置窗口的选项
-    ---@param self table 需要设置的window
-    ---@param option string 待设置的选项名
-    ---@param value any 选项的值
     set = function(self, option, value)
         api.nvim_win_set_option(self.winid, option, value)
     end,
 
-    ---设置窗口的高度
-    ---@param self table 窗口类
-    ---@param height integer 设置的高度
     set_height = function(self, height)
         api.nvim_win_set_height(self.winid, height)
         self.height = height
     end,
 
-    ---设置窗口的宽度
-    ---@param self table 窗口对象
-    ---@param width integer 设置的宽度
     set_width = function(self, width)
         api.nvim_win_set_width(self.winid, width)
         self.width = width
     end,
 
-    ---设置窗口对应的buffer
-    ---@param self table 同set类似
-    ---@param option string
-    ---@param value any
     bufset = function(self, option, value)
         api.nvim_buf_set_option(self.bufnr, option, value)
     end,
 
-    ---查看**窗口**的选项
-    ---@param self table 窗口对象
-    ---@param name string 选项名
-    ---@return any 对应的值
     ---@nodiscard
     option = function(self, name)
         return api.nvim_win_get_option(self.winid, name)
     end,
 
-    ---设置当前窗口内的键映射, **需要光标在该窗口内**
-    ---@param self table 窗口对象
-    ---@param key string 映射的键位
-    ---@param operation any 执行的操作
     map = function(self, key, operation)
         vim.keymap.set('n', key, operation, {
             buffer = self.bufnr,
@@ -67,9 +45,6 @@ local window = {
         })
     end,
 
-    ---查看窗口是否是打开状态
-    ---@param self table window对象
-    ---@return boolean
     ---@nodiscard
     is_open = function(self)
         return self.winid > 0 and api.nvim_win_is_valid(self.winid)
