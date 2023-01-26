@@ -102,11 +102,11 @@ M.setup = function(opts)
 
     local float = M.conf.float
 
-    if float.height < 0 and float.height <= 1 then
+    if 0 < float.height and float.height <= 1 then
         float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
     end
 
-    if float.width < 0 and float.width <= 1 then
+    if 0 < float.width and float.width <= 1 then
         float.width = math.floor(vim.o.columns * float.width)
     end
 
