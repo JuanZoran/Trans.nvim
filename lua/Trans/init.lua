@@ -1,11 +1,11 @@
 local M = {}
 
 
-local title = vim.fn.has('nvim-0.9') and{
-            { '', 'TransTitleRound' },
-            { ' Trans', 'TransTitle' },
-            { '', 'TransTitleRound' },
-        }  or ' Trans'
+local title = vim.fn.has('nvim-0.9') and {
+    { '', 'TransTitleRound' },
+    { ' Trans', 'TransTitle' },
+    { '', 'TransTitleRound' },
+} or ' Trans'
 
 M.conf = {
     view = {
@@ -45,11 +45,7 @@ M.conf = {
         width = 0.8,
         height = 0.8,
         border = 'rounded',
-        title = {
-            { '', 'TransTitleRound' },
-            { ' Trans', 'TransTitle' },
-            { '', 'TransTitleRound' },
-        },
+        title = title,
         keymap = {
             quit = 'q',
         },
@@ -104,15 +100,16 @@ M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
     end
-    local hover = M.conf.hover
+
     local float = M.conf.float
 
-    assert(hover.width > 1 and hover.height > 1)
-    assert(0 < float.width and float.width <= 1)
-    assert(0 < float.height and float.height <= 1)
+    if float.height < 0 and float.height <= 1 then
+        float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
+    end
 
-    float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
-    float.width = math.floor(vim.o.columns * float.width)
+    if float.width < 0 and float.width <= 1 then
+        float.width = math.floor(vim.o.columns * float.width)
+    end
 
     M.translate = require('Trans.translate')
 
