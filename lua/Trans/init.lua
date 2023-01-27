@@ -4,7 +4,8 @@ local title = vim.fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
-} or ' Trans'
+} or nil --[[ { ' Trans', 'TransTitleRound' } ]]
+
 
 M.conf = {
     view = {

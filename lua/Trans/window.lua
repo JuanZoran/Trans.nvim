@@ -85,7 +85,7 @@ local window = {
 
                     else
                         busy = false
-                        if type(callback) == 'function' then
+                        if callback then
                             callback()
                         end
                     end
@@ -202,7 +202,7 @@ return function(entry, option)
         title     = nil,
         col       = nil,
         row       = nil,
-        title_pos = 'center',
+        title_pos = nil,
         focusable = false,
         zindex    = 100,
         style     = 'minimal',
@@ -210,6 +210,9 @@ return function(entry, option)
 
     for k, v in pairs(option) do
         opt[k] = v
+    end
+    if opt.title then
+        opt.title_pos = 'center'
     end
 
     local bufnr = api.nvim_create_buf(false, true)

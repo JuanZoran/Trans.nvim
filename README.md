@@ -146,6 +146,7 @@ use {
     - 需要确保安装了`nodejs`
     - 进入插件的`tts`目录运行`npm install`
         > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
+- `title`的配置，只对`neovim 0.9`版本有效
 
 ## Festival配置
 > 仅针对`linux`用户说明

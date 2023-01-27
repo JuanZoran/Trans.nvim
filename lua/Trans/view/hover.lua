@@ -305,14 +305,16 @@ return function(word)
     end)
 
     -- Auto Close
-    cmd_id = api.nvim_create_autocmd(
-        hover.auto_close_events, {
-        buffer = 0,
-        callback = function()
-            m_window:set('wrap', false)
-            m_window:try_close()
-            try_del_keymap()
-            api.nvim_del_autocmd(cmd_id)
-        end,
-    })
+    if hover.auto_close_events then
+        cmd_id = api.nvim_create_autocmd(
+            hover.auto_close_events, {
+            buffer = 0,
+            callback = function()
+                m_window:set('wrap', false)
+                m_window:try_close()
+                try_del_keymap()
+                api.nvim_del_autocmd(cmd_id)
+            end,
+        })
+    end
 end
