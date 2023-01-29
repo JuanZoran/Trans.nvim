@@ -252,7 +252,8 @@ action = {
     play = vim.fn.has('linux') == 1 and function()
         vim.fn.jobstart('echo ' .. m_result.word .. ' | festival --tts')
     end or function()
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua/') .. 'tts/say.js'
+        local seperator = vim.fn.has('unix') and '/' or '\\'
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
         vim.fn.jobstart('node ' .. file .. ' ' .. m_result.word)
     end,
 }
@@ -280,7 +281,12 @@ return function(word)
     m_content = m_window.contents[1]
 
     if m_result then
-        if hover.auto_play then action.play() end
+        if hover.auto_play then
+            local ok = pcall(action.play)
+            if not ok then
+                vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
+            end
+        end
 
         for _, field in ipairs(conf.order) do
             process[field]()

@@ -4,7 +4,7 @@ local title = vim.fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
-} or nil --[[ { ' Trans', 'TransTitleRound' } ]]
+} or nil
 
 
 M.conf = {
@@ -19,7 +19,6 @@ M.conf = {
         border = 'rounded',
         title = title,
         keymap = {
-            -- TODO :
             pageup = '[[',
             pagedown = ']]',
             pin = '<leader>[',

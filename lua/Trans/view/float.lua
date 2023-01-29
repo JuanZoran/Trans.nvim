@@ -47,6 +47,8 @@ local function set_title()
                 it('', round)
             )
         )
+
+        title:newline('')
     end
 end
 
