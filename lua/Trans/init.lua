@@ -88,11 +88,11 @@ M.conf = {
     db_path = '$HOME/.vim/dict/ultimate.db',
 
     engine = {
-        baidu = {
-            appid = '',
-            appPasswd = '',
-        },
-        -- youdao = {
+        -- baidu = {
+        --     appid = '',
+        --     appPasswd = '',
+        -- },
+        -- -- youdao = {
         --     appkey = '',
         --     appPasswd = '',
         -- },

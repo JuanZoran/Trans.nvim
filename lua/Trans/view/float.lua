@@ -72,18 +72,18 @@ return function(word)
     m_result = require('Trans.query.' .. engine_us)(word)
 
     local opt = {
-        relative = 'editor',
-        width    = float.width,
-        height   = float.height,
-        border   = float.border,
-        title    = float.title,
-        row      = bit.rshift((vim.o.lines - float.height), 1),
-        col      = bit.rshift((vim.o.columns - float.width), 1),
-        zindex   = 50,
+        relative  = 'editor',
+        width     = float.width,
+        height    = float.height,
+        border    = float.border,
+        title     = float.title,
+        animation = float.animation,
+        row       = bit.rshift((vim.o.lines - float.height), 1),
+        col       = bit.rshift((vim.o.columns - float.width), 1),
+        zindex    = 50,
     }
 
     m_window = require('Trans.window')(true, opt)
-    m_window.animation = float.animation
 
     set_title()
     m_content = m_window.contents[2]
@@ -95,7 +95,6 @@ return function(word)
         set_tag_hl(engine_us, 'fail')
     end
 
-    m_window:draw()
     m_window:open()
     m_window:bufset('bufhidden', 'wipe')
 
