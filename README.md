@@ -4,8 +4,9 @@
 - [Trans.nvim](#transnvim)
   - [特点](#特点)
   - [屏幕截图](#屏幕截图)
+    - [演示](#演示)
+    - [主题](#主题)
   - [安装](#安装)
-  - [Festival配置](#festival配置)
   - [配置](#配置)
   - [快捷键绑定](#快捷键绑定)
   - [高亮组](#高亮组)
@@ -16,7 +17,9 @@
 
 
 ## 特点
-- 使用纯lua编写
+- 使用纯lua编写, 速度极快
+> `Lazy.nvim`的记录: <font color="#0099FF">`➜   Trans.nvim 0.82ms`</font>
+
 - 大部分功能可以自定义:
   - 高亮
   - 悬浮大小
@@ -34,7 +37,7 @@
   - etc
 - 舒服的排版和`动画`
 - 支持 `normal`和 `visual`模式
-    > 不支持 visual-block mode
+    > <font color='#FF9900'>不支持 visual-block mode</font>
   
 - 本地词库单词量: `430w`
   
@@ -63,8 +66,9 @@ https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531
 - sqlite.lua: 操作数据库所用的库
 - sqlite3: 数据库
 
+<details>
+    <summary>Packer.nvim</summary>
 
-- `Packer.nvim`示例
 ```lua
 use {
     'JuanZoran/Trans.nvim'
@@ -97,8 +101,11 @@ use {
     end
 }
 ```
+</details>
 
-- `lazy.nvim`示例
+<details>
+    <summary>Lazy.nvim</summary>
+
 ```lua
     {
         "JuanZoran/Trans.nvim",
@@ -115,8 +122,9 @@ use {
         }
     }
 ```
+</details>
 
-**注意事项**:
+<font color="#FF9900">**注意事项**: </font>  
 - `install.sh`
   - 使用了 `wget`下载词库, 安装请确保你的环境变量中存在wget
   - install.sh 下载后会自动将词库解压, 并移动到 `$HOME/.vim/dict`文件夹下
@@ -148,8 +156,8 @@ use {
         > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
 - `title`的配置，只对`neovim 0.9`版本有效
 
-## Festival配置
-> 仅针对`linux`用户说明
+<details>
+    <summary>Festival配置(仅针对linux用户)</summary>
 - 配置文件
     - 全局配置: `/usr/share/festival/siteinit.scm`
     - 用户配置: `~/.festivalrc`
@@ -162,7 +170,7 @@ use {
         > `sudo mkdir /usr/share/festival/voices/my_voices`
 
     - 下载想要的voices文件并解压 
-        > 正常均需要   
+        > 可能需要   
 
         - 试听[在这里](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html))
         - 下载[在这里](http://festvox.org/packed/festival/2.5/voices/))
@@ -182,10 +190,12 @@ use {
     - 安装完成
 
 - 相关说明网站
-    > 正常均需要 
+    > 可能需要 
     - [wiki](https://archlinux.org/packages/community/any/festival-us/) 查看更多详细配置
     - [官方网站](http://festvox.org/dbs/index.html) 
     - [用户手册](http://www.festvox.org/docs/manual-2.4.0/festival_toc.html) 
+
+</details>
 
 ## 配置
 ```lua
