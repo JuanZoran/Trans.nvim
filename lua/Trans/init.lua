@@ -39,6 +39,7 @@ M.conf = {
             'BufLeave',
         },
         auto_play = true,
+        timeout = 3000,
     },
     float = {
         width = 0.8,
@@ -85,6 +86,17 @@ M.conf = {
     -- theme = 'tokyonight',
 
     db_path = '$HOME/.vim/dict/ultimate.db',
+
+    engine = {
+        -- baidu = {
+        --     appid = '',
+        --     appPasswd = '',
+        -- },
+        -- -- youdao = {
+        --     appkey = '',
+        --     appPasswd = '',
+        -- },
+    },
 
     -- TODO :
     -- register word

@@ -15,6 +15,7 @@ local content = {
         if not self.modifiable then
             error('content can not add newline now')
         end
+
         self.size = self.size + 1
         self.lines[self.size] = value
     end,
@@ -23,6 +24,7 @@ local content = {
         if not self.modifiable then
             error('content can not add newline now')
         end
+
         self.hl_size = self.hl_size + 1
         self.highlights[self.hl_size] = opt
     end,
@@ -32,6 +34,7 @@ local content = {
         clear(self.lines)
         clear(self.highlights)
         self.size = 0
+        self.hl_size = 0
     end,
 
     ---将内容连接上对应的窗口
@@ -42,6 +45,7 @@ local content = {
             return
         end
 
+        offset = offset or 0
         self.window:bufset('modifiable', true)
         local window = self.window
         --- NOTE : 使用-1 则需要按顺序设置
@@ -71,7 +75,6 @@ local content = {
         end
     end,
 
-
     format = function(self, ...)
         local nodes = { ... }
         local size = #nodes
@@ -85,7 +88,7 @@ local content = {
         end
 
         local space = math.floor(((self.window.width - width) / (size - 1)))
-        assert(space > 0, 'try to expand window size')
+        assert(space > 0, 'try to expand the window')
         local interval = (' '):rep(space)
         return setmetatable({
             text = table.concat(strs, interval),

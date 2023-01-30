@@ -199,13 +199,8 @@ require'Trans'.setup {
         width = 37,
         height = 27,
         border = 'rounded',
-        title = {
-            { '', 'TransTitleRound' },
-            { ' Trans', 'TransTitle' },
-            { '', 'TransTitleRound' },
-        },
+        title = title,
         keymap = {
-            -- TODO :
             pageup = '[[',
             pagedown = ']]',
             pin = '<leader>[',
@@ -226,16 +221,13 @@ require'Trans'.setup {
             'BufLeave',
         },
         auto_play = true,
+        timeout = 3000,
     },
     float = {
         width = 0.8,
         height = 0.8,
         border = 'rounded',
-        title = {
-            { '', 'TransTitleRound' },
-            { ' Trans', 'TransTitle' },
-            { '', 'TransTitleRound' },
-        },
+        title = title,
         keymap = {
             quit = 'q',
         },
@@ -271,17 +263,28 @@ require'Trans'.setup {
         -- yes = '✔️',
         -- no = '❌'
     },
-    theme = 'default', -- 目前可选的: default, tokyonight, dracula
+    theme = 'default',
+    -- theme = 'dracula',
+    -- theme = 'tokyonight',
+
     db_path = '$HOME/.vim/dict/ultimate.db',
 
-    -- TODO  add online translate engine
-    -- online_search = {
-    --     enable = false,
-    --     engine = {},
+    engine = {
+        -- 目前支持hover窗口支持百度, 默认不开启
+        -- baidu = {
+        --     appid = '',
+        --     appPasswd = '',
+        -- },
+    },
+
+    -- TODO :
+    -- register word
+    -- history = {
+    --     -- TOOD
     -- }
 
-    -- TODO register word
-}
+    -- TODO :add online translate engine
+} 
 ```
 
 ## 快捷键绑定
@@ -342,6 +345,7 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
     },
 }
 ```
+
 ## 声明
 - 本插件词典基于[ECDICT](https://github.com/skywind3000/ECDICT)
 

@@ -1,9 +1,11 @@
 local api = vim.api
 local conf = require('Trans').conf
+local new_window = require('Trans.window')
 
 local m_window
 local m_result
 local m_content
+
 -- content utility
 local node = require("Trans.node")
 local t = node.text
@@ -25,9 +27,12 @@ end
 local process = {
     title = function()
         local icon = conf.icon
+        local line
+        if m_result.word:find(' ', 1, true) then
+            line = it(m_result.word, 'TransWord')
 
-        m_content:addline(
-            m_content:format(
+        else
+            line = m_content:format(
                 it(m_result.word, 'TransWord'),
                 t(
                     it('['),
@@ -37,7 +42,8 @@ local process = {
                 it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
                 it(m_result.oxford == 1 and icon.yes or icon.no)
             )
-        )
+        end
+        m_content:addline(line)
     end,
 
     tag = function()
@@ -160,14 +166,6 @@ local process = {
             m_content:newline('')
         end
     end,
-
-    failed = function()
-        m_content:addline(
-            it(conf.icon.notfound .. m_indent .. '没有找到相关的翻译', 'TransFailed')
-        )
-
-        m_window:set_width(m_content.lines[1]:width())
-    end,
 }
 
 
@@ -211,7 +209,6 @@ action = {
             m_window:bufset('bufhidden', 'wipe')
             vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
 
-
             --- NOTE : 只允许存在一个pin窗口
             local buf = m_window.bufnr
             pin = true
@@ -250,7 +247,8 @@ action = {
     end,
 
     play = vim.fn.has('linux') == 1 and function()
-        vim.fn.jobstart('echo ' .. m_result.word .. ' | festival --tts')
+        local cmd = ([[echo "%s" | festival --tts]]):format(m_result.word)
+        vim.fn.jobstart(cmd)
     end or function()
         local seperator = vim.fn.has('unix') and '/' or '\\'
         local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
@@ -258,57 +256,133 @@ action = {
     end,
 }
 
+local function handle()
+    local hover = conf.hover
+    if hover.auto_play then
+        local ok = pcall(action.play)
+        if not ok then
+            vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
+        end
+    end
+
+    for _, field in ipairs(conf.order) do
+        process[field]()
+    end
+
+    for act, key in pairs(hover.keymap) do
+        vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
+    end
+end
+
+local function online_query(word)
+    -- TODO :Progress Bar
+    local wait = {}
+    local size = 0
+    for k, _ in pairs(conf.engine) do
+        size = size + 1
+        wait[size] = require('Trans.query.' .. k)(word)
+    end
+    local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
+
+    m_window:set_height(1)
+    local width = m_window.width
+    m_window:set_width(error_msg:width())
+    if size == 0 then
+        m_content:addline(it(error_msg, 'TransFailed'))
+        m_window:open()
+        return
+    end
+
+    m_window:open()
+
+    local timeout = conf.hover.timeout
+    local interval = math.floor(timeout / m_window.width)
+
+    -- --- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+    -- --- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
+    local cell = '▇'
+
+    local i = 1
+    local do_progress
+    do_progress = function()
+        m_content:wipe()
+        for j = 1, size do
+            local res = wait[j]()
+            if res then
+                m_result = res
+                m_window:set_width(width)
+                handle()
+                m_content:attach()
+
+                -- TODO :Animation
+                m_window.height = m_content:actual_height(true)
+                m_window:open {
+                    animation = 'fold',
+                }
+                return
+
+            elseif res == false then
+                table.remove(wait, j)
+                size = size - 1
+            end
+        end
+
+        if i == m_window.width or size == 0 then
+            --- HACK : change framework
+            m_content:addline(
+                it(error_msg, 'TransFailed')
+            )
+
+            m_content:attach()
+
+        else
+            m_content:addline(
+                it(cell:rep(i), 'MoreMsg')
+            )
+            i = i + 1
+            m_content:attach()
+            vim.defer_fn(do_progress, interval)
+        end
+    end
+
+    do_progress()
+end
 
 return function(word)
     vim.validate {
         word = { word, 's' },
     }
 
-    m_result = require('Trans.query.offline')(word) -- 目前只处理了本地数据库的查询
     local hover = conf.hover
-
-    m_window = require("Trans.window")(false, {
-        relative = 'cursor',
-        width    = hover.width,
-        height   = hover.height,
-        title    = hover.title,
-        border   = hover.border,
-        col      = 1,
-        row      = 1,
+    m_window = new_window(false, {
+        relative  = 'cursor',
+        width     = hover.width,
+        height    = hover.height,
+        title     = hover.title,
+        border    = hover.border,
+        animation = hover.animation,
+        col       = 1,
+        row       = 1,
     })
 
-    m_window.animation = hover.animation
     m_content = m_window.contents[1]
 
+    m_result = require('Trans.query.offline')(word)
     if m_result then
-        if hover.auto_play then
-            local ok = pcall(action.play)
-            if not ok then
-                vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
-            end
-        end
+        handle()
+        m_window:open({
+            callback = function()
+                m_window:set('wrap', true)
+            end,
+        })
 
-        for _, field in ipairs(conf.order) do
-            process[field]()
-        end
-
-        for act, key in pairs(hover.keymap) do
-            vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
+        local height = m_content:actual_height(true)
+        if height < m_window.height then
+            m_window:set_height(height)
         end
     else
-        process.failed()
+        online_query(word)
     end
-
-    m_window:draw()
-
-    local height = m_content:actual_height(true)
-    if height < m_window.height then
-        m_window:set_height(height)
-    end
-
-    m_window:open(function()
-        m_window:set('wrap', true)
-    end)
 
     -- Auto Close
     if hover.auto_close_events then

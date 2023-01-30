@@ -42,7 +42,7 @@ local function translate(mode, view)
     mode = mode or vim.api.nvim_get_mode().mode
     view = view or require('Trans').conf.view[mode]
     assert(mode and view)
-    local word = get_word(mode)
+    local word = get_word(mode):gsub('^%s+', '', 1)
     require('Trans.view.' .. view)(word)
 end
 

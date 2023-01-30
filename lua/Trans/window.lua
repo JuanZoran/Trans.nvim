@@ -1,5 +1,9 @@
 local api = vim.api
 
+--- TODO : progress bar
+--- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+--- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
@@ -56,10 +60,7 @@ local window = {
         end)
     end,
 
-    ---**第一次**绘制窗口的内容
-    ---@param self table 窗口的对象
     draw = function(self)
-        -- TODO :
         local offset = 0
         for _, content in ipairs(self.contents) do
             content:attach(offset)
@@ -67,9 +68,13 @@ local window = {
         end
     end,
 
-    open = function(self, callback)
-        local animation = self.animation
-        if animation.open then
+    open = function(self, opts)
+        self:draw()
+        opts = opts or {}
+        local interval = self.animation.interval
+        local animation = opts.animation or self.animation.open
+
+        if animation then
             check_busy()
 
             local handler
@@ -81,12 +86,12 @@ local window = {
                         busy = true
                         count = count + 1
                         api[action](self.winid, count)
-                        vim.defer_fn(handler[name], animation.interval)
+                        vim.defer_fn(handler[name], interval)
 
                     else
                         busy = false
-                        if callback then
-                            callback()
+                        if opts.callback then
+                            opts.callback()
                         end
                     end
                 end
@@ -97,16 +102,9 @@ local window = {
                 fold = wrap('fold', 'height'),
             }
 
-            handler[animation.open]()
+            handler[animation]()
         end
     end,
-
-    ---**重新绘制内容**(标题不变)
-    ---@param self table 窗口对象
-    redraw = function(self)
-        self.content:attach()
-    end,
-
 
     ---安全的关闭窗口
     try_close = function(self, callback)
@@ -115,7 +113,6 @@ local window = {
             self.config = api.nvim_win_get_config(self.winid)
             local animation = self.animation
             if animation.close then
-
                 local handler
                 local function wrap(name, target)
                     local count = self[target]
@@ -195,21 +192,22 @@ return function(entry, option)
     }
 
     local opt = {
-        relative  = nil,
-        width     = nil,
-        height    = nil,
-        border    = nil,
-        title     = nil,
-        col       = nil,
-        row       = nil,
+        relative  = option.relative,
+        width     = option.width,
+        height    = option.height,
+        border    = option.border,
+        title     = option.title,
+        col       = option.col,
+        row       = option.row,
+
         title_pos = nil,
         focusable = false,
-        zindex    = 100,
+        zindex    = option.zindex or 100,
         style     = 'minimal',
     }
 
-    for k, v in pairs(option) do
-        opt[k] = v
+    if opt.title then
+        opt.title_pos = 'center'
     end
     if opt.title then
         opt.title_pos = 'center'
@@ -223,12 +221,13 @@ return function(entry, option)
 
     local win
     win = {
-        winid    = winid,
-        bufnr    = bufnr,
-        width    = opt.width,
-        height   = opt.height,
-        hl       = api.nvim_create_namespace('TransWinHl'),
-        contents = setmetatable({}, {
+        winid     = winid,
+        bufnr     = bufnr,
+        width     = opt.width,
+        height    = opt.height,
+        animation = option.animation,
+        hl        = api.nvim_create_namespace('TransWinHl'),
+        contents  = setmetatable({}, {
             __index = function(self, key)
                 assert(type(key) == 'number')
                 self[key] = require('Trans.content')(win)
@@ -238,7 +237,6 @@ return function(entry, option)
     }
 
     setmetatable(win, { __index = window })
-
     -- FIXME  :config this
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')
