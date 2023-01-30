@@ -199,12 +199,16 @@ return function(entry, option)
         title     = option.title,
         col       = option.col,
         row       = option.row,
+
         title_pos = nil,
         focusable = false,
         zindex    = option.zindex or 100,
         style     = 'minimal',
     }
 
+    if opt.title then
+        opt.title_pos = 'center'
+    end
     if opt.title then
         opt.title_pos = 'center'
     end
