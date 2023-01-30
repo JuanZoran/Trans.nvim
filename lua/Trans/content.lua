@@ -85,7 +85,10 @@ local content = {
         end
 
         local space = math.floor(((self.window.width - width) / (size - 1)))
-        assert(space > 0, 'try to expand window size')
+        if space > 0 then
+            return
+        end
+
         local interval = (' '):rep(space)
         return setmetatable({
             text = table.concat(strs, interval),

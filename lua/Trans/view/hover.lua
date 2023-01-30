@@ -4,6 +4,7 @@ local conf = require('Trans').conf
 local m_window
 local m_result
 local m_content
+
 -- content utility
 local node = require("Trans.node")
 local t = node.text
@@ -25,9 +26,12 @@ end
 local process = {
     title = function()
         local icon = conf.icon
+        local line
+        if m_result.word:find(' ', 1, true) then
+            line = it(m_result.word, 'TransWord')
 
-        m_content:addline(
-            m_content:format(
+        else
+            line = m_content:format(
                 it(m_result.word, 'TransWord'),
                 t(
                     it('['),
@@ -37,7 +41,9 @@ local process = {
                 it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
                 it(m_result.oxford == 1 and icon.yes or icon.no)
             )
-        )
+
+        end
+        m_content:addline(line)
     end,
 
     tag = function()
@@ -211,7 +217,6 @@ action = {
             m_window:bufset('bufhidden', 'wipe')
             vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
 
-
             --- NOTE : 只允许存在一个pin窗口
             local buf = m_window.bufnr
             pin = true
@@ -250,9 +255,11 @@ action = {
     end,
 
     play = vim.fn.has('linux') == 1 and function()
-        vim.fn.jobstart('echo ' .. m_result.word .. ' | festival --tts')
+        local cmd = ([[echo "%s" | festival --tts]]):format(m_result.word)
+        vim.fn.jobstart(cmd)
     end or function()
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua/') .. 'tts/say.js'
+        local seperator = vim.fn.has('unix') and '/' or '\\'
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
         vim.fn.jobstart('node ' .. file .. ' ' .. m_result.word)
     end,
 }
@@ -263,7 +270,7 @@ return function(word)
         word = { word, 's' },
     }
 
-    m_result = require('Trans.query.offline')(word) -- 目前只处理了本地数据库的查询
+    m_result = require('Trans.query.offline')(word)
     local hover = conf.hover
 
     m_window = require("Trans.window")(false, {
@@ -279,8 +286,19 @@ return function(word)
     m_window.animation = hover.animation
     m_content = m_window.contents[1]
 
-    if m_result then
-        if hover.auto_play then action.play() end
+
+    -- TODO :Progress Bar
+    if not m_result then
+        m_result = require('Trans.query.baidu')(word)
+    end
+
+    if m_result and m_result.translation then
+        if hover.auto_play then
+            local ok = pcall(action.play)
+            if not ok then
+                vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
+            end
+        end
 
         for _, field in ipairs(conf.order) do
             process[field]()
@@ -305,14 +323,16 @@ return function(word)
     end)
 
     -- Auto Close
-    cmd_id = api.nvim_create_autocmd(
-        hover.auto_close_events, {
-        buffer = 0,
-        callback = function()
-            m_window:set('wrap', false)
-            m_window:try_close()
-            try_del_keymap()
-            api.nvim_del_autocmd(cmd_id)
-        end,
-    })
+    if hover.auto_close_events then
+        cmd_id = api.nvim_create_autocmd(
+            hover.auto_close_events, {
+            buffer = 0,
+            callback = function()
+                m_window:set('wrap', false)
+                m_window:try_close()
+                try_del_keymap()
+                api.nvim_del_autocmd(cmd_id)
+            end,
+        })
+    end
 end

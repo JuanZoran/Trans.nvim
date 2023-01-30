@@ -1,5 +1,9 @@
 local api = vim.api
 
+--- TODO : progress bar
+--- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+--- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
@@ -85,7 +89,7 @@ local window = {
 
                     else
                         busy = false
-                        if type(callback) == 'function' then
+                        if callback then
                             callback()
                         end
                     end
@@ -101,13 +105,6 @@ local window = {
         end
     end,
 
-    ---**重新绘制内容**(标题不变)
-    ---@param self table 窗口对象
-    redraw = function(self)
-        self.content:attach()
-    end,
-
-
     ---安全的关闭窗口
     try_close = function(self, callback)
         if self:is_open() then
@@ -115,7 +112,6 @@ local window = {
             self.config = api.nvim_win_get_config(self.winid)
             local animation = self.animation
             if animation.close then
-
                 local handler
                 local function wrap(name, target)
                     local count = self[target]
@@ -202,7 +198,7 @@ return function(entry, option)
         title     = nil,
         col       = nil,
         row       = nil,
-        title_pos = 'center',
+        title_pos = nil,
         focusable = false,
         zindex    = 100,
         style     = 'minimal',
@@ -210,6 +206,9 @@ return function(entry, option)
 
     for k, v in pairs(option) do
         opt[k] = v
+    end
+    if opt.title then
+        opt.title_pos = 'center'
     end
 
     local bufnr = api.nvim_create_buf(false, true)

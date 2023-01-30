@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+if test -e "$HOME/.vim/dict/ultimate.db"; then
+    exit
+fi
+
+
 mkdir -p "$HOME/.vim/dict"
 
 wget https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdict-ultimate-sqlite.zip -O /tmp/dict.zip

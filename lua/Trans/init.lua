@@ -1,11 +1,11 @@
 local M = {}
 
-
 local title = vim.fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
-} or ' Trans'
+} or nil
+
 
 M.conf = {
     view = {
@@ -19,7 +19,6 @@ M.conf = {
         border = 'rounded',
         title = title,
         keymap = {
-            -- TODO :
             pageup = '[[',
             pagedown = ']]',
             pin = '<leader>[',
@@ -40,6 +39,7 @@ M.conf = {
             'BufLeave',
         },
         auto_play = true,
+        timeout = 3000,
     },
     float = {
         width = 0.8,
@@ -87,6 +87,17 @@ M.conf = {
 
     db_path = '$HOME/.vim/dict/ultimate.db',
 
+    engine = {
+        baidu = {
+            appid = '',
+            appPasswd = '',
+        },
+        -- youdao = {
+        --     appkey = '',
+        --     appPasswd = '',
+        -- },
+    },
+
     -- TODO :
     -- register word
     -- history = {
@@ -103,11 +114,11 @@ M.setup = function(opts)
 
     local float = M.conf.float
 
-    if float.height < 0 and float.height <= 1 then
+    if 0 < float.height and float.height <= 1 then
         float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
     end
 
-    if float.width < 0 and float.width <= 1 then
+    if 0 < float.width and float.width <= 1 then
         float.width = math.floor(vim.o.columns * float.width)
     end
 

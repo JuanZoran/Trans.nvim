@@ -69,7 +69,7 @@ https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531
 use {
     'JuanZoran/Trans.nvim'
     run = 'bash ./install.sh',
-    requires = 'kharji/sqlite.lua',
+    requires = 'kkharji/sqlite.lua',
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
     config = function ()
         require'Trans'.setup{
@@ -89,7 +89,7 @@ use {
         { 'n', 'mi' },
     },
     run = 'bash ./install.sh', -- 自动下载使用的本地词库
-    requires = 'kharji/sqlite.lua',
+    requires = 'kkharji/sqlite.lua',
     config = function()
         require("Trans").setup {} -- 启动Trans
         vim.keymap.set({"v", 'n'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
@@ -146,6 +146,7 @@ use {
     - 需要确保安装了`nodejs`
     - 进入插件的`tts`目录运行`npm install`
         > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
+- `title`的配置，只对`neovim 0.9`版本有效
 
 ## Festival配置
 > 仅针对`linux`用户说明
