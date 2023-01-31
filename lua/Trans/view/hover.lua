@@ -282,22 +282,23 @@ end
 local function online_query(word)
     -- TODO :Progress Bar
     local lists = {}
-    local size = 0
+    local engines = conf.engines
+    local size = #engines
     local icon = conf.icon
-    for k, _ in pairs(conf.engine) do
-        size = size + 1
-        lists[size] = require('Trans.query.' .. k)(word)
-    end
-
     local error_msg = icon.notfound .. '    没有找到相关的翻译'
-
     m_window:set_height(1)
     local width = m_window.width
     m_window:set_width(error_msg:width())
+
     if size == 0 then
         m_content:addline(it(error_msg, 'TransFailed'))
         m_window:open()
         return
+    else
+        m_window:open()
+        for i = 1, size do
+            lists[size] = require('Trans.query.' .. engines[i])(word)
+        end
     end
 
     local cell = icon.cell
