@@ -28,10 +28,10 @@ end
 --- this is a nice plugin
 ---返回一个channel
 ---@param word string
----@return function
+---@return table
 return function(word)
     local query = get_field(word)
-    local result
+    local result = {}
 
     post(uri, {
         data = query,
@@ -39,26 +39,21 @@ return function(word)
             content_type = "application/x-www-form-urlencoded",
         },
         callback = function(str)
-            if result then
-                return
-            elseif str ~= '' then
-                local res = vim.fn.json_decode(str)
-                if res and res.trans_result then
-                    result = {
-                        word = word,
-                        translation = res.trans_result[1].dst,
-                    }
+            local res = vim.json.decode(str)
+            if res and res.trans_result then
+                result.value = {
+                    word = word,
+                    translation = res.trans_result[1].dst,
+                }
 
-                else
-                    result = false
+                if result.callback then
+                    result.callback(result.value)
                 end
             else
-                result = false
+                result.value = false
             end
         end,
     })
 
-    return function()
-        return result
-    end
+    return result
 end

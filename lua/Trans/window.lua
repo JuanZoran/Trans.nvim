@@ -1,5 +1,6 @@
 local api = vim.api
 local new_content = require('Trans.content')
+local new_animation = require('Trans.util.animation')
 
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
@@ -7,10 +8,11 @@ function string:width()
 end
 
 local busy = false
-local function check_busy()
+local function lock()
     while busy do
         vim.wait(50)
     end
+    busy = true
 end
 
 ---@class window
@@ -74,42 +76,37 @@ local window = {
 
     open = function(self, opts)
         self:draw()
+        local wrap = self:option('wrap')
+        self:set('wrap', false)
         opts            = opts or {}
-        local interval  = self.animation.interval
         local animation = opts.animation or self.animation.open
-        local callback  = opts.callback
-
-        if animation then
-            check_busy()
-
-            local handler
-            local function wrap(name, target)
-                local count = 0
-                local action = 'nvim_win_set_' .. target
-                return function()
-                    if count < self[target] then
-                        busy = true
-                        count = count + 1
-                        api[action](self.winid, count)
-                        vim.defer_fn(handler[name], interval)
-
-                    else
-                        busy = false
-                        if callback then
-                            callback()
-                        end
-                    end
-                end
+        local callback  = function()
+            busy = false
+            self:set('wrap', wrap)
+            if opts.callback then
+                opts.callback()
             end
+        end
 
-            handler = {
-                slid = wrap('slid', 'width'),
-                fold = wrap('fold', 'height'),
-            }
+        lock()
+        if animation then
+            local interval = self.animation.interval
+            local field = ({
+                fold = 'height',
+                slid = 'width',
+            })[animation]
 
-            handler[animation]()
+            local method = 'nvim_win_set_' .. field
+            new_animation({
+                interval = interval,
+                times = self[field],
+                frame = function(_, times)
+                    api[method](self.winid, times)
+                end,
+                callback = callback,
+            }):display()
 
-        elseif callback then
+        else
             callback()
         end
     end,
@@ -117,63 +114,58 @@ local window = {
     ---安全的关闭窗口
     try_close = function(self, opts)
         opts = opts or {}
-        local callback = opts.callback
+        self:set('wrap', false)
+
         if self:is_open() then
-            check_busy()
-            self.config = api.nvim_win_get_config(self.winid)
-            local animation = self.animation
-            if animation.close then
-                local handler
-                local function wrap(name, target)
-                    local count = self[target]
-                    local action = 'nvim_win_set_' .. target
-                    return function()
-                        if count > 1 then
-                            busy = true
-                            count = count - 1
-                            api[action](self.winid, count)
-                            vim.defer_fn(handler[name], animation.interval)
-
-                        else
-                            vim.defer_fn(function()
-                                api.nvim_win_close(self.winid, true)
-                                self.winid = -1
-                                busy = false
-
-                                if type(callback) == 'function' then
-                                    callback()
-                                end
-
-                            end, animation.interval + 2)
-                        end
-                    end
-                end
-
-                handler = {
-                    slid = wrap('slid', 'width'),
-                    fold = wrap('fold', 'height'),
-                }
-
-                handler[animation.close]()
-
-            else
+            local callback = function()
                 api.nvim_win_close(self.winid, true)
                 self.winid = -1
+                busy = false
+                if opts.callback then
+                    opts.callback()
+                end
+                if api.nvim_buf_is_valid(self.bufnr) and opts.wipeout then
+                    api.nvim_buf_delete(self.bufnr, { force = true })
+                    self.bufnr = -1
+                end
+            end
+
+            lock()
+            self.config = api.nvim_win_get_config(self.winid)
+            local animation = self.animation.close
+            if animation then
+                local interval = self.animation.interval
+                local field = ({
+                    fold = 'height',
+                    slid = 'width',
+                })[animation]
+
+                local target = self[field]
+                local method = 'nvim_win_set_' .. field
+                new_animation({
+                    times = target,
+                    frame = function(_, times)
+                        api[method](self.winid, target - times)
+                    end,
+                    callback = callback,
+                    interval = interval,
+                }):display()
+
+            else
+                callback()
             end
         end
     end,
 
     reopen = function(self, opts)
-        local entry    = opts.entry or false
-        local win_opt  = opts.win_opt
-        local opt      = opts.opt
+        assert(self.bufnr ~= -1)
+        local entry   = opts.entry or false
+        local win_opt = opts.win_opt or {}
+        local opt     = opts.opt
 
-        check_busy()
         self.config.win = nil
-        if win_opt then
-            for k, v in pairs(win_opt) do
-                self.config[k] = v
-            end
+        for k, v in pairs(win_opt) do
+            self.config[k] = v
         end
 
         self.winid = api.nvim_open_win(self.bufnr, entry, self.config)

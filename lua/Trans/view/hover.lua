@@ -23,7 +23,6 @@ local exist = function(str)
     return str and str ~= ''
 end
 
-
 local process = {
     title = function()
         local icon = conf.icon
@@ -105,9 +104,11 @@ local process = {
                 t = '不定式标记infm   ',
                 d = '限定词determiner ',
             }
+
+            local f = '%s %s%%'
             for pos in vim.gsplit(m_result.pos, '/', true) do
                 m_content:addline(
-                    it(m_indent .. pos_map[pos:sub(1, 1)] .. pos:sub(3) .. '%', 'TransPos')
+                    it(m_indent .. f:format(pos_map[pos:sub(1, 1)], pos:sub(3)), 'TransPos')
                 )
             end
 
@@ -131,7 +132,6 @@ local process = {
                 ['f'] = '第三人称单数',
             }
             local interval = '    '
-
             for exc in vim.gsplit(m_result.exchange, '/', true) do
                 m_content:addline(
                     it(m_indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3), 'TransExchange')
@@ -195,9 +195,7 @@ action = {
         if pin then
             error('too many window')
         end
-
         pcall(api.nvim_del_autocmd, cmd_id)
-        m_window:set('wrap', false)
 
         m_window:try_close {
             callback = function()
@@ -209,8 +207,8 @@ action = {
                     },
                     opt = {
                         callback = function()
-                            m_window:set('wrap', true)
                             m_window:bufset('bufhidden', 'wipe')
+                            m_window:set('wrap', true)
                         end
                     },
                 }
@@ -239,8 +237,7 @@ action = {
 
     close = function()
         pcall(api.nvim_del_autocmd, cmd_id)
-        m_window:set('wrap', false)
-        m_window:try_close()
+        m_window:try_close { wipeout = true }
         try_del_keymap()
     end,
 
@@ -284,13 +281,15 @@ end
 
 local function online_query(word)
     -- TODO :Progress Bar
-    local wait = {}
+    local lists = {}
     local size = 0
+    local icon = conf.icon
     for k, _ in pairs(conf.engine) do
         size = size + 1
-        wait[size] = require('Trans.query.' .. k)(word)
+        lists[size] = require('Trans.query.' .. k)(word)
     end
-    local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
+
+    local error_msg = icon.notfound .. '    没有找到相关的翻译'
 
     m_window:set_height(1)
     local width = m_window.width
@@ -301,58 +300,53 @@ local function online_query(word)
         return
     end
 
-    m_window:open()
-    local icon = conf.icon
     local cell = icon.cell
-    local spinner = require('Trans.util.spinner')[conf.hover.spinner]
+    local spinner = require('Trans.ui.spinner')[conf.hover.spinner]
     local range = #spinner
 
     local timeout = conf.hover.timeout
     local interval = math.floor(timeout / (m_window.width - spinner[1]:width()))
     local f = '%s %s'
-    local i = 1
-    local do_progress
-    do_progress = function()
-        m_content:wipe()
-        for j = 1, size do
-            local res = wait[j]()
-            if res then
-                m_result = res
-                m_window:set_width(width)
-                handle()
+    require('Trans.util.animation')({
+        times = m_window.width,
+        frame = function(self, times)
+            m_content:wipe()
+            for i, v in ipairs(lists) do
+                local res = v.value
+                if res then
+                    m_result = res
+                    m_window:set_width(width)
+                    handle()
+                    m_content:attach()
+
+                    m_window.height = m_content:actual_height(true)
+                    m_window:open {
+                        animation = 'fold',
+                    }
+
+                    self.run = false
+                    return
+                elseif res == 'false' then
+                    table.remove(lists, i)
+                    size = size - 1
+                end
+            end
+
+            if size == 0 then
+                m_content:addline(
+                    it(error_msg, 'TransFailed')
+                )
                 m_content:attach()
 
-                m_window.height = m_content:actual_height(true)
-                m_window:open {
-                    animation = 'fold',
-                }
-                return
-
-            elseif res == false then
-                table.remove(wait, j)
-                size = size - 1
+            else
+                m_content:addline(
+                    it(f:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
+                )
+                m_content:attach()
             end
-        end
-
-        if i == m_window.width or size == 0 then
-            --- HACK : change framework
-            m_content:addline(
-                it(error_msg, 'TransFailed')
-            )
-
-            m_content:attach()
-
-        else
-            m_content:addline(
-                it(f:format(spinner[i % range + 1], cell:rep(i)), 'MoreMsg')
-            )
-            i = i + 1
-            m_content:attach()
-            vim.defer_fn(do_progress, interval)
-        end
-    end
-
-    do_progress()
+        end,
+        interval = interval,
+    }):display()
 end
 
 return function(word)
@@ -372,22 +366,17 @@ return function(word)
         row       = 1,
     })
 
-
+    m_window:set('wrap', true)
     m_content = m_window:new_content()
 
     m_result = require('Trans.query.offline')(word)
     if m_result then
         handle()
-        m_window:open({
-            callback = function()
-                m_window:set('wrap', true)
-            end,
-        })
-
         local height = m_content:actual_height(true)
         if height < m_window.height then
             m_window:set_height(height)
         end
+        m_window:open()
     else
         online_query(word)
     end
@@ -398,8 +387,7 @@ return function(word)
             hover.auto_close_events, {
             buffer = 0,
             callback = function()
-                m_window:set('wrap', false)
-                m_window:try_close()
+                m_window:try_close { wipeout = true }
                 try_del_keymap()
                 api.nvim_del_autocmd(cmd_id)
             end,

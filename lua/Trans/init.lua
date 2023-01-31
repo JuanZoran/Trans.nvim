@@ -39,7 +39,7 @@ M.conf = {
             'BufLeave',
         },
         auto_play = true,
-        timeout = 3000,
+        timeout = 2000,
         spinner = 'dots', -- 查看所有样式: /lua/Trans/util/spinner
         -- spinner = 'moon'
     },
@@ -145,7 +145,7 @@ M.setup = function(opts)
         end, { desc = '  搜索翻译' })
 
 
-        local hls = require('Trans.theme')[M.conf.theme]
+        local hls = require('Trans.ui.theme')[M.conf.theme]
         for hl, opt in pairs(hls) do
             vim.api.nvim_set_hl(0, hl, opt)
         end
