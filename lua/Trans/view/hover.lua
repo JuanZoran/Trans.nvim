@@ -32,16 +32,18 @@ local process = {
             line = it(m_result.word, 'TransWord')
 
         else
-            line = m_content:format(
-                it(m_result.word, 'TransWord'),
-                t(
-                    it('['),
-                    it(exist(m_result.phonetic) and m_result.phonetic or icon.notfound, 'TransPhonetic'),
-                    it(']')
-                ),
-                it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
-                it(m_result.oxford == 1 and icon.yes or icon.no)
-            )
+            line = m_content:format {
+                nodes = {
+                    it(m_result.word, 'TransWord'),
+                    t(
+                        it('['),
+                        it(exist(m_result.phonetic) and m_result.phonetic or icon.notfound, 'TransPhonetic'),
+                        it(']')
+                    ),
+                    it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
+                    it(m_result.oxford == 1 and icon.yes or icon.no)
+                },
+            }
         end
         m_content:addline(line)
     end,
@@ -197,36 +199,42 @@ action = {
         pcall(api.nvim_del_autocmd, cmd_id)
         m_window:set('wrap', false)
 
-        m_window:try_close(function()
-            m_window:reopen(false, {
-                relative = 'editor',
-                row = 1,
-                col = vim.o.columns - m_window.width - 3,
-            }, function()
-                m_window:set('wrap', true)
-            end)
+        m_window:try_close {
+            callback = function()
+                m_window:reopen {
+                    win_opt = {
+                        relative = 'editor',
+                        row = 1,
+                        col = vim.o.columns - m_window.width - 3,
+                    },
+                    opt = {
+                        callback = function()
+                            m_window:set('wrap', true)
+                            m_window:bufset('bufhidden', 'wipe')
+                        end
+                    },
+                }
 
-            m_window:bufset('bufhidden', 'wipe')
-            vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
-
-            --- NOTE : 只允许存在一个pin窗口
-            local buf = m_window.bufnr
-            pin = true
-            local toggle = conf.hover.keymap.toggle_entry
-            if toggle then
-                next = m_window.winid
-                vim.keymap.set('n', toggle, action.toggle_entry, { silent = true, buffer = buf })
-            end
-
-            api.nvim_create_autocmd('BufWipeOut', {
-                callback = function(opt)
-                    if opt.buf == buf then
-                        pin = false
-                        api.nvim_del_autocmd(opt.id)
-                    end
+                vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
+                --- NOTE : 只允许存在一个pin窗口
+                local buf = m_window.bufnr
+                pin = true
+                local toggle = conf.hover.keymap.toggle_entry
+                if toggle then
+                    next = m_window.winid
+                    vim.keymap.set('n', toggle, action.toggle_entry, { silent = true, buffer = buf })
                 end
-            })
-        end)
+
+                api.nvim_create_autocmd('BufWipeOut', {
+                    callback = function(opt)
+                        if opt.buf == buf then
+                            pin = false
+                            api.nvim_del_autocmd(opt.id)
+                        end
+                    end
+                })
+            end
+        }
     end,
 
     close = function()
@@ -294,14 +302,14 @@ local function online_query(word)
     end
 
     m_window:open()
+    local icon = conf.icon
+    local cell = icon.cell
+    local spinner = require('Trans.util.spinner')[conf.hover.spinner]
+    local range = #spinner
 
     local timeout = conf.hover.timeout
-    local interval = math.floor(timeout / m_window.width)
-
-    -- --- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
-    -- --- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
-    local cell = '▇'
-
+    local interval = math.floor(timeout / (m_window.width - spinner[1]:width()))
+    local f = '%s %s'
     local i = 1
     local do_progress
     do_progress = function()
@@ -314,7 +322,6 @@ local function online_query(word)
                 handle()
                 m_content:attach()
 
-                -- TODO :Animation
                 m_window.height = m_content:actual_height(true)
                 m_window:open {
                     animation = 'fold',
@@ -337,7 +344,7 @@ local function online_query(word)
 
         else
             m_content:addline(
-                it(cell:rep(i), 'MoreMsg')
+                it(f:format(spinner[i % range + 1], cell:rep(i)), 'MoreMsg')
             )
             i = i + 1
             m_content:attach()
@@ -365,7 +372,8 @@ return function(word)
         row       = 1,
     })
 
-    m_content = m_window.contents[1]
+
+    m_content = m_window:new_content()
 
     m_result = require('Trans.query.offline')(word)
     if m_result then

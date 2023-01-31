@@ -1,10 +1,6 @@
 local api = vim.api
+local new_content = require('Trans.content')
 
---- TODO : progress bar
---- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
---- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
-
----@diagnostic disable-next-line: duplicate-set-field
 function string:width()
     ---@diagnostic disable-next-line: param-type-mismatch
     return vim.fn.strwidth(self)
@@ -16,6 +12,14 @@ local function check_busy()
         vim.wait(50)
     end
 end
+
+---@class window
+---@field winid integer 窗口的handle
+---@field bufnr integer 窗口对应buffer的handle
+---@field width integer 窗口当前的宽度
+---@field height integer 窗口当前的高度
+---@field hl integer 窗口highlight的namespace
+---@field contents table[] 窗口内容的对象数组
 
 ---@type window
 local window = {
@@ -70,9 +74,10 @@ local window = {
 
     open = function(self, opts)
         self:draw()
-        opts = opts or {}
-        local interval = self.animation.interval
+        opts            = opts or {}
+        local interval  = self.animation.interval
         local animation = opts.animation or self.animation.open
+        local callback  = opts.callback
 
         if animation then
             check_busy()
@@ -90,8 +95,8 @@ local window = {
 
                     else
                         busy = false
-                        if opts.callback then
-                            opts.callback()
+                        if callback then
+                            callback()
                         end
                     end
                 end
@@ -103,11 +108,16 @@ local window = {
             }
 
             handler[animation]()
+
+        elseif callback then
+            callback()
         end
     end,
 
     ---安全的关闭窗口
-    try_close = function(self, callback)
+    try_close = function(self, opts)
+        opts = opts or {}
+        local callback = opts.callback
         if self:is_open() then
             check_busy()
             self.config = api.nvim_win_get_config(self.winid)
@@ -153,31 +163,38 @@ local window = {
         end
     end,
 
-    reopen = function(self, entry, opt, callback)
+    reopen = function(self, opts)
+        local entry    = opts.entry or false
+        local win_opt  = opts.win_opt
+        local opt      = opts.opt
+
         check_busy()
         self.config.win = nil
-        if opt then
-            for k, v in pairs(opt) do
+        if win_opt then
+            for k, v in pairs(win_opt) do
                 self.config[k] = v
             end
         end
 
         self.winid = api.nvim_open_win(self.bufnr, entry, self.config)
-        self:open(callback)
+        self:open(opt)
     end,
 
     set_hl = function(self, name, hl)
         api.nvim_set_hl(self.hl, name, hl)
-    end
+    end,
+
+    new_content = function(self)
+        local index = self.size + 1
+        self.size = index + 1
+        self.contents[index] = new_content(self)
+
+        return self.contents[index]
+    end,
 }
 
----@class window
----@field winid integer 窗口的handle
----@field bufnr integer 窗口对应buffer的handle
----@field width integer 窗口当前的宽度
----@field height integer 窗口当前的高度
----@field hl integer 窗口highlight的namespace
----@field contents table[] 窗口内容的对象数组
+window.__index = window
+
 
 
 ---窗口对象的构造器
@@ -192,13 +209,13 @@ return function(entry, option)
     }
 
     local opt = {
-        relative  = option.relative,
-        width     = option.width,
-        height    = option.height,
-        border    = option.border,
-        title     = option.title,
-        col       = option.col,
-        row       = option.row,
+        relative = option.relative,
+        width    = option.width,
+        height   = option.height,
+        border   = option.border,
+        title    = option.title,
+        col      = option.col,
+        row      = option.row,
 
         title_pos = nil,
         focusable = false,
@@ -206,9 +223,6 @@ return function(entry, option)
         style     = 'minimal',
     }
 
-    if opt.title then
-        opt.title_pos = 'center'
-    end
     if opt.title then
         opt.title_pos = 'center'
     end
@@ -227,20 +241,16 @@ return function(entry, option)
         height    = opt.height,
         animation = option.animation,
         hl        = api.nvim_create_namespace('TransWinHl'),
-        contents  = setmetatable({}, {
-            __index = function(self, key)
-                assert(type(key) == 'number')
-                self[key] = require('Trans.content')(win)
-                return self[key]
-            end
-        })
+        size      = 0,
+        contents  = {}
     }
 
-    setmetatable(win, { __index = window })
-    -- FIXME  :config this
+    ---@diagnostic disable-next-line: param-type-mismatch
+    setmetatable(win, window)
+
+
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')
-
     api.nvim_win_set_hl_ns(win.winid, win.hl)
     win:set_hl('Normal', { link = 'TransWin' })
     win:set_hl('FloatBorder', { link = 'TransBorder' })

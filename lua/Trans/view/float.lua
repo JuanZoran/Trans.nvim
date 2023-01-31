@@ -69,6 +69,9 @@ return function(word)
     local engine_ch = '本地'
     local engine_us = engine_map[engine_ch]
 
+    vim.notify('[注意]: float窗口目前还待开发, 如果需要input查询功能, 请将窗口改成hover',
+        vim.log.WARN)
+
     m_result = require('Trans.query.' .. engine_us)(word)
 
     local opt = {
