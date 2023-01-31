@@ -17,33 +17,37 @@ local function get_select()
 end
 
 local function get_word(mode)
+    local word
     if mode == 'n' then
-        return vim.fn.expand('<cword>')
+        word = vim.fn.expand('<cword>')
     elseif mode == 'v' then
         vim.api.nvim_input('<ESC>')
-        return get_select()
+        word = get_select()
     elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
-        ---@diagnostic disable-next-line: param-type-mismatch
-        return vim.fn.input('请输入您要查询的单词: ')
+        vim.ui.input({ prompt = '请输入需要查询的单词: ' }, function(input)
+            word = input
+        end)
     else
         error('invalid mode: ' .. mode)
     end
+
+    return word
 end
 
-
-local function translate(mode, view)
+return function(mode, view)
     vim.validate {
         mode = { mode, 's', true },
         view = { view, 's', true }
     }
 
-    ---@diagnostic disable-next-line: undefined-field
     mode = mode or vim.api.nvim_get_mode().mode
     view = view or require('Trans').conf.view[mode]
     assert(mode and view)
-    local word = get_word(mode):gsub('^%s+', '', 1)
-    require('Trans.view.' .. view)(word)
+    local word = get_word(mode)
+    if word == nil or word == '' then
+        return
+    else
+        require('Trans.view.' .. view)(word:gsub('^%s+', '', 1))
+    end
 end
-
-return translate

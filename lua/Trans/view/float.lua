@@ -3,16 +3,17 @@ local m_window
 local m_result
 local m_content
 
-local engine_map = {
-    ['本地'] = 'offline',
-    ['百度'] = 'baidu',
-    ['有道'] = 'youdao',
-}
-
 local node = require("Trans.node")
 local t = node.text
 local it = node.item
 
+
+local engine_map = {
+    baidu   = '百度',
+    youdao  = '有道',
+    iciba   = 'iciba',
+    offline = '本地',
+}
 
 local function set_tag_hl(name, status)
     local hl = conf.float.tag[status]
@@ -27,29 +28,28 @@ local function set_tag_hl(name, status)
 end
 
 local function set_title()
-    local title = m_window.contents[1]
+    local title = m_window:new_content()
     local github = '  https://github.com/JuanZoran/Trans.nvim'
 
     title:addline(
         title:center(it(github, '@text.uri'))
     )
 
-    local format = '%s(%d)'
-    for i, engine_ch in ipairs(conf.float.engine) do
-        local engine_us = engine_map[engine_ch]
-        set_tag_hl(engine_us, 'wait')
+    local f = '%s(%d)'
 
-        local round = engine_us .. 'round'
-        title:addline(
-            t(
-                it('', round),
-                it(format:format(engine_ch, i), engine_us),
-                it('', round)
-            )
-        )
-
-        title:newline('')
+    local tags = {}
+    local load_tag = function(engine, index)
+        set_tag_hl(engine, 'wait')
+        local round = engine .. 'round'
+        table.insert(tags, t(
+            it('', round),
+            it(f:format(engine_map[engine], index), engine),
+            it('', round)
+        ))
     end
+    load_tag('offline', 1)
+    title:addline(unpack(tags))
+    title:newline('')
 end
 
 local action = {
@@ -58,22 +58,34 @@ local action = {
     end,
 }
 
+local exist = function (str)
+    return str and str ~= ''
+end
 
 local function process()
     -- TODO :
+    local icon = conf.icon
+    m_content:addline(m_content:format {
+        nodes = {
+            it(m_result.word, 'TransWord'),
+            t(
+                it('['),
+                it(exist(m_result.phonetic) and m_result.phonetic or icon.notfound, 'TransPhonetic'),
+                it(']')
+            ),
+            it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
+            it(m_result.oxford == 1 and icon.yes or icon.no)
+        },
+        width = math.floor(m_window.width * 0.5)
+    })
+    m_content:addline(it('该窗口还属于实验性功能 .... '))
 end
 
 return function(word)
     -- TODO :online query
     local float = conf.float
-    local engine_ch = '本地'
-    local engine_us = engine_map[engine_ch]
-
     vim.notify('[注意]: float窗口目前还待开发, 如果需要input查询功能, 请将窗口改成hover',
         vim.log.WARN)
-
-    m_result = require('Trans.query.' .. engine_us)(word)
-
     local opt = {
         relative  = 'editor',
         width     = float.width,
@@ -83,19 +95,17 @@ return function(word)
         animation = float.animation,
         row       = bit.rshift((vim.o.lines - float.height), 1),
         col       = bit.rshift((vim.o.columns - float.width), 1),
-        zindex    = 50,
+        zindex    = 20,
     }
-
     m_window = require('Trans.window')(true, opt)
-
     set_title()
-    m_content = m_window.contents[2]
-
+    m_content = m_window:new_content()
+    m_result = require('Trans.query.offline')(word)
     if m_result then
-        set_tag_hl(engine_us, 'success')
+        set_tag_hl('offline', 'success')
         process()
     else
-        set_tag_hl(engine_us, 'fail')
+        set_tag_hl('offline', 'fail')
     end
 
     m_window:open()
