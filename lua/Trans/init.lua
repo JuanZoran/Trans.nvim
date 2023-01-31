@@ -40,6 +40,8 @@ M.conf = {
         },
         auto_play = true,
         timeout = 3000,
+        spinner = 'dots', -- 查看所有样式: /lua/Trans/util/spinner
+        -- spinner = 'moon'
     },
     float = {
         width = 0.8,
@@ -74,8 +76,11 @@ M.conf = {
     icon = {
         star = '',
         notfound = ' ',
-        yes = ' ',
-        no = ''
+        yes = '✔',
+        no = '',
+    -- --- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+    -- --- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
+        cell = '■',
         -- star = '⭐',
         -- notfound = '❔',
         -- yes = '✔️',
@@ -107,6 +112,7 @@ M.conf = {
     -- TODO :add online translate engine
 }
 
+local times = 0
 M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
@@ -122,24 +128,27 @@ M.setup = function(opts)
         float.width = math.floor(vim.o.columns * float.width)
     end
 
-    M.translate = require('Trans.translate')
+    times = times + 1
+    if times == 1 then
+        M.translate = require('Trans.translate')
 
-    if vim.fn.executable('sqlite3') ~= 1 then
-        error('Please check out sqlite3')
-    end
+        if vim.fn.executable('sqlite3') ~= 1 then
+            error('Please check out sqlite3')
+        end
 
-    vim.api.nvim_create_user_command('Translate', function()
-        require("Trans").translate()
-    end, { desc = '  单词翻译', })
+        vim.api.nvim_create_user_command('Translate', function ()
+            M.translate()
+        end, { desc = '  单词翻译', })
 
-    vim.api.nvim_create_user_command('TranslateInput', function()
-        require("Trans").translate('i')
-    end, { desc = '  搜索翻译' })
+        vim.api.nvim_create_user_command('TranslateInput', function()
+            M.translate('i')
+        end, { desc = '  搜索翻译' })
 
 
-    local hls = require('Trans.theme')[M.conf.theme]
-    for hl, opt in pairs(hls) do
-        vim.api.nvim_set_hl(0, hl, opt)
+        local hls = require('Trans.theme')[M.conf.theme]
+        for hl, opt in pairs(hls) do
+            vim.api.nvim_set_hl(0, hl, opt)
+        end
     end
 end
 

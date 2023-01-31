@@ -75,8 +75,9 @@ local content = {
         end
     end,
 
-    format = function(self, ...)
-        local nodes = { ... }
+    format = function(self, opt)
+        local win_width = opt.width or self.window.width
+        local nodes = opt.nodes
         local size = #nodes
         assert(size > 1, 'check items size')
         local width = 0
@@ -87,8 +88,11 @@ local content = {
             width = width + str:width()
         end
 
-        local space = math.floor(((self.window.width - width) / (size - 1)))
-        assert(space > 0, 'try to expand the window')
+        local space = math.floor(((win_width - width) / (size - 1)))
+        if opt.strict and space < 0 then
+            return false
+        end
+
         local interval = (' '):rep(space)
         return setmetatable({
             text = table.concat(strs, interval),
@@ -121,6 +125,7 @@ local content = {
     end
 }
 
+content.__index = content
 
 ---content的构造函数
 ---@param window table 链接的窗口
@@ -136,5 +141,5 @@ return function(window)
         hl_size = 0,
         lines = {},
         highlights = {},
-    }, { __index = content })
+    }, content)
 end

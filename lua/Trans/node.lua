@@ -21,13 +21,16 @@ local text_meta = {
     end,
 }
 
+item_meta.__index = item_meta
+text_meta.__index = text_meta
+
 
 return {
     item = function(text, hl)
         return setmetatable({
             text = text,
             hl = hl,
-        }, { __index = item_meta })
+        }, item_meta)
     end,
 
 
@@ -42,6 +45,6 @@ return {
         return setmetatable({
             text = table.concat(strs),
             items = items,
-        }, { __index = text_meta })
+        }, text_meta)
     end,
 }
