@@ -2,10 +2,7 @@ local api = vim.api
 local new_content = require('Trans.content')
 local new_animation = require('Trans.util.animation')
 
-function string:width()
-    ---@diagnostic disable-next-line: param-type-mismatch
-    return vim.fn.strwidth(self)
-end
+string.width = vim.fn.strwidth
 
 local busy = false
 local function lock()
@@ -57,7 +54,7 @@ local window = {
 
     ---@nodiscard
     is_open = function(self)
-        return self.winid > 0 and api.nvim_win_is_valid(self.winid)
+        return api.nvim_win_is_valid(self.winid)
     end,
 
     normal = function(self, key)
@@ -96,12 +93,13 @@ local window = {
                 slid = 'width',
             })[animation]
 
-            local method = 'nvim_win_set_' .. field
+            local method = api['nvim_win_set_' .. field]
+            local winid = self.winid
             new_animation({
                 interval = interval,
                 times = self[field],
                 frame = function(_, times)
-                    api[method](self.winid, times)
+                    method(winid, times)
                 end,
                 callback = callback,
             }):display()
@@ -141,11 +139,12 @@ local window = {
                 })[animation]
 
                 local target = self[field]
-                local method = 'nvim_win_set_' .. field
+                local method = api['nvim_win_set_' .. field]
+                local winid = self.winid
                 new_animation({
                     times = target,
                     frame = function(_, times)
-                        api[method](self.winid, target - times)
+                        method(winid, target - times)
                     end,
                     callback = callback,
                     interval = interval,
@@ -172,13 +171,13 @@ local window = {
         self:open(opt)
     end,
 
-    set_hl = function(self, name, hl)
-        api.nvim_set_hl(self.hl, name, hl)
+    set_hl = function(self, name, opts)
+        api.nvim_set_hl(self.hl, name, opts)
     end,
 
     new_content = function(self)
         local index = self.size + 1
-        self.size = index + 1
+        self.size = index
         self.contents[index] = new_content(self)
 
         return self.contents[index]
@@ -246,7 +245,6 @@ return function(entry, option)
     api.nvim_win_set_hl_ns(win.winid, win.hl)
     win:set_hl('Normal', { link = 'TransWin' })
     win:set_hl('FloatBorder', { link = 'TransBorder' })
-    win:set_hl('NormalFloat', { link = 'TransBorder' })
     ---@diagnostic disable-next-line: return-type-mismatch
     return win
 end

@@ -45,6 +45,11 @@
 ### 演示
 https://user-images.githubusercontent.com/107862700/213752097-2eee026a-ddee-4531-bf80-ba2cbc8b44ef.mp4
 
+> 视频演示的在线查询, 查询速度取决于你的网络状况  
+> 可以打开音量查看自动读音
+
+https://user-images.githubusercontent.com/107862700/215941500-3293c571-20a1-44e2-b202-77079f158ce9.mp4
+
 ### 主题
 > 如果你有更美观或者更适合的配色, 欢迎提PR  
 > 主题配色在: `lua/Trans/theme.lua`文件中，你只需要添加你主题的表就可以了

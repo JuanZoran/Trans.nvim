@@ -61,9 +61,6 @@ M.conf = {
             fail = '#e46876',
             success = '#10b981',
         },
-        engine = {
-            '本地',
-        }
     },
     order = { -- only work on hover mode
         'title',
@@ -78,8 +75,8 @@ M.conf = {
         notfound = ' ',
         yes = '✔',
         no = '',
-    -- --- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
-    -- --- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
+        -- --- char: ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+        -- --- ◖■■■■■■■◗▫◻ ▆ ▆ ▇⃞ ▉⃞
         cell = '■',
         -- star = '⭐',
         -- notfound = '❔',
@@ -117,16 +114,21 @@ M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
     end
+    local conf = M.conf
 
-    local float = M.conf.float
-
+    local float = conf.float
     if 0 < float.height and float.height <= 1 then
         float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
     end
-
     if 0 < float.width and float.width <= 1 then
         float.width = math.floor(vim.o.columns * float.width)
     end
+
+    local engines = {}
+    for k, _ in pairs(conf.engine) do
+        table.insert(engines, k)
+    end
+    conf.engines = engines
 
     times = times + 1
     if times == 1 then
@@ -136,7 +138,7 @@ M.setup = function(opts)
             error('Please check out sqlite3')
         end
 
-        vim.api.nvim_create_user_command('Translate', function ()
+        vim.api.nvim_create_user_command('Translate', function()
             M.translate()
         end, { desc = '  单词翻译', })
 
@@ -145,7 +147,7 @@ M.setup = function(opts)
         end, { desc = '  搜索翻译' })
 
 
-        local hls = require('Trans.ui.theme')[M.conf.theme]
+        local hls = require('Trans.ui.theme')[conf.theme]
         for hl, opt in pairs(hls) do
             vim.api.nvim_set_hl(0, hl, opt)
         end
