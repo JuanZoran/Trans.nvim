@@ -11,13 +11,14 @@ local display = function(self)
                     self:frame(i)
                 end
             end
+
         else
             while self.run do
                 self:frame()
             end
-            callback()
         end
 
+        callback()
     else
         local frame
         if self.times then

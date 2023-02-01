@@ -20,6 +20,9 @@
 - 使用纯lua编写, 速度极快
 > `Lazy.nvim`的记录: <font color="#0099FF">`➜   Trans.nvim 0.82ms`</font>
 
+- **可以定义快捷键读英文单词**
+> 见wiki
+
 - 大部分功能可以自定义:
   - 高亮
   - 悬浮大小
@@ -315,7 +318,8 @@ require'Trans'.setup {
 **示例:**
 > 示例中展示, 将`mm`映射成快捷键
 ```lua
-vim.keymap.set({'n', 'v'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
 vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 
 ```
