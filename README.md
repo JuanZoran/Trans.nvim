@@ -12,6 +12,7 @@
   - [高亮组](#高亮组)
   - [声明](#声明)
   - [感谢](#感谢)
+  - [贡献](#贡献)
   - [待办 (画大饼)](#待办-画大饼)
 <!--toc:end-->
 
@@ -19,6 +20,9 @@
 ## 特点
 - 使用纯lua编写, 速度极快
 > `Lazy.nvim`的记录: <font color="#0099FF">`➜   Trans.nvim 0.82ms`</font>
+
+- **可以定义快捷键读英文单词**
+> 见wiki
 
 - 大部分功能可以自定义:
   - 高亮
@@ -93,15 +97,16 @@ use {
 use {
     "JuanZoran/Trans.nvim",
     keys = {
-        { 'v', 'mm' }, -- 换成其他你想用的key即可
-        { 'n', 'mm' },
+        { {'n', 'x'}, 'mm' }, -- 换成其他你想用的key即可
+        { {'n', 'x'}, 'mk' }, 
         { 'n', 'mi' },
     },
     run = 'bash ./install.sh', -- 自动下载使用的本地词库
     requires = 'kkharji/sqlite.lua',
     config = function()
         require("Trans").setup {} -- 启动Trans
-        vim.keymap.set({"v", 'n'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
+        vim.keymap.set({"n", 'x'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
+        vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>', {desc = ' 自动发音'}) -- 自动发音选中或者光标下的单词
         vim.keymap.set("n", "mi", "<Cmd>TranslateInput<CR>", { desc = ' Translate' })
     end
 }
@@ -117,6 +122,7 @@ use {
         keys = {
         -- 可以换成其他你想映射的键
             { 'mm', mode = { 'n', 'x' }, '<Cmd>Translate<CR>', desc = ' Translate' },
+            { 'mk', mode = { 'n', 'x' }, '<Cmd>TransPlay<CR>', desc = ' 自动发音' },
 
             -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
             { 'mi', '<Cmd>TranslateInput<CR>', desc = ' Translate From Input' },
@@ -315,7 +321,8 @@ require'Trans'.setup {
 **示例:**
 > 示例中展示, 将`mm`映射成快捷键
 ```lua
-vim.keymap.set({'n', 'v'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
 vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 
 ```
@@ -378,11 +385,16 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 - [sqlite.lua](https://github.com/kharji/sqlite.lua)    数据库访问
 - [T.vim](https://github.com/sicong-li/T.vim)           灵感来源
 
+## 贡献
+> 更新比较频繁, 文档先鸽了  
+> 如果你想要参加这个项目, 可以提issue, 我会把文档补齐
+
 ## 待办 (画大饼)
 - [x] 多风格样式查询
 - [x] 重新录制屏幕截图示例 
+- [x] 快捷键定义 
+- [x] 自动读音 
+- [ ] 变量命名的支持
 - [ ] 历史查询结果保存
 - [ ] 在线多引擎异步查询 
-- [ ] 快捷键定义 
-- [x] 自动读音 
 - [ ] `句子翻译` | `中翻英` 的支持 

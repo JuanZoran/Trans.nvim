@@ -10,8 +10,8 @@ end
 
 local post = require('Trans.util.curl').POST
 
-local function get_field(word)
-    local to   = 'zh'
+local function get_field(word, isEn)
+    local to   = isEn and 'zh' or 'en'
     local tmp  = appid .. word .. salt .. appPasswd
     local sign = require('Trans.util.md5').sumhexa(tmp)
 
@@ -25,12 +25,12 @@ local function get_field(word)
     }
 end
 
---- this is a nice plugin
 ---返回一个channel
 ---@param word string
 ---@return table
 return function(word)
-    local query = get_field(word)
+    local isEn = word:isEn()
+    local query = get_field(word, isEn)
     local result = {}
 
     post(uri, {
@@ -39,11 +39,11 @@ return function(word)
             content_type = "application/x-www-form-urlencoded",
         },
         callback = function(str)
-            local res = vim.json.decode(str)
-            if res and res.trans_result then
+            local ok, res = pcall(vim.json.decode, str)
+            if ok and res and res.trans_result then
                 result.value = {
                     word = word,
-                    translation = res.trans_result[1].dst,
+                    [isEn and 'translation' or 'definition'] = res.trans_result[1].dst,
                 }
 
                 if result.callback then

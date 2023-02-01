@@ -3,25 +3,25 @@ local display = function(self)
 
     end
 
+    local target = self.times
     if self.sync then
-        local times = self.times
-        if times then
-            for i = 1, self.times do
+        if target then
+            for i = 1, target do
                 if self.run then
                     self:frame(i)
                 end
             end
+
         else
             while self.run do
                 self:frame()
             end
-            callback()
         end
 
+        callback()
     else
         local frame
-        if self.times then
-            local target = self.times
+        if target then
             local times = 0
             frame = function()
                 if self.run and times < target then
