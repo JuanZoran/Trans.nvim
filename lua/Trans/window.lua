@@ -2,8 +2,6 @@ local api = vim.api
 local new_content = require('Trans.content')
 local new_animation = require('Trans.util.animation')
 
-string.width = vim.fn.strwidth
-
 local busy = false
 local function lock()
     while busy do

@@ -105,7 +105,7 @@ local process = {
                 d = '限定词determiner ',
             }
 
-            local f = '%s %s%%'
+            local f = '%s %2s%%'
             for pos in vim.gsplit(m_result.pos, '/', true) do
                 m_content:addline(
                     it(m_indent .. f:format(pos_map[pos:sub(1, 1)], pos:sub(3)), 'TransPos')
@@ -143,12 +143,14 @@ local process = {
     end,
 
     translation = function()
-        title('中文翻译')
+        if exist(m_result.translation) then
+            title('中文翻译')
 
-        for trs in vim.gsplit(m_result.translation, '\n', true) do
-            m_content:addline(
-                it(m_indent .. trs, 'TransTranslation')
-            )
+            for trs in vim.gsplit(m_result.translation, '\n', true) do
+                m_content:addline(
+                    it(m_indent .. trs, 'TransTranslation')
+                )
+            end
         end
 
         m_content:newline('')
@@ -251,19 +253,15 @@ action = {
         end
     end,
 
-    play = vim.fn.has('linux') == 1 and function()
-        local cmd = ([[echo "%s" | festival --tts]]):format(m_result.word)
-        vim.fn.jobstart(cmd)
-    end or function()
-        local seperator = vim.fn.has('unix') and '/' or '\\'
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
-        vim.fn.jobstart('node ' .. file .. ' ' .. m_result.word)
+    play = function()
+        m_result.word:play()
     end,
 }
 
+
 local function handle()
     local hover = conf.hover
-    if hover.auto_play then
+    if m_result.translation and hover.auto_play then
         local ok = pcall(action.play)
         if not ok then
             vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
@@ -280,14 +278,13 @@ local function handle()
 end
 
 local function online_query(word)
-    -- TODO :Progress Bar
     local lists = {}
     local engines = conf.engines
     local size = #engines
     local icon = conf.icon
     local error_msg = icon.notfound .. '    没有找到相关的翻译'
     m_window:set_height(1)
-    local width = m_window.width
+    local origin_width = m_window.width
     m_window:set_width(error_msg:width())
 
     if size == 0 then
@@ -307,16 +304,19 @@ local function online_query(word)
 
     local timeout = conf.hover.timeout
     local interval = math.floor(timeout / (m_window.width - spinner[1]:width()))
+    local width = m_window.width
+
     local f = '%s %s'
     require('Trans.util.animation')({
-        times = m_window.width,
+        times = width,
+        interval = interval,
         frame = function(self, times)
             m_content:wipe()
             for i, v in ipairs(lists) do
                 local res = v.value
                 if res then
                     m_result = res
-                    m_window:set_width(width)
+                    m_window:set_width(origin_width)
                     handle()
                     m_content:attach()
 
@@ -327,26 +327,24 @@ local function online_query(word)
 
                     self.run = false
                     return
-                elseif res == 'false' then
+
+                elseif res == false then
                     table.remove(lists, i)
                     size = size - 1
                 end
             end
 
-            if size == 0 then
-                m_content:addline(
-                    it(error_msg, 'TransFailed')
-                )
-                m_content:attach()
-
+            local line
+            if size == 0 or times == width then
+                line = it(error_msg, 'TransFailed')
+                self.run = false
             else
-                m_content:addline(
-                    it(f:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
-                )
-                m_content:attach()
+                line = it(f:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
             end
+
+            m_content:addline(line)
+            m_content:attach()
         end,
-        interval = interval,
     }):display()
 end
 
