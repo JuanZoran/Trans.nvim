@@ -237,7 +237,6 @@ return function(entry, option)
     ---@diagnostic disable-next-line: param-type-mismatch
     setmetatable(win, window)
 
-
     win:bufset('filetype', 'Trans')
     win:bufset('buftype', 'nofile')
     api.nvim_win_set_hl_ns(win.winid, win.hl)

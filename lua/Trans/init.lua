@@ -1,13 +1,15 @@
-local M = {}
+local M   = {}
+local api = vim.api
+local fn  = vim.fn
 
-local title = vim.fn.has('nvim-0.9') == 1 and {
+local title = fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
 } or nil
 
 
-string.width = vim.fn.strwidth
+string.width = api.nvim_strwidth
 string.isEn = function(self)
     local char = { self:byte(1, -1) }
     for i = 1, #self do
@@ -19,13 +21,13 @@ string.isEn = function(self)
 end
 
 
-string.play = vim.fn.has('linux') == 1 and function(self)
+string.play = fn.has('linux') == 1 and function(self)
     local cmd = ([[echo "%s" | festival --tts]]):format(self)
-    vim.fn.jobstart(cmd)
+    fn.jobstart(cmd)
 end or function(self)
-    local seperator = vim.fn.has('unix') and '/' or '\\'
+    local seperator = fn.has('unix') and '/' or '\\'
     local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
-    vim.fn.jobstart('node ' .. file .. ' ' .. self)
+    fn.jobstart('node ' .. file .. ' ' .. self)
 end
 
 
@@ -154,13 +156,12 @@ M.setup = function(opts)
 
     times = times + 1
     if times == 1 then
-        local api = vim.api
 
         local get_mode    = api.nvim_get_mode
         local set_hl      = api.nvim_set_hl
         local new_command = api.nvim_create_user_command
 
-        if vim.fn.executable('sqlite3') ~= 1 then
+        if fn.executable('sqlite3') ~= 1 then
             error('Please check out sqlite3')
         end
 
@@ -187,30 +188,44 @@ M.setup = function(opts)
 end
 
 local function get_select()
-    local s_start = vim.fn.getpos("v")
-    local s_end = vim.fn.getpos(".")
-    if s_start[2] > s_end[2] or s_start[3] > s_end[3] then
-        s_start, s_end = s_end, s_start
-    end
+    local _start = fn.getpos("v")
+    local _end = fn.getpos('.')
 
-    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-    lines[1] = string.sub(lines[1], s_start[3], -1)
-    if n_lines == 1 then
-        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
-    else
-        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
+    if _start[2] > _end[2] or (_start[3] > _end[3] and _start[2] == _end[2]) then
+        _start, _end = _end, _start
     end
-    return table.concat(lines, '')
+    local s_row = _start[2]
+    local e_row = _end[2]
+    local s_col = _start[3]
+    local e_col = _end[3]
+
+    -- print(s_row, e_row, s_col, e_col)
+    ---@type string
+    ---@diagnostic disable-next-line: assign-type-mismatch
+    local line = fn.getline(e_row)
+    local uidx = vim.str_utfindex(line, math.min(#line, e_col))
+    e_col = vim.str_byteindex(line, uidx)
+
+    if s_row == e_row then
+        return line:sub(s_col, e_col)
+    else
+        local lines = fn.getline(s_row, e_row)
+        local i = #lines
+        lines[1] = lines[1]:sub(s_col)
+        lines[i] = line:sub(1, e_col)
+        return table.concat(lines)
+    end
 end
 
 M.get_word = function(mode)
     local word
     if mode == 'n' then
-        word = vim.fn.expand('<cword>')
+        word = fn.expand('<cword>')
+
     elseif mode == 'v' then
-        vim.api.nvim_input('<ESC>')
+        api.nvim_input('<ESC>')
         word = get_select()
+
     elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
         vim.ui.input({ prompt = '请输入需要查询的单词: ' }, function(input)
@@ -229,7 +244,7 @@ M.translate = function(mode, view)
         view = { view, 's', true }
     }
 
-    mode = mode or vim.api.nvim_get_mode().mode
+    mode = mode or api.nvim_get_mode().mode
     view = view or M.conf.view[mode]
     assert(mode and view)
     local word = M.get_word(mode)
@@ -239,8 +254,5 @@ M.translate = function(mode, view)
         require('Trans.view.' .. view)(word:gsub('^%s+', '', 1))
     end
 end
-
-
-M.augroup = vim.api.nvim_create_augroup('Trans', { clear = true })
 
 return M

@@ -8,7 +8,7 @@ local path = require('Trans').conf.db_path
 local dict = db:open(path)
 
 vim.api.nvim_create_autocmd('VimLeavePre', {
-    group = require("Trans").augroup,
+    once = true,
     callback = function()
         if db:isopen() then
             db:close()
