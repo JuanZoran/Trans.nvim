@@ -42,6 +42,11 @@ local buffer = {
         end
     end,
 
+    wipe = function(self)
+        api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
+        self.size = 0
+    end,
+
     del = function(self, _start, _end)
         if not _start then
             fn.deletebufline(self.bufnr, '$')
@@ -91,14 +96,10 @@ local buffer = {
         return api.nvim_buf_get_lines(self.bufnr, i, j, false)
     end,
 
-    height = function(self, opts)
-        local width = opts.width
-        local wrap = opts.wrap or false
-
-        local lines = self:lines()
-        local size = #lines
-
-        if wrap then
+    height = function(self, width)
+        local size = self.size
+        if width then
+            local lines = self:lines()
             local height = 0
             for i = 1, size do
                 height = height + math.max(1, (math.ceil(lines[i]:width() / width)))

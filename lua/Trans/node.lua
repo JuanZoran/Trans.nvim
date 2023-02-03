@@ -59,12 +59,12 @@ return {
 
     format = function(opts)
         local text  = opts.text
+        local size  = text.size
         local width = opts.width
         local spin  = opts.spin or ' '
-        local size  = text.size
 
-        local text_width = text[1]:width()
-        local space      = math.max(math.floor((width - text_width) / (size - 1)), 0)
+        local wid   = text[1]:width()
+        local space = math.max(math.floor((width - wid) / (size - 1)), 0)
         if space > 0 then
             text.step = spin:rep(space)
         end

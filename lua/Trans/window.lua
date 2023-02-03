@@ -30,71 +30,52 @@ local window = {
 
     expand = function(self, opts)
         self:lock()
+        local field  = opts.field
+        local target = opts.target
+        local cur    = self[field]
+        local times  = math.abs(target - cur)
+
         local wrap = self:option('wrap')
         self:set('wrap', false)
-        local field    = opts.field
-        local target   = opts.target
         local interval = opts.interval or self.animation.interval
-        local callback = function()
+        local method = 'set_' .. field
+
+        local frame = target > cur and function(_, cur_times)
+            self[method](self, cur + cur_times)
+        end or function(_, cur_times)
+            self[method](self, cur - cur_times)
+        end
+
+        local run = display {
+            times    = times,
+            frame    = frame,
+            interval = interval,
+        }
+
+        run(function()
             self:set('wrap', wrap)
-            local tasks = self.tasks
-            for i = 1, #tasks do
-                tasks[i](self)
-                tasks[i] = nil
-            end
             self:unlock()
-        end
-
-        local cur = self[field]
-        local times = math.abs(target - cur)
-
-        if times ~= 0 then
-            local frame
-            local method = 'set_' .. field
-            if target > cur then
-                frame = function(_, cur_times)
-                    self[method](self, cur + cur_times)
-                end
-
-            elseif target < cur then
-                frame = function(_, cur_times)
-                    self[method](self, cur - cur_times)
-                end
-            end
-
-            display {
-                times    = times,
-                frame    = frame,
-                interval = interval,
-                callback = callback,
-            }
-
-        else
-            callback()
-        end
+        end)
+        return run
     end,
 
     try_close = function(self)
         if self:is_valid() then
             local winid = self.winid
-            self.tasks:add(function()
-                api.nvim_win_close(winid, true)
-            end)
-
-            local animation = self.animation
             local field = ({
                 slid = 'width',
                 fold = 'height',
-            })[animation.close]
+            })[self.animation.close]
 
-            if field then
-                --- 播放动画
-                self:expand {
-                    field = field,
-                    target = 1,
-                    debug = true,
-                }
-            end
+            --- 播放动画
+            local run = self:expand {
+                field = field,
+                target = 1,
+            }
+            run(function()
+                api.nvim_win_close(winid, true)
+            end)
+            return run
         end
     end,
 
@@ -125,6 +106,10 @@ local window = {
 }
 window.__index = window
 
+---window的构造函数
+---@param opts table
+---@return table
+---@return function
 return function(opts)
     assert(type(opts) == 'table')
     local buf       = opts.buf
@@ -139,7 +124,6 @@ return function(opts)
     local enter     = opts.enter
     local ns        = opts.ns
     local animation = opts.animation
-    local task      = opts.task
 
     local open = animation.open
 
@@ -173,26 +157,18 @@ return function(opts)
     local win = setmetatable({
         buf       = buf,
         ns        = ns,
-        tasks     = {
-            add = table.insert,
-        },
         height    = win_opt.height,
         width     = win_opt.width,
         animation = animation,
         winid     = api.nvim_open_win(buf.bufnr, enter, win_opt),
     }, window)
 
-    if task then
-        win.tasks:add(task)
-    end
-
-    win:expand {
-        field = field,
-        target = opts[field],
-    }
-
     api.nvim_win_set_hl_ns(win.winid, win.ns)
     win:set_hl('Normal', { link = 'TransWin' })
     win:set_hl('FloatBorder', { link = 'TransBorder' })
-    return win
+
+    return win, win:expand {
+        field = field,
+        target = opts[field],
+    }
 end

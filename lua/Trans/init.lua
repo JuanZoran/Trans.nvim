@@ -2,11 +2,20 @@ local M   = {}
 local api = vim.api
 local fn  = vim.fn
 
-local title = fn.has('nvim-0.9') == 1 and {
+local win_title = fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
     { ' Trans', 'TransTitle' },
     { '', 'TransTitleRound' },
 } or nil
+
+-- local title = {
+--     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",
+--     "╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝",
+--     "   ██║   ██████╔╝███████║██╔██╗ ██║███████╗",
+--     "   ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║",
+--     "   ██║   ██║  ██║██║  ██║██║ ╚████║███████║",
+--     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
+--}
 
 
 string.width = api.nvim_strwidth
@@ -41,7 +50,7 @@ M.conf = {
         width = 37,
         height = 27,
         border = 'rounded',
-        title = title,
+        title = win_title,
         keymap = {
             pageup = '[[',
             pagedown = ']]',
@@ -71,7 +80,7 @@ M.conf = {
         width = 0.8,
         height = 0.8,
         border = 'rounded',
-        title = title,
+        title = win_title,
         keymap = {
             quit = 'q',
         },

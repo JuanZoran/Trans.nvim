@@ -14,6 +14,12 @@ local function handle_result(result)
     local notfound = icon.notfound
     local indent = '    '
 
+    local word = result.title.word
+    if hover.auto_play then
+        string.play(word:isEn() and word or result.definition)
+    end
+
+
     local addtitle = function(title)
         buffer:addline {
             it('', 'TransTitleRound'),
@@ -24,13 +30,12 @@ local function handle_result(result)
 
     local process = {
         title = function(title)
-            local word     = title.word
             local oxford   = title.oxford
             local collins  = title.collins
             local phonetic = title.phonetic
 
             if not phonetic and not collins and not oxford then
-                buffer:addline(it(result.word, 'TransWord'))
+                buffer:addline(it(word, 'TransWord'))
 
             else
                 buffer:addline(f {
@@ -138,10 +143,6 @@ local function handle_result(result)
         end,
 
         translation = function(translation)
-            if hover.auto_play then
-                result.title.word:play()
-            end
-
             addtitle('中文翻译')
 
             for trs in vim.gsplit(translation, '\n', true) do
@@ -178,18 +179,17 @@ local function handle_result(result)
 end
 
 local function open_window(opts)
-    opts           = opts or {}
+    opts = opts or {}
+
     local col      = opts.col or 1
     local row      = opts.row or 1
     local width    = opts.width or hover.width
     local height   = opts.height or hover.height
     local relative = opts.relative or 'cursor'
-    local task     = opts.task
 
-    local win = require('Trans.window') {
+    return require('Trans.window') {
         col       = col,
         row       = row,
-        task      = task,
         buf       = buffer,
         relative  = relative,
         width     = width,
@@ -197,11 +197,10 @@ local function open_window(opts)
         title     = hover.title,
         border    = hover.border,
         animation = hover.animation,
-        zindex    = 100,
+        zindex    = 80,
         enter     = false,
         ns        = require('Trans').ns,
     }
-    return win
 end
 
 local function handle_keymap(win, word)
@@ -210,13 +209,13 @@ local function handle_keymap(win, word)
     local del = vim.keymap.del
     local function try_del_keymap()
         for _, key in pairs(keymap) do
-            pcall(del, 'n', key, { buffer = cur_buf })
+            pcall(del, 'n', key)
         end
     end
 
     local lock = false
     local cmd_id
-    local next = win.id
+    local next
     local action = {
         pageup = function()
             buffer:normal('gg')
@@ -228,7 +227,7 @@ local function handle_keymap(win, word)
 
         pin = function()
             if lock then
-                error('too many window')
+                error('请先关闭窗口')
             else
                 lock = true
             end
@@ -237,19 +236,22 @@ local function handle_keymap(win, word)
             local height = win.height
             local col = vim.o.columns - width - 3
             local buf = buffer.bufnr
-            win:try_close()
-            win.tasks:add(function()
-                win = open_window {
+            local run = win:try_close()
+            run(function()
+                local w, r = open_window {
                     width = width,
                     height = height,
                     relative = 'editor',
                     col = col,
-                    task = function(self)
-                        self:set('wrap', true)
-                    end,
                 }
 
-                del('n', keymap.pin, { buffer = cur_buf })
+                next = w.winid
+                win = w
+                r(function()
+                    w:set('wrap', true)
+                end)
+
+                del('n', keymap.pin)
                 api.nvim_create_autocmd('BufWipeOut', {
                     callback = function(opt)
                         if opt.buf == buf or opt.buf == cur_buf then
@@ -263,8 +265,8 @@ local function handle_keymap(win, word)
 
         close = function()
             pcall(api.nvim_del_autocmd, cmd_id)
-            win:try_close()
-            win.tasts:add(function()
+            local run = win:try_close()
+            run(function()
                 buffer:delete()
             end)
             try_del_keymap()
@@ -276,7 +278,7 @@ local function handle_keymap(win, word)
                 api.nvim_set_current_win(next)
                 next = prev
             else
-                del('n', keymap.toggle_entry, { buffer = cur_buf })
+                del('n', keymap.toggle_entry)
             end
         end,
 
@@ -286,31 +288,21 @@ local function handle_keymap(win, word)
             end
         end,
     }
-
     local set = vim.keymap.set
-    local opts = { buffer = cur_buf, silent = true }
     for act, key in pairs(hover.keymap) do
-        set('n', key, action[act], opts)
+        set('n', key, action[act])
     end
 
     if hover.auto_close_events then
         cmd_id = api.nvim_create_autocmd(
             hover.auto_close_events, {
             buffer = 0,
-            callback = function(opt)
-                win:try_close()
-                win.tasks:add(function()
-                    buffer:delete()
-                    try_del_keymap()
-                end)
-                api.nvim_del_autocmd(opt.id)
-            end,
+            callback = action.close,
         })
     end
 end
 
 local function online_query(win, word)
-    -- FIXME :
     local lists = {
         remove = table.remove
     }
@@ -318,116 +310,93 @@ local function online_query(win, word)
     local size = #engines
     local icon = conf.icon
     local error_line = it(error_msg, 'TransFailed')
-
     if size == 0 then
         buffer:addline(error_line)
-
     else
         for i = 1, size do
             lists[size] = require('Trans.query.' .. engines[i])(word)
         end
+        local cell      = icon.cell
+        local timeout   = hover.timeout
+        local spinner   = require('Trans.ui.spinner')[hover.spinner]
+        local range     = #spinner
+        local interval  = math.floor(timeout / (win.width - spinner[1]:width()))
         local win_width = win.width
-        local cell = icon.cell
-        local spinner = require('Trans.ui.spinner')[hover.spinner]
-        local range = #spinner
-
-        local timeout = hover.timeout
-        local interval = math.floor(timeout / (win.width - spinner[1]:width()))
 
         local s = '%s %s'
         local width = hover.width
         local height = hover.height
-        buffer:set('modifiable', true)
+        local function waitting_result(self, times)
+            for i = 1, size do
+                local res = lists[i][1]
+                if res then
+                    buffer:wipe()
+                    win:set_width(width)
+                    handle_result(res)
+                    local actual_height = buffer:height(width)
+                    height = math.min(height, actual_height)
 
-        require('Trans.util.display') {
+                    win:expand {
+                        field = 'height',
+                        target = height,
+                    }
+                    self.run = false
+                    return
+                elseif res == false then
+                    lists:remove(i)
+                    size = size - 1
+                end
+            end
+
+            if size == 0 or times == win_width then
+                buffer:addline(error_line, 1)
+                self.run = false
+            else
+                buffer:addline(it(s:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg'), 1)
+            end
+        end
+
+        buffer:set('modifiable', true)
+        local run = require('Trans.util.display') {
             times = win_width,
             interval = interval,
-            frame = function(self, times)
-                for i, v in ipairs(lists) do
-                    local res = v[1]
-                    if res then
-                        vim.pretty_print(res)
-                        buffer:del(1)
-                        win:set_width(width)
-                        handle_result(res)
-                        local actual_height = buffer:height {
-                            width = width,
-                            wrap = true,
-                        }
-                        height = math.min(height, actual_height)
-
-                        win:expand {
-                            field = 'height',
-                            target = height,
-                        }
-
-                        win.tasks:add(function(this)
-                            this:set('wrap', true)
-                            handle_keymap(this, word)
-                        end)
-
-                        self.run = false
-                        return
-
-                    elseif res == false then
-                        lists:remove(i)
-                        size = size - 1
-                    end
-                end
-
-                local line
-                if size == 0 or times == win_width then
-                    line = error_line
-                    self.run = false
-                    win:set('wrap', true)
-                    handle_keymap(win, word)
-
-                else
-                    line = it(s:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
-                end
-
-                buffer:addline(line, 1)
-            end,
-
-            callback = function()
-                buffer:set('modifiable', false)
-            end,
+            frame = waitting_result,
         }
+
+        run(function()
+            buffer:set('modifiable', false)
+        end)
     end
 end
 
+---处理不同hover模式的窗口
+---@param word string 待查询的单词
 return function(word)
     buffer:init()
     local result = require('Trans.query.offline')(word)
 
-    local opts
     if result then
         handle_result(result)
-
         local width = hover.width
-        local height = math.min(buffer:height {
+        local win, run = open_window {
             width = width,
-            wrap = true,
-        }, hover.height)
-
-        opts = {
-            width = width,
-            height = height,
-            task = function(self)
-                self:set('wrap', true)
-                handle_keymap(self, word)
-            end
+            height = math.min(buffer:height(width), hover.height)
         }
+        run(function()
+            win:set('wrap', true)
+            handle_keymap(win, word)
+        end)
 
     else
-        opts = {
+        local win, run = open_window {
             width = error_msg:width(),
             height = 1,
-            task = function(win)
-                online_query(win, word)
-            end
         }
-    end
 
-    open_window(opts)
+        run(function()
+            win:set('wrap', true)
+            handle_keymap(win, word)
+            online_query(win, word)
+        end)
+    end
 end
