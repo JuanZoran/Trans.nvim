@@ -1,51 +1,48 @@
 return function(opts)
-    local callback = opts.callback or function()
-
-    end
-    opts.run = true
-
     local target = opts.times
-    if opts.sync then
-        if target then
-            for i = 1, target do
-                if opts.run then
-                    opts:frame(i)
-                end
-            end
+    opts.run = target ~= 0
 
-        else
-            while opts.run do
-                opts:frame()
+    ---@type function[]
+    local tasks = {}
+    local function do_task()
+        for _, task in ipairs(tasks) do
+            task()
+        end
+    end
+
+    local frame
+    if target then
+        local times = 0
+        frame = function()
+            if opts.run and times < target then
+                times = times + 1
+                opts:frame(times)
+                vim.defer_fn(frame, opts.interval)
+
+            else
+                do_task()
             end
         end
-
-        callback()
 
     else
-        local frame
-        if target then
-            local times = 0
-            frame = function()
-                if opts.run and times < target then
-                    times = times + 1
-                    opts:frame(times)
-                    vim.defer_fn(frame, opts.interval)
-                else
-                    callback()
-                end
-            end
-
-        else
-            frame = function()
-                if opts.run then
-                    opts:frame()
-                    vim.defer_fn(frame, opts.interval)
-                else
-                    callback()
-                end
+        frame = function()
+            if opts.run then
+                opts:frame()
+                vim.defer_fn(frame, opts.interval)
+            else
+                do_task()
             end
         end
-        frame()
     end
-    return opts
+    frame()
+
+    ---任务句柄, 如果任务结束了则立即执行, 否则立即执行
+    ---@param task function
+    return function(task)
+        if opts.run then
+            tasks[#tasks + 1] = task
+        else
+            task()
+        end
+    end
 end
