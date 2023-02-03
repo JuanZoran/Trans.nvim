@@ -8,7 +8,7 @@ local path = require('Trans').conf.db_path
 local dict = db:open(path)
 
 vim.api.nvim_create_autocmd('VimLeavePre', {
-    group = require("Trans").augroup,
+    once = true,
     callback = function()
         if db:isopen() then
             db:close()
@@ -16,11 +16,10 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
+
 return function(word)
-    local res = dict:select('stardict', {
-        where = {
-            word = word,
-        },
+    local res = (dict:select('stardict', {
+        where = { word = word, },
         keys = {
             'word',
             'phonetic',
@@ -33,6 +32,16 @@ return function(word)
             'exchange',
         },
         limit = 1,
-    })
-    return res[1]
+    }))[1]
+
+    if res then
+        res.title = {
+            word = res.word,
+            oxford = res.oxford,
+            collins = res.collins,
+            phonetic = res.phonetic,
+        }
+    end
+
+    return res
 end

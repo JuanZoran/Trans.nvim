@@ -41,19 +41,25 @@ return function(word)
         callback = function(str)
             local ok, res = pcall(vim.json.decode, str)
             if ok and res and res.trans_result then
-                result.value = {
-                    word = word,
+                result[1] = {
+                    title = { word = word },
                     [isEn and 'translation' or 'definition'] = res.trans_result[1].dst,
                 }
 
                 if result.callback then
-                    result.callback(result.value)
+                    result.callback(result[1])
                 end
             else
-                result.value = false
+                result[1] = false
             end
         end,
     })
 
     return result
 end
+
+
+
+-- NOTE :free tts:
+-- https://zj.v.api.aa1.cn/api/baidu-01/?msg=我爱你&choose=0&su=100&yd=5
+-- 选择转音频的人物，女生1 输入0 ｜ 女生2输入：5｜男生1 输入：1｜男生2 输入：2｜男生3 输入：3
