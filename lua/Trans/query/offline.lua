@@ -16,8 +16,9 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
+
 return function(word)
-    local res = dict:select('stardict', {
+    local res = (dict:select('stardict', {
         where = {
             word = word,
         },
@@ -33,6 +34,20 @@ return function(word)
             'exchange',
         },
         limit = 1,
-    })
-    return res[1]
+    }))[1]
+
+    if res then
+        res.title = {
+            word = res.word,
+            oxford = res.oxford,
+            collins = res.collins,
+            phonetic = res.phonetic,
+        }
+        res.word = nil
+        res.oxford = nil
+        res.collins = nil
+        res.phonetic = nil
+    end
+
+    return res
 end

@@ -1,55 +1,56 @@
 local api = vim.api
 local conf = require('Trans').conf
-local new_window = require('Trans.window')
+local hover = conf.hover
+local buffer = require('Trans.buffer')()
+local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
 
-local m_window
-local m_result
-local m_content
-
--- content utility
-local node = require("Trans.node")
-local t = node.text
+local node = require('Trans.node')
 local it = node.item
+local t = node.text
+local f = node.format
 
-local m_indent = '    '
+local function handle_result(result)
+    local icon = conf.icon
+    local notfound = icon.notfound
+    local indent = '    '
 
-local title = function(str)
-    m_content:addline(
-        t(it('', 'TransTitleRound'), it(str, 'TransTitle'), it('', 'TransTitleRound'))
-    )
-end
+    local addtitle = function(title)
+        buffer:addline {
+            it('', 'TransTitleRound'),
+            it(title, 'TransTitle'),
+            it('', 'TransTitleRound'),
+        }
+    end
 
-local exist = function(str)
-    return str and str ~= ''
-end
+    local process = {
+        title = function(title)
+            local word     = title.word
+            local oxford   = title.oxford
+            local collins  = title.collins
+            local phonetic = title.phonetic
 
-local process = {
-    title = function()
-        local icon = conf.icon
-        local line
-        if m_result.word:find(' ', 1, true) then
-            line = it(m_result.word, 'TransWord')
+            if not phonetic and not collins and not oxford then
+                buffer:addline(it(result.word, 'TransWord'))
 
-        else
-            line = m_content:format {
-                nodes = {
-                    it(m_result.word, 'TransWord'),
-                    t(
-                        it('['),
-                        it(exist(m_result.phonetic) and m_result.phonetic or icon.notfound, 'TransPhonetic'),
-                        it(']')
-                    ),
-                    it(m_result.collins and icon.star:rep(m_result.collins) or icon.notfound, 'TransCollins'),
-                    it(m_result.oxford == 1 and icon.yes or icon.no)
-                },
-            }
-        end
-        m_content:addline(line)
-    end,
+            else
+                buffer:addline(f {
+                    width = hover.width,
+                    text = t {
+                        it(word, 'TransWord'),
+                        t {
+                            it('['),
+                            it((phonetic and phonetic ~= '') and phonetic or notfound, 'TransPhonetic'),
+                            it(']')
+                        },
+                        it(collins and icon.star:rep(collins) or notfound, 'TransCollins'),
+                        it(oxford == 1 and icon.yes or icon.no)
+                    },
+                })
+            end
+        end,
 
-    tag = function()
-        if exist(m_result.tag) then
-            title('标签')
+        tag = function(tag)
+            addtitle('标签')
             local tag_map = {
                 zk    = '中考',
                 gk    = '高考',
@@ -64,17 +65,16 @@ local process = {
             local tags = {}
             local size = 0
             local interval = '    '
-            for tag in vim.gsplit(m_result.tag, ' ', true) do
+            for _tag in vim.gsplit(tag, ' ', true) do
                 size = size + 1
-                tags[size] = tag_map[tag]
+                tags[size] = tag_map[_tag]
             end
 
 
             for i = 1, size, 3 do
-                m_content:addline(
+                buffer:addline(
                     it(
-                        m_indent ..
-                        tags[i] ..
+                        indent .. tags[i] ..
                         (tags[i + 1] and interval .. tags[i + 1] ..
                             (tags[i + 2] and interval .. tags[i + 2] or '') or ''),
                         'TransTag'
@@ -82,13 +82,11 @@ local process = {
                 )
             end
 
-            m_content:newline('')
-        end
-    end,
+            buffer:addline('')
+        end,
 
-    pos = function()
-        if exist(m_result.pos) then
-            title('词性')
+        pos = function(pos)
+            addtitle('词性')
             local pos_map = {
                 a = '代词pron         ',
                 c = '连接词conj       ',
@@ -105,20 +103,18 @@ local process = {
                 d = '限定词determiner ',
             }
 
-            local f = '%s %2s%%'
-            for pos in vim.gsplit(m_result.pos, '/', true) do
-                m_content:addline(
-                    it(m_indent .. f:format(pos_map[pos:sub(1, 1)], pos:sub(3)), 'TransPos')
+            local s = '%s %2s%%'
+            for _pos in vim.gsplit(pos, '/', true) do
+                buffer:addline(
+                    it(indent .. s:format(pos_map[_pos:sub(1, 1)], _pos:sub(3)), 'TransPos')
                 )
             end
 
-            m_content:newline('')
-        end
-    end,
+            buffer:addline('')
+        end,
 
-    exchange = function()
-        if exist(m_result.exchange) then
-            title('词形变化')
+        exchange = function(exchange)
+            addtitle('词形变化')
             local exchange_map = {
                 ['p'] = '过去式      ',
                 ['d'] = '过去分词    ',
@@ -132,264 +128,306 @@ local process = {
                 ['f'] = '第三人称单数',
             }
             local interval = '    '
-            for exc in vim.gsplit(m_result.exchange, '/', true) do
-                m_content:addline(
-                    it(m_indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3), 'TransExchange')
+            for exc in vim.gsplit(exchange, '/', true) do
+                buffer:addline(
+                    it(indent .. exchange_map[exc:sub(1, 1)] .. interval .. exc:sub(3), 'TransExchange')
                 )
             end
 
-            m_content:newline('')
-        end
-    end,
+            buffer:addline('')
+        end,
 
-    translation = function()
-        if exist(m_result.translation) then
-            title('中文翻译')
+        translation = function(translation)
+            if hover.auto_play then
+                result.title.word:play()
+            end
 
-            for trs in vim.gsplit(m_result.translation, '\n', true) do
-                m_content:addline(
-                    it(m_indent .. trs, 'TransTranslation')
+            addtitle('中文翻译')
+
+            for trs in vim.gsplit(translation, '\n', true) do
+                buffer:addline(
+                    it(indent .. trs, 'TransTranslation')
                 )
             end
-        end
 
-        m_content:newline('')
-    end,
+            buffer:addline('')
+        end,
 
-    definition = function()
-        if exist(m_result.definition) then
-            title('英文注释')
+        definition = function(definition)
+            addtitle('英文注释')
 
-            for def in vim.gsplit(m_result.definition, '\n', true) do
+            for def in vim.gsplit(definition, '\n', true) do
                 def = def:gsub('^%s+', '', 1) -- TODO :判断是否需要分割空格
-                m_content:addline(
-                    it(m_indent .. def, 'TransDefinition')
+                buffer:addline(
+                    it(indent .. def, 'TransDefinition')
                 )
             end
 
-            m_content:newline('')
+            buffer:addline('')
+        end,
+    }
+
+    buffer:set('modifiable', true)
+    for _, field in ipairs(conf.order) do
+        local value = result[field]
+        if value and value ~= '' then
+            process[field](value)
         end
-    end,
-}
-
-
-local try_del_keymap = function()
-    for _, key in pairs(conf.hover.keymap) do
-        pcall(vim.keymap.del, 'n', key, { buffer = true })
     end
+    buffer:set('modifiable', false)
 end
 
+local function open_window(opts)
+    opts           = opts or {}
+    local col      = opts.col or 1
+    local row      = opts.row or 1
+    local width    = opts.width or hover.width
+    local height   = opts.height or hover.height
+    local relative = opts.relative or 'cursor'
+    local task     = opts.task
 
-local cmd_id
-local pin
-local next
-local action
-action = {
-    pageup = function()
-        m_window:normal('gg')
-    end,
+    local win = require('Trans.window') {
+        col       = col,
+        row       = row,
+        task      = task,
+        buf       = buffer,
+        relative  = relative,
+        width     = width,
+        height    = height,
+        title     = hover.title,
+        border    = hover.border,
+        animation = hover.animation,
+        zindex    = 100,
+        enter     = false,
+        ns        = require('Trans').ns,
+    }
+    return win
+end
 
-    pagedown = function()
-        m_window:normal('G')
-    end,
-
-    pin = function()
-        if pin then
-            error('too many window')
+local function handle_keymap(win, word)
+    local keymap = hover.keymap
+    local cur_buf = api.nvim_get_current_buf()
+    local del = vim.keymap.del
+    local function try_del_keymap()
+        for _, key in pairs(keymap) do
+            pcall(del, 'n', key, { buffer = cur_buf })
         end
-        pcall(api.nvim_del_autocmd, cmd_id)
+    end
 
-        m_window:try_close {
-            callback = function()
-                m_window:reopen {
-                    win_opt = {
-                        relative = 'editor',
-                        row = 1,
-                        col = vim.o.columns - m_window.width - 3,
-                    },
-                    opt = {
-                        callback = function()
-                            m_window:bufset('bufhidden', 'wipe')
-                            m_window:set('wrap', true)
-                        end
-                    },
+    local lock = false
+    local cmd_id
+    local next = win.id
+    local action = {
+        pageup = function()
+            buffer:normal('gg')
+        end,
+
+        pagedown = function()
+            buffer:normal('G')
+        end,
+
+        pin = function()
+            if lock then
+                error('too many window')
+            else
+                lock = true
+            end
+            pcall(api.nvim_del_autocmd, cmd_id)
+            local width = win.width
+            local height = win.height
+            local col = vim.o.columns - width - 3
+            local buf = buffer.bufnr
+            win:try_close()
+            win.tasks:add(function()
+                win = open_window {
+                    width = width,
+                    height = height,
+                    relative = 'editor',
+                    col = col,
+                    task = function(self)
+                        self:set('wrap', true)
+                    end,
                 }
 
-                vim.keymap.del('n', conf.hover.keymap.pin, { buffer = true })
-                --- NOTE : 只允许存在一个pin窗口
-                local buf = m_window.bufnr
-                pin = true
-                local toggle = conf.hover.keymap.toggle_entry
-                if toggle then
-                    next = m_window.winid
-                    vim.keymap.set('n', toggle, action.toggle_entry, { silent = true, buffer = buf })
-                end
-
+                del('n', keymap.pin, { buffer = cur_buf })
                 api.nvim_create_autocmd('BufWipeOut', {
                     callback = function(opt)
-                        if opt.buf == buf then
-                            pin = false
+                        if opt.buf == buf or opt.buf == cur_buf then
+                            lock = false
                             api.nvim_del_autocmd(opt.id)
                         end
                     end
                 })
-            end
-        }
-    end,
-
-    close = function()
-        pcall(api.nvim_del_autocmd, cmd_id)
-        m_window:try_close { wipeout = true }
-        try_del_keymap()
-    end,
-
-    toggle_entry = function()
-        if pin and m_window:is_open() then
-            local prev = api.nvim_get_current_win()
-            api.nvim_set_current_win(next)
-            next = prev
-        else
-            vim.keymap.del('n', conf.hover.keymap.toggle_entry, { buffer = true })
-        end
-    end,
-
-    play = function()
-        m_result.word:play()
-    end,
-}
-
-
-local function handle()
-    local hover = conf.hover
-    if m_result.translation and hover.auto_play then
-        local ok = pcall(action.play)
-        if not ok then
-            vim.notify('自动发音失败， 请检查README发音部分', vim.log.WARN)
-        end
-    end
-
-    for _, field in ipairs(conf.order) do
-        process[field]()
-    end
-
-    for act, key in pairs(hover.keymap) do
-        vim.keymap.set('n', key, action[act], { buffer = true, silent = true })
-    end
-end
-
-local function online_query(word)
-    local lists = {}
-    local engines = conf.engines
-    local size = #engines
-    local icon = conf.icon
-    local error_msg = icon.notfound .. '    没有找到相关的翻译'
-    m_window:set_height(1)
-    local origin_width = m_window.width
-    m_window:set_width(error_msg:width())
-
-    if size == 0 then
-        m_content:addline(it(error_msg, 'TransFailed'))
-        m_window:open()
-        return
-    else
-        m_window:open()
-        for i = 1, size do
-            lists[size] = require('Trans.query.' .. engines[i])(word)
-        end
-    end
-
-    local cell = icon.cell
-    local spinner = require('Trans.ui.spinner')[conf.hover.spinner]
-    local range = #spinner
-
-    local timeout = conf.hover.timeout
-    local interval = math.floor(timeout / (m_window.width - spinner[1]:width()))
-    local width = m_window.width
-
-    local f = '%s %s'
-    require('Trans.util.animation')({
-        times = width,
-        interval = interval,
-        frame = function(self, times)
-            m_content:wipe()
-            for i, v in ipairs(lists) do
-                local res = v.value
-                if res then
-                    m_result = res
-                    m_window:set_width(origin_width)
-                    handle()
-                    m_content:attach()
-
-                    m_window.height = m_content:actual_height(true)
-                    m_window:open {
-                        animation = 'fold',
-                    }
-
-                    self.run = false
-                    return
-
-                elseif res == false then
-                    table.remove(lists, i)
-                    size = size - 1
-                end
-            end
-
-            local line
-            if size == 0 or times == width then
-                line = it(error_msg, 'TransFailed')
-                self.run = false
-            else
-                line = it(f:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
-            end
-
-            m_content:addline(line)
-            m_content:attach()
+            end)
         end,
-    }):display()
-end
 
-return function(word)
-    vim.validate {
-        word = { word, 's' },
+        close = function()
+            pcall(api.nvim_del_autocmd, cmd_id)
+            win:try_close()
+            win.tasts:add(function()
+                buffer:delete()
+            end)
+            try_del_keymap()
+        end,
+
+        toggle_entry = function()
+            if lock and win:is_valid() then
+                local prev = api.nvim_get_current_win()
+                api.nvim_set_current_win(next)
+                next = prev
+            else
+                del('n', keymap.toggle_entry, { buffer = cur_buf })
+            end
+        end,
+
+        play = function()
+            if word then
+                word:play()
+            end
+        end,
     }
 
-    local hover = conf.hover
-    m_window = new_window(false, {
-        relative  = 'cursor',
-        width     = hover.width,
-        height    = hover.height,
-        title     = hover.title,
-        border    = hover.border,
-        animation = hover.animation,
-        col       = 1,
-        row       = 1,
-    })
-
-    m_window:set('wrap', true)
-    m_content = m_window:new_content()
-
-    m_result = require('Trans.query.offline')(word)
-    if m_result then
-        handle()
-        local height = m_content:actual_height(true)
-        if height < m_window.height then
-            m_window:set_height(height)
-        end
-        m_window:open()
-    else
-        online_query(word)
+    local set = vim.keymap.set
+    local opts = { buffer = cur_buf, silent = true }
+    for act, key in pairs(hover.keymap) do
+        set('n', key, action[act], opts)
     end
 
-    -- Auto Close
     if hover.auto_close_events then
         cmd_id = api.nvim_create_autocmd(
             hover.auto_close_events, {
             buffer = 0,
-            callback = function()
-                m_window:try_close { wipeout = true }
-                try_del_keymap()
-                api.nvim_del_autocmd(cmd_id)
+            callback = function(opt)
+                win:try_close()
+                win.tasks:add(function()
+                    buffer:delete()
+                    try_del_keymap()
+                end)
+                api.nvim_del_autocmd(opt.id)
             end,
         })
     end
+end
+
+local function online_query(win, word)
+    -- FIXME :
+    local lists = {
+        remove = table.remove
+    }
+    local engines = conf.engines
+    local size = #engines
+    local icon = conf.icon
+    local error_line = it(error_msg, 'TransFailed')
+
+    if size == 0 then
+        buffer:addline(error_line)
+
+    else
+        for i = 1, size do
+            lists[size] = require('Trans.query.' .. engines[i])(word)
+        end
+        local win_width = win.width
+        local cell = icon.cell
+        local spinner = require('Trans.ui.spinner')[hover.spinner]
+        local range = #spinner
+
+        local timeout = hover.timeout
+        local interval = math.floor(timeout / (win.width - spinner[1]:width()))
+
+        local s = '%s %s'
+        local width = hover.width
+        local height = hover.height
+        buffer:set('modifiable', true)
+
+        require('Trans.util.display') {
+            times = win_width,
+            interval = interval,
+            frame = function(self, times)
+                for i, v in ipairs(lists) do
+                    local res = v[1]
+                    if res then
+                        vim.pretty_print(res)
+                        buffer:del(1)
+                        win:set_width(width)
+                        handle_result(res)
+                        local actual_height = buffer:height {
+                            width = width,
+                            wrap = true,
+                        }
+                        height = math.min(height, actual_height)
+
+                        win:expand {
+                            field = 'height',
+                            target = height,
+                        }
+
+                        win.tasks:add(function(this)
+                            this:set('wrap', true)
+                            handle_keymap(this, word)
+                        end)
+
+                        self.run = false
+                        return
+
+                    elseif res == false then
+                        lists:remove(i)
+                        size = size - 1
+                    end
+                end
+
+                local line
+                if size == 0 or times == win_width then
+                    line = error_line
+                    self.run = false
+                    win:set('wrap', true)
+                    handle_keymap(win, word)
+
+                else
+                    line = it(s:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg')
+                end
+
+                buffer:addline(line, 1)
+            end,
+
+            callback = function()
+                buffer:set('modifiable', false)
+            end,
+        }
+    end
+end
+
+return function(word)
+    buffer:init()
+    local result = require('Trans.query.offline')(word)
+
+    local opts
+    if result then
+        handle_result(result)
+
+        local width = hover.width
+        local height = math.min(buffer:height {
+            width = width,
+            wrap = true,
+        }, hover.height)
+
+        opts = {
+            width = width,
+            height = height,
+            task = function(self)
+                self:set('wrap', true)
+                handle_keymap(self, word)
+            end
+        }
+
+    else
+        opts = {
+            width = error_msg:width(),
+            height = 1,
+            task = function(win)
+                online_query(win, word)
+            end
+        }
+    end
+
+    open_window(opts)
 end

@@ -41,16 +41,16 @@ return function(word)
         callback = function(str)
             local ok, res = pcall(vim.json.decode, str)
             if ok and res and res.trans_result then
-                result.value = {
-                    word = word,
+                result[1] = {
+                    title = { word = word },
                     [isEn and 'translation' or 'definition'] = res.trans_result[1].dst,
                 }
 
                 if result.callback then
-                    result.callback(result.value)
+                    result.callback(result[1])
                 end
             else
-                result.value = false
+                result[1] = false
             end
         end,
     })

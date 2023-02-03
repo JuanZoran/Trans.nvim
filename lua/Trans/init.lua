@@ -255,4 +255,6 @@ M.translate = function(mode, view)
     end
 end
 
+M.ns = api.nvim_create_namespace('Trans')
+
 return M
