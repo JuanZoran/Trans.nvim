@@ -1,6 +1,9 @@
-local M   = {}
-local api = vim.api
-local fn  = vim.fn
+local M = {}
+local api, fn = vim.api, vim.fn
+
+if fn.executable('sqlite3') ~= 1 then
+    error('Please check out sqlite3')
+end
 
 local win_title = fn.has('nvim-0.9') == 1 and {
     { '', 'TransTitleRound' },
@@ -17,7 +20,6 @@ local win_title = fn.has('nvim-0.9') == 1 and {
 --     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
 --}
 
-
 string.width = api.nvim_strwidth
 string.isEn = function(self)
     local char = { self:byte(1, -1) }
@@ -29,7 +31,6 @@ string.isEn = function(self)
     return true
 end
 
-
 string.play = fn.has('linux') == 1 and function(self)
     local cmd = ([[echo "%s" | festival --tts]]):format(self)
     fn.jobstart(cmd)
@@ -38,7 +39,6 @@ end or function(self)
     local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
     fn.jobstart('node ' .. file .. ' ' .. self)
 end
-
 
 M.conf = {
     view = {
@@ -121,7 +121,6 @@ M.conf = {
     -- theme = 'tokyonight',
 
     db_path = '$HOME/.vim/dict/ultimate.db',
-
     engine = {
         -- baidu = {
         --     appid = '',
@@ -132,7 +131,6 @@ M.conf = {
         --     appPasswd = '',
         -- },
     },
-
     -- TODO :
     -- register word
     -- history = {
@@ -158,41 +156,33 @@ M.setup = function(opts)
     end
 
     local engines = {}
+    local i = 1
     for k, _ in pairs(conf.engine) do
-        table.insert(engines, k)
+        engines[i] = k
+        i = i + 1
     end
-    conf.engines = engines
 
+    conf.engines = engines
     times = times + 1
     if times == 1 then
-
-        local get_mode    = api.nvim_get_mode
-        local set_hl      = api.nvim_set_hl
+        ---@format disable
         local new_command = api.nvim_create_user_command
-
-        if fn.executable('sqlite3') ~= 1 then
-            error('Please check out sqlite3')
-        end
-
-        new_command('Translate', function()
-            M.translate()
-        end, { desc = '  单词翻译', })
-
-        new_command('TranslateInput', function()
-            M.translate('i')
-        end, { desc = '  搜索翻译' })
-
-        new_command('TransPlay', function()
-            local word = M.get_word(get_mode().mode)
+        new_command('Translate'      , function() M.translate()    end, { desc = '  单词翻译',})
+        new_command('TranslateInput' , function() M.translate('i') end, { desc = '  搜索翻译',})
+        new_command('TransPlay'      , function()
+            local word = M.get_word(api.nvim_get_mode().mode)
             if word ~= '' and word:isEn() then
                 word:play()
             end
         end, { desc = ' 自动发音' })
 
-        local hls = require('Trans.ui.theme')[conf.theme]
+
+        local set_hl = api.nvim_set_hl
+        local hls    = require('Trans.ui.theme')[conf.theme]
         for hl, opt in pairs(hls) do
             set_hl(0, hl, opt)
         end
+        ---@format enable
     end
 end
 
@@ -203,10 +193,8 @@ local function get_select()
     if _start[2] > _end[2] or (_start[3] > _end[3] and _start[2] == _end[2]) then
         _start, _end = _end, _start
     end
-    local s_row = _start[2]
-    local e_row = _end[2]
-    local s_col = _start[3]
-    local e_col = _end[3]
+    local s_row, s_col = _start[2], _start[3]
+    local e_row, e_col = _end[2], _end[3]
 
     -- print(s_row, e_row, s_col, e_col)
     ---@type string
@@ -217,6 +205,7 @@ local function get_select()
 
     if s_row == e_row then
         return line:sub(s_col, e_col)
+
     else
         local lines = fn.getline(s_row, e_row)
         local i = #lines
@@ -237,9 +226,8 @@ M.get_word = function(mode)
 
     elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
-        vim.ui.input({ prompt = '请输入需要查询的单词: ' }, function(input)
-            word = input
-        end)
+        ---@diagnostic disable-next-line: param-type-mismatch
+        word = fn.input('请输入需要查询的单词:')
     else
         error('invalid mode: ' .. mode)
     end

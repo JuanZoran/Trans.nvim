@@ -63,5 +63,4 @@ curl.POST = function(uri, opts)
     vim.fn.jobstart(table.concat(cmd, ' '), option)
 end
 
-
 return curl

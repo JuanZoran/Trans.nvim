@@ -5,9 +5,7 @@ local buffer = require('Trans.buffer')()
 local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
 
 local node = require('Trans.node')
-local it = node.item
-local t = node.text
-local f = node.format
+local it, t, f = node.item, node.text, node.format
 
 local function handle_result(result)
     local icon = conf.icon
@@ -18,7 +16,6 @@ local function handle_result(result)
     if hover.auto_play then
         string.play(word:isEn() and word or result.definition)
     end
-
 
     local addtitle = function(title)
         buffer:addline {
@@ -197,8 +194,6 @@ local function open_window(opts)
         title     = hover.title,
         border    = hover.border,
         animation = hover.animation,
-        zindex    = 80,
-        enter     = false,
         ns        = require('Trans').ns,
     }
 end
@@ -232,8 +227,7 @@ local function handle_keymap(win, word)
                 lock = true
             end
             pcall(api.nvim_del_autocmd, cmd_id)
-            local width = win.width
-            local height = win.height
+            local width, height = win.width, win.height
             local col = vim.o.columns - width - 3
             local buf = buffer.bufnr
             local run = win:try_close()
@@ -312,61 +306,60 @@ local function online_query(win, word)
     local error_line = it(error_msg, 'TransFailed')
     if size == 0 then
         buffer:addline(error_line)
-    else
-        for i = 1, size do
-            lists[size] = require('Trans.query.' .. engines[i])(word)
-        end
-        local cell      = icon.cell
-        local timeout   = hover.timeout
-        local spinner   = require('Trans.ui.spinner')[hover.spinner]
-        local range     = #spinner
-        local interval  = math.floor(timeout / (win.width - spinner[1]:width()))
-        local win_width = win.width
-
-        local s = '%s %s'
-        local width = hover.width
-        local height = hover.height
-        local function waitting_result(self, times)
-            for i = 1, size do
-                local res = lists[i][1]
-                if res then
-                    buffer:wipe()
-                    win:set_width(width)
-                    handle_result(res)
-                    local actual_height = buffer:height(width)
-                    height = math.min(height, actual_height)
-
-                    win:expand {
-                        field = 'height',
-                        target = height,
-                    }
-                    self.run = false
-                    return
-                elseif res == false then
-                    lists:remove(i)
-                    size = size - 1
-                end
-            end
-
-            if size == 0 or times == win_width then
-                buffer:addline(error_line, 1)
-                self.run = false
-            else
-                buffer:addline(it(s:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg'), 1)
-            end
-        end
-
-        buffer:set('modifiable', true)
-        local run = require('Trans.util.display') {
-            times = win_width,
-            interval = interval,
-            frame = waitting_result,
-        }
-
-        run(function()
-            buffer:set('modifiable', false)
-        end)
+        return
     end
+
+    for i = 1, size do
+        lists[size] = require('Trans.query.' .. engines[i])(word)
+    end
+    local cell      = icon.cell
+    local timeout   = hover.timeout
+    local spinner   = require('Trans.ui.spinner')[hover.spinner]
+    local range     = #spinner
+    local interval  = math.floor(timeout / (win.width - spinner[1]:width()))
+    local win_width = win.width
+
+    local s = '%s %s'
+    local width, height = hover.width, hover.height
+    local function waitting_result(this, times)
+        for i = 1, size do
+            local res = lists[i][1]
+            if res then
+                buffer:wipe()
+                win:set_width(width)
+                handle_result(res)
+                height = math.min(height, buffer:height(width))
+
+                win:expand {
+                    field = 'height',
+                    target = height,
+                }
+                this.run = false
+                return
+            elseif res == false then
+                lists:remove(i)
+                size = size - 1
+            end
+        end
+
+        if size == 0 or times == win_width then
+            buffer:addline(error_line, 1)
+            this.run = false
+        else
+            buffer:addline(it(s:format(spinner[times % range + 1], cell:rep(times)), 'MoreMsg'), 1)
+        end
+    end
+
+    buffer:set('modifiable', true)
+    local run = require('Trans.util.display') {
+        times = win_width,
+        interval = interval,
+        frame = waitting_result,
+    }
+
+    run(function()
+        buffer:set('modifiable', false)
+    end)
 end
 
 ---处理不同hover模式的窗口

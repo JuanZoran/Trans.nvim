@@ -1,6 +1,6 @@
 local api = vim.api
-local add_hl = api.nvim_buf_add_highlight
 local ns = require('Trans').ns
+local add_hl = api.nvim_buf_add_highlight
 
 local item_meta = {
     load = function(self, bufnr, line, col)

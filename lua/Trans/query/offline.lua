@@ -19,9 +19,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 
 return function(word)
     local res = (dict:select('stardict', {
-        where = {
-            word = word,
-        },
+        where = { word = word, },
         keys = {
             'word',
             'phonetic',
@@ -43,10 +41,6 @@ return function(word)
             collins = res.collins,
             phonetic = res.phonetic,
         }
-        res.word = nil
-        res.oxford = nil
-        res.collins = nil
-        res.phonetic = nil
     end
 
     return res
