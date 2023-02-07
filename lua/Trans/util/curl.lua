@@ -12,7 +12,30 @@ local curl = {}
 
 curl.GET = function(uri, opts)
     --- TODO :
+    vim.validate {
+        uri = { uri, 's' },
+        opts = { opts, 't' }
+    }
+    local cmd = {'curl', '-s', ('"%s"'):format(uri)}
+    local callback = opts.callback
+
+    local output = ''
+    local option = {
+        stdin = 'null',
+        on_stdout = function(_, stdout)
+            local str = table.concat(stdout)
+            if str ~= '' then
+                output = output .. str
+            end
+        end,
+        on_exit = function()
+            callback(output)
+        end,
+    }
+
+    vim.fn.jobstart(table.concat(cmd, ' '), option)
 end
+
 
 
 curl.POST = function(uri, opts)
@@ -23,7 +46,7 @@ curl.POST = function(uri, opts)
 
     local callback = opts.callback
 
-    local cmd = { 'curl', '-s', uri }
+    local cmd = { 'curl', '-s', ('"%s"'):format(uri) }
     local size = 3
 
     local function insert(...)

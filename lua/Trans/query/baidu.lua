@@ -57,3 +57,9 @@ return function(word)
 
     return result
 end
+
+
+
+-- NOTE :free tts:
+-- https://zj.v.api.aa1.cn/api/baidu-01/?msg=我爱你&choose=0&su=100&yd=5
+-- 选择转音频的人物，女生1 输入0 ｜ 女生2输入：5｜男生1 输入：1｜男生2 输入：2｜男生3 输入：3

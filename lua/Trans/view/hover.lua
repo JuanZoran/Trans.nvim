@@ -310,7 +310,7 @@ local function online_query(win, word)
     end
 
     for i = 1, size do
-        lists[size] = require('Trans.query.' .. engines[i])(word)
+        lists[i] = require('Trans.query.' .. engines[i])(word)
     end
     local cell      = icon.cell
     local timeout   = hover.timeout

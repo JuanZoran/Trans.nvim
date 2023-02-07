@@ -122,6 +122,7 @@ M.conf = {
 
     db_path = '$HOME/.vim/dict/ultimate.db',
     engine = {
+        youdao = {},
         -- baidu = {
         --     appid = '',
         --     appPasswd = '',
