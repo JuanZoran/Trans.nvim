@@ -49,7 +49,7 @@ function window:set_width(width)
 end
 
 ---Expand window [width | height] value
----@param opts table 窗口的配置
+---@param opts table
 ---|'field'string [width | height]
 ---|'target'integer
 ---@return function

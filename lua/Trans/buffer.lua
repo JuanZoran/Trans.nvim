@@ -142,10 +142,8 @@ buffer.__index = function(self, key)
     local res = buffer[key]
     if res then
         return res
-
     elseif type(key) == 'number' then
         return fn.getbufoneline(self.bufnr, key)
-
     else
         error('invalid key' .. key)
     end
@@ -161,7 +159,7 @@ end
 ---@return buf
 return function()
     return setmetatable({
-        bufnr = -1,
-        size = 0,
-    }, buffer)
+            bufnr = -1,
+            size = 0,
+        }, buffer)
 end

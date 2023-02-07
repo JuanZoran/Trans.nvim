@@ -166,7 +166,6 @@ M.setup = function(opts)
     conf.engines = engines
     times = times + 1
     if times == 1 then
-        ---@format disable
         local new_command = api.nvim_create_user_command
         new_command('Translate'      , function() M.translate()    end, { desc = '  单词翻译',})
         new_command('TranslateInput' , function() M.translate('i') end, { desc = '  搜索翻译',})
@@ -183,7 +182,6 @@ M.setup = function(opts)
         for hl, opt in pairs(hls) do
             set_hl(0, hl, opt)
         end
-        ---@format enable
     end
 end
 
