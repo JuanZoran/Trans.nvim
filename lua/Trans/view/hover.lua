@@ -322,7 +322,7 @@ local function online_query(win, word)
     local s = '%s %s'
     local width, height = hover.width, hover.height
     local function waitting_result(this, times)
-        for i = 1, size do
+        for i = size, 1, -1 do
             local res = lists[i][1]
             if res then
                 buffer:wipe()
