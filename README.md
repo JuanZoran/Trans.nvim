@@ -169,13 +169,14 @@ use {
 
 - **`auto_play`** 使用步骤:
 
-  > linux 只需要安装`festival`  
+  > linux需要安装`festival`  
   > sudo apt-get install festival festvox-kallpc16k  
   > **_如果你想要设置音色，发音可以访问:_** [Festival 官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
   > 可以选择英音、美音、男声、女声
 
-  > 其他操作系统
+  > mac 系统使用`say` (感谢[@happysmile12321](https://github.com/happysmile12321) )
 
+  > 其他操作系统
   - 需要确保安装了`nodejs`
   - 进入插件的`tts`目录运行`npm install`
     > 如果`install.sh`运行正常则自动安装，如果安装失败，请尝试手动安装
