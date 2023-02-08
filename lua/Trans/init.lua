@@ -34,6 +34,9 @@ end
 string.play = fn.has('linux') == 1 and function(self)
     local cmd = ([[echo "%s" | festival --tts]]):format(self)
     fn.jobstart(cmd)
+end or fn.has('mac') == 1 and function (self)
+    local cmd = ([[say "%s"]]):format(self)
+    fn.jobstart(cmd)
 end or function(self)
     local seperator = fn.has('unix') and '/' or '\\'
     local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
