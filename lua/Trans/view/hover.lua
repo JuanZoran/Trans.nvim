@@ -1,8 +1,9 @@
 local api = vim.api
 local conf = require('Trans').conf
 local hover = conf.hover
-local buffer = require('Trans.buffer')()
 local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
+
+local buffer = require('Trans.buffer')()
 
 local node = require('Trans.node')
 local it, t, f = node.item, node.text, node.format
@@ -375,6 +376,7 @@ return function(word)
             width = width,
             height = math.min(buffer:height(width), hover.height)
         }
+
         run(function()
             win:set('wrap', true)
             handle_keymap(win, word)

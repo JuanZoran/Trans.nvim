@@ -20,11 +20,33 @@ local win_title = fn.has('nvim-0.9') == 1 and {
 --     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
 --}
 
+-- 中文字符匹配函数
+local function is_chinese(str)
+    local len = #str
+    local left = 0
+    local right = len
+    local mid = 0
+    while left <= right do
+        mid = math.floor((left + right) / 2)
+        local cur_byte = string.byte(str, mid)
+        local cur_char = string.sub(str, mid, mid)
+        if cur_byte == nil then
+            break
+        end
+        if cur_byte > 128 then
+            return true
+        else
+            left = mid + 1
+        end
+    end
+    return false
+end
+
 string.width = api.nvim_strwidth
 string.isEn = function(self)
     local char = { self:byte(1, -1) }
     for i = 1, #self do
-        if char[i] > 127 then
+        if char[i] > 128 then
             return false
         end
     end
