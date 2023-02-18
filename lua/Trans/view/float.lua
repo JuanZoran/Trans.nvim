@@ -82,6 +82,7 @@ local function process()
 end
 
 return function(word)
+    buffer:init()
     -- TODO :online query
     -- local float = conf.float
     vim.notify([[

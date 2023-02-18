@@ -20,11 +20,12 @@ local win_title = fn.has('nvim-0.9') == 1 and {
 --     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
 --}
 
+
 string.width = api.nvim_strwidth
 string.isEn = function(self)
     local char = { self:byte(1, -1) }
     for i = 1, #self do
-        if char[i] > 127 then
+        if char[i] > 128 then
             return false
         end
     end
