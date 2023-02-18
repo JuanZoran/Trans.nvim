@@ -24,7 +24,7 @@ string.width = api.nvim_strwidth
 string.isEn = function(self)
     local char = { self:byte(1, -1) }
     for i = 1, #self do
-        if char[i] > 127 then
+        if char[i] > 128 then
             return false
         end
     end
@@ -169,6 +169,7 @@ M.setup = function(opts)
     conf.engines = engines
     times = times + 1
     if times == 1 then
+        ---@format disable
         local new_command = api.nvim_create_user_command
         new_command('Translate'      , function() M.translate()    end, { desc = '  单词翻译',})
         new_command('TranslateInput' , function() M.translate('i') end, { desc = '  搜索翻译',})
@@ -185,6 +186,7 @@ M.setup = function(opts)
         for hl, opt in pairs(hls) do
             set_hl(0, hl, opt)
         end
+        ---@format enable
     end
 end
 

@@ -27,7 +27,9 @@ end
 ---@param option string option name
 ---@param value any
 function window:set(option, value)
-    api.nvim_win_set_option(self.winid, option, value)
+    if self:is_valid() then
+        api.nvim_win_set_option(self.winid, option, value)
+    end
 end
 
 ---@param name string option name
@@ -99,6 +101,7 @@ function window:try_close()
         field = field,
         target = 1,
     }
+
     run(function()
         api.nvim_win_close(self.winid, true)
     end)

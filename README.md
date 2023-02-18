@@ -169,7 +169,7 @@ use {
 
 - **`auto_play`** 使用步骤:
 
-  > linux需要安装`festival`  
+  > linux 只需要安装`festival`  
   > sudo apt-get install festival festvox-kallpc16k  
   > **_如果你想要设置音色，发音可以访问:_** [Festival 官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
   > 可以选择英音、美音、男声、女声

@@ -1,8 +1,9 @@
 local api = vim.api
 local conf = require('Trans').conf
 local hover = conf.hover
-local buffer = require('Trans.buffer')()
 local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
+
+local buffer = require('Trans.buffer')()
 
 local node = require('Trans.node')
 local it, t, f = node.item, node.text, node.format
@@ -33,7 +34,6 @@ local function handle_result(result)
 
             if not phonetic and not collins and not oxford then
                 buffer:addline(it(word, 'TransWord'))
-
             else
                 buffer:addline(f {
                     width = hover.width,
@@ -50,7 +50,6 @@ local function handle_result(result)
                 })
             end
         end,
-
         tag = function(tag)
             addtitle('标签')
             local tag_map = {
@@ -78,7 +77,7 @@ local function handle_result(result)
                     it(
                         indent .. tags[i] ..
                         (tags[i + 1] and interval .. tags[i + 1] ..
-                            (tags[i + 2] and interval .. tags[i + 2] or '') or ''),
+                        (tags[i + 2] and interval .. tags[i + 2] or '') or ''),
                         'TransTag'
                     )
                 )
@@ -86,7 +85,6 @@ local function handle_result(result)
 
             buffer:addline('')
         end,
-
         pos = function(pos)
             addtitle('词性')
             local pos_map = {
@@ -114,7 +112,6 @@ local function handle_result(result)
 
             buffer:addline('')
         end,
-
         exchange = function(exchange)
             addtitle('词形变化')
             local exchange_map = {
@@ -138,7 +135,6 @@ local function handle_result(result)
 
             buffer:addline('')
         end,
-
         translation = function(translation)
             addtitle('中文翻译')
 
@@ -150,7 +146,6 @@ local function handle_result(result)
 
             buffer:addline('')
         end,
-
         definition = function(definition)
             addtitle('英文注释')
 
@@ -176,7 +171,7 @@ local function handle_result(result)
 end
 
 local function open_window(opts)
-    opts = opts or {}
+    opts           = opts or {}
 
     local col      = opts.col or 1
     local row      = opts.row or 1
@@ -215,11 +210,9 @@ local function handle_keymap(win, word)
         pageup = function()
             buffer:normal('gg')
         end,
-
         pagedown = function()
             buffer:normal('G')
         end,
-
         pin = function()
             if lock then
                 error('请先关闭窗口')
@@ -256,7 +249,6 @@ local function handle_keymap(win, word)
                 })
             end)
         end,
-
         close = function()
             pcall(api.nvim_del_autocmd, cmd_id)
             local run = win:try_close()
@@ -265,7 +257,6 @@ local function handle_keymap(win, word)
             end)
             try_del_keymap()
         end,
-
         toggle_entry = function()
             if lock and win:is_valid() then
                 local prev = api.nvim_get_current_win()
@@ -275,7 +266,6 @@ local function handle_keymap(win, word)
                 del('n', keymap.toggle_entry)
             end
         end,
-
         play = function()
             if word then
                 word:play()
@@ -312,17 +302,17 @@ local function online_query(win, word)
     for i = 1, size do
         lists[i] = require('Trans.query.' .. engines[i])(word)
     end
-    local cell      = icon.cell
-    local timeout   = hover.timeout
-    local spinner   = require('Trans.ui.spinner')[hover.spinner]
-    local range     = #spinner
-    local interval  = math.floor(timeout / (win.width - spinner[1]:width()))
-    local win_width = win.width
+    local cell          = icon.cell
+    local timeout       = hover.timeout
+    local spinner       = require('Trans.ui.spinner')[hover.spinner]
+    local range         = #spinner
+    local interval      = math.floor(timeout / (win.width - spinner[1]:width()))
+    local win_width     = win.width
 
-    local s = '%s %s'
+    local s             = '%s %s'
     local width, height = hover.width, hover.height
     local function waitting_result(this, times)
-        for i = 1, size do
+        for i = size, 1, -1 do
             local res = lists[i][1]
             if res then
                 buffer:wipe()
@@ -379,7 +369,6 @@ return function(word)
             win:set('wrap', true)
             handle_keymap(win, word)
         end)
-
     else
         local win, run = open_window {
             width = error_msg:width(),
