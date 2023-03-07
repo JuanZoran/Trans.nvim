@@ -6,10 +6,10 @@ if fn.executable('sqlite3') ~= 1 then
 end
 
 local win_title = fn.has('nvim-0.9') == 1 and {
-    { '', 'TransTitleRound' },
-    { ' Trans', 'TransTitle' },
-    { '', 'TransTitleRound' },
-} or nil
+        { '',       'TransTitleRound' },
+        { ' Trans', 'TransTitle' },
+        { '',       'TransTitleRound' },
+    } or nil
 
 -- local title = {
 --     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",
@@ -32,16 +32,16 @@ string.isEn = function(self)
 end
 
 string.play = fn.has('linux') == 1 and function(self)
-    local cmd = ([[echo "%s" | festival --tts]]):format(self)
-    fn.jobstart(cmd)
-end or fn.has('mac') == 1 and function (self)
-    local cmd = ([[say "%s"]]):format(self)
-    fn.jobstart(cmd)
-end or function(self)
-    local seperator = fn.has('unix') and '/' or '\\'
-    local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
-    fn.jobstart('node ' .. file .. ' ' .. self)
-end
+        local cmd = ([[echo "%s" | festival --tts]]):format(self)
+        fn.jobstart(cmd)
+    end or fn.has('mac') == 1 and function(self)
+        local cmd = ([[say "%s"]]):format(self)
+        fn.jobstart(cmd)
+    end or function(self)
+        local seperator = fn.has('unix') and '/' or '\\'
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
+        fn.jobstart('node ' .. file .. ' ' .. self)
+    end
 
 M.conf = {
     view = {
@@ -135,16 +135,8 @@ M.conf = {
         --     appPasswd = '',
         -- },
     },
-    -- TODO :
-    -- register word
-    -- history = {
-    --     -- TOOD
-    -- }
-
-    -- TODO :add online translate engine
 }
 
-local times = 0
 M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
@@ -165,28 +157,12 @@ M.setup = function(opts)
         engines[i] = k
         i = i + 1
     end
-
     conf.engines = engines
-    times = times + 1
-    if times == 1 then
-        ---@format disable
-        local new_command = api.nvim_create_user_command
-        new_command('Translate'      , function() M.translate()    end, { desc = '  单词翻译',})
-        new_command('TranslateInput' , function() M.translate('i') end, { desc = '  搜索翻译',})
-        new_command('TransPlay'      , function()
-            local word = M.get_word(api.nvim_get_mode().mode)
-            if word ~= '' and word:isEn() then
-                word:play()
-            end
-        end, { desc = ' 自动发音' })
 
-
-        local set_hl = api.nvim_set_hl
-        local hls    = require('Trans.ui.theme')[conf.theme]
-        for hl, opt in pairs(hls) do
-            set_hl(0, hl, opt)
-        end
-        ---@format enable
+    local set_hl = api.nvim_set_hl
+    local hls    = require('Trans.ui.theme')[conf.theme]
+    for hl, opt in pairs(hls) do
+        set_hl(0, hl, opt)
     end
 end
 
@@ -209,7 +185,6 @@ local function get_select()
 
     if s_row == e_row then
         return line:sub(s_col, e_col)
-
     else
         local lines = fn.getline(s_row, e_row)
         local i = #lines
@@ -223,11 +198,9 @@ M.get_word = function(mode)
     local word
     if mode == 'n' then
         word = fn.expand('<cword>')
-
     elseif mode == 'v' then
         api.nvim_input('<ESC>')
         word = get_select()
-
     elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
         ---@diagnostic disable-next-line: param-type-mismatch
