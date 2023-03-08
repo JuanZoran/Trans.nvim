@@ -315,7 +315,7 @@ local function online_query(win, word)
     end
     local cell      = icon.cell
     local timeout   = hover.timeout
-    local spinner   = require('Trans.ui.spinner')[hover.spinner]
+    local spinner   = require('Trans.style.spinner')[hover.spinner]
     local range     = #spinner
     local interval  = math.floor(timeout / (win.width - spinner[1]:width()))
     local win_width = win.width

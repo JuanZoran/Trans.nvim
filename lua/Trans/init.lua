@@ -1,45 +1,11 @@
 local M = {}
 local api, fn = vim.api, vim.fn
 
-if fn.executable('sqlite3') ~= 1 then
-    error('Please check out sqlite3')
-end
-
 local win_title = fn.has('nvim-0.9') == 1 and {
         { '',       'TransTitleRound' },
         { ' Trans', 'TransTitle' },
         { '',       'TransTitleRound' },
     } or nil
-
--- local title = {
---     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",
---     "╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝",
---     "   ██║   ██████╔╝███████║██╔██╗ ██║███████╗",
---     "   ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║",
---     "   ██║   ██║  ██║██║  ██║██║ ╚████║███████║",
---     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
---}
-
-
-string.width = api.nvim_strwidth
-string.isEn = function(self)
-    local char = { self:byte(1, -1) }
-    for i = 1, #self do
-        if char[i] > 128 then
-            return false
-        end
-    end
-    return true
-end
-
-string.play = fn.has('linux') == 1 and function(self)
-        local cmd = ([[echo "%s" | festival --tts]]):format(self)
-        fn.jobstart(cmd)
-    end or function(self)
-        local seperator = fn.has('unix') and '/' or '\\'
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
-        fn.jobstart('node ' .. file .. ' ' .. self)
-    end
 
 M.conf = {
     view = {
@@ -125,27 +91,10 @@ M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
     end
-    local conf = M.conf
-
-    local float = conf.float
-    if 0 < float.height and float.height <= 1 then
-        float.height = math.floor((vim.o.lines - vim.o.cmdheight - 1) * float.height)
-    end
-    if 0 < float.width and float.width <= 1 then
-        float.width = math.floor(vim.o.columns * float.width)
-    end
-
-    local engines = {}
-    local i = 1
-    for k, _ in pairs(conf.engine) do
-        engines[i] = k
-        i = i + 1
-    end
-
-    conf.engines = engines
+    local conf   = M.conf
 
     local set_hl = api.nvim_set_hl
-    local hls    = require('Trans.ui.theme')[conf.theme]
+    local hls    = require('Trans.style.theme')[conf.theme]
     for hl, opt in pairs(hls) do
         set_hl(0, hl, opt)
     end
@@ -168,18 +117,19 @@ local function get_select()
     local uidx = vim.str_utfindex(line, math.min(#line, e_col))
     e_col = vim.str_byteindex(line, uidx)
 
+
     if s_row == e_row then
         return line:sub(s_col, e_col)
     else
         local lines = fn.getline(s_row, e_row)
-        local i = #lines
+        local e = #lines
         lines[1] = lines[1]:sub(s_col)
-        lines[i] = line:sub(1, e_col)
+        lines[e] = line:sub(1, e_col)
         return table.concat(lines)
     end
 end
 
-M.get_word = function(mode)
+M.get_str = function(mode)
     local word
     if mode == 'n' then
         word = fn.expand('<cword>')
@@ -197,18 +147,47 @@ M.get_word = function(mode)
 end
 
 
-M.translate = function(mode, view)
-    local function demo()
-        local frame = 1000
-        for i = 1, 10 do
-            print('now is ' .. i)
-            vim.wait(frame)
-        end
-    end
+M.translate = function(opts)
+    opts = opts or {}
+    local mode = opts.mode or vim.api.nvim_get_mode().mode
+    local str = M.get_str(mode)
+    local view = opts.view or M.conf.view[mode]
 
-    vim.defer_fn(demo, 10)
+    if str == '' then return end
+
+    local res = require('Trans.backend').offline.query(str)
+    vim.pretty_print(res)
 end
 
+
+-- local title = {
+--     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",
+--     "╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝",
+--     "   ██║   ██████╔╝███████║██╔██╗ ██║███████╗",
+--     "   ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║",
+--     "   ██║   ██║  ██║██║  ██║██║ ╚████║███████║",
+--     "   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝",
+--}
+
+-- string.width = api.nvim_strwidth
+-- string.isEn = function(self)
+--     local char = { self:byte(1, -1) }
+--     for i = 1, #self do
+--         if char[i] > 128 then
+--             return false
+--         end
+--     end
+--     return true
+-- end
+
+-- string.play = fn.has('linux') == 1 and function(self)
+--         local cmd = ([[echo "%s" | festival --tts]]):format(self)
+--         fn.jobstart(cmd)
+--     end or function(self)
+--         local seperator = fn.has('unix') and '/' or '\\'
+--         local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
+--         fn.jobstart('node ' .. file .. ' ' .. self)
+--     end
 M.ns = api.nvim_create_namespace('Trans')
 
 return M

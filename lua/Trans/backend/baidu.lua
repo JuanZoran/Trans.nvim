@@ -4,11 +4,9 @@ local appPasswd = baidu.appPasswd
 local salt      = tostring(math.random(bit.lshift(1, 15)))
 local uri       = 'https://fanyi-api.baidu.com/api/trans/vip/translate'
 
-if appid == '' or appPasswd == '' then
-    error('请查看README, 实现在线翻译或者设置将在线翻译设置为false')
-end
+-- error('请查看README, 实现在线翻译或者设置将在线翻译设置为false')
 
-local post = require('Trans.util.curl').POST
+local post      = require('Trans.util.curl').POST
 
 local function get_field(word, isEn)
     local to   = isEn and 'zh' or 'en'
@@ -43,7 +41,7 @@ return function(word)
             if ok and res and res.trans_result then
                 result[1] = {
                     title = { word = word },
-                    [isEn and 'translation' or 'definition'] = res.trans_result[1].dst,
+                        [isEn and 'translation' or 'definition'] = res.trans_result[1].dst,
                 }
 
                 if result.callback then
