@@ -118,9 +118,31 @@ M.conf = {
         -- no = '❌'
     },
     theme = 'default',
+    -- theme = 'dracula',
+    -- theme = 'tokyonight',
+
     db_path = '$HOME/.vim/dict/ultimate.db',
+    engine = {
+        youdao = {},
+        -- baidu = {
+        --     appid = '',
+        --     appPasswd = '',
+        -- },
+        -- -- youdao = {
+        --     appkey = '',
+        --     appPasswd = '',
+        -- },
+    },
+    -- TODO :
+    -- register word
+    -- history = {
+    --     -- TOOD
+    -- }
+
+    -- TODO :add online translate engine
 }
 
+local times = 0
 M.setup = function(opts)
     if opts then
         M.conf = vim.tbl_deep_extend('force', M.conf, opts)
@@ -143,11 +165,26 @@ M.setup = function(opts)
     end
 
     conf.engines = engines
+    times = times + 1
+    if times == 1 then
+        ---@format disable
+        local new_command = api.nvim_create_user_command
+        new_command('Translate', function() M.translate() end, { desc = '  单词翻译', })
+        new_command('TranslateInput', function() M.translate('i') end, { desc = '  搜索翻译', })
+        new_command('TransPlay', function()
+            local word = M.get_word(api.nvim_get_mode().mode)
+            if word ~= '' and word:isEn() then
+                word:play()
+            end
+        end, { desc = ' 自动发音' })
 
-    local set_hl = api.nvim_set_hl
-    local hls    = require('Trans.ui.theme')[conf.theme]
-    for hl, opt in pairs(hls) do
-        set_hl(0, hl, opt)
+
+        local set_hl = api.nvim_set_hl
+        local hls    = require('Trans.ui.theme')[conf.theme]
+        for hl, opt in pairs(hls) do
+            set_hl(0, hl, opt)
+        end
+        ---@format enable
     end
 end
 
@@ -205,8 +242,21 @@ M.translate = function(mode, view)
             vim.wait(frame)
         end
     end
+    vim.loop.new_async(demo):send()
+    -- vim.validate {
+    --     mode = { mode, 's', true },
+    --     view = { view, 's', true }
+    -- }
 
-    vim.defer_fn(demo, 10)
+    -- mode = mode or api.nvim_get_mode().mode
+    -- view = view or M.conf.view[mode]
+    -- assert(mode and view)
+    -- local word = M.get_word(mode)
+    -- if word == nil or word == '' then
+    --     return
+    -- else
+    --     require('Trans.view.' .. view)(word:gsub('^%s+', '', 1))
+    -- end
 end
 
 M.ns = api.nvim_create_namespace('Trans')
