@@ -1,6 +1,5 @@
 local api = vim.api
 
-
 local M = require('Trans')
 local new_command = api.nvim_create_user_command
 new_command('Translate', function() M.translate() end, { desc = '  单词翻译', })

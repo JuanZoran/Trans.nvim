@@ -147,16 +147,31 @@ M.get_str = function(mode)
 end
 
 
-M.translate = function(opts)
+local process
+process = function(opts)
     opts = opts or {}
     local mode = opts.mode or vim.api.nvim_get_mode().mode
     local str = M.get_str(mode)
-    local view = opts.view or M.conf.view[mode]
-
     if str == '' then return end
 
+    local view = opts.view or M.conf.view[mode]
     local res = require('Trans.backend').offline.query(str)
     vim.pretty_print(res)
+
+    M.translate = coroutine.wrap(process)
+end
+
+M.translate = coroutine.wrap(process)
+
+
+---Pasue Handler for {ms} milliseconds
+---@param ms number @milliseconds
+M.pause = function(ms)
+    local co = coroutine.running()
+    vim.defer_fn(function()
+        coroutine.resume(co)
+    end, ms)
+    coroutine.yield()
 end
 
 
