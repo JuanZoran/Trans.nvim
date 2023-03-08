@@ -1,9 +1,9 @@
-local api, fn = vim.api, vim.fn
-
 ---@class buf
 ---@field bufnr integer buffer handle
 ---@field size integer buffer line count
 local buffer = {}
+
+local api, fn = vim.api, vim.fn
 
 ---Clear all content in buffer
 function buffer:wipe()

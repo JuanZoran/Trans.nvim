@@ -11,6 +11,4 @@ M.is_English = function(str)
 end
 
 
-
 return M
-

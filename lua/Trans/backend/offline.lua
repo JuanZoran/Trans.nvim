@@ -29,8 +29,23 @@ M.query = function(opts)
             limit = 1,
         })[1]
 
-    return res and formatter(res) or nil
+
+    local ret = {
+        -- from = '',
+        -- to = '',
+        engine = 'offline',
+    }
+
+    if res then
+        res.result = formatter(res)
+        -- TODO 
+    else
+        -- TODO :
+    end
+
+    return ret
 end
+
 
 M.nowait = true
 
