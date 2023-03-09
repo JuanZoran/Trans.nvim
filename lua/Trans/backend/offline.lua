@@ -13,7 +13,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 M.query = function(data)
     if data.is_word == false or data.from == 'zh' then return end
 
-    data.path        = vim.fn.expand(data.path or require('Trans').conf.db_path)
+    data.path        = vim.fn.expand(data.path or require('Trans').conf.dir .. '/ultimate.db')
     data.engine      = 'offline'
     data.formatter   = data.formatter or M.formatter
     data.query_field = data.query_field or M.query_field

@@ -1,31 +1,31 @@
-local GET = require("Trans.util.curl").GET
+-- local GET = require("Trans.util.curl").GET
 
-return function(word)
-    local isEn = word:isEn()
-    local result = {}
+-- return function(word)
+--     local isEn = word:isEn()
+--     local result = {}
 
-    local uri = ('https://v.api.aa1.cn/api/api-fanyi-yd/index.php?msg=%s&type=%d'):format(word, isEn and 2 or 1)
-    GET(uri, {
-        callback = function(str)
-            local ok, res = pcall(vim.json.decode, str)
-            if not ok or not res or not res.text or isEn and res.text:isEn() then
-                result[1] = false
-                return
-            end
+--     local uri = ('https://v.api.aa1.cn/api/api-fanyi-yd/index.php?msg=%s&type=%d'):format(word, isEn and 2 or 1)
+--     GET(uri, {
+--         callback = function(str)
+--             local ok, res = pcall(vim.json.decode, str)
+--             if not ok or not res or not res.text or isEn and res.text:isEn() then
+--                 result[1] = false
+--                 return
+--             end
 
-            result[1] = {
-                title = { word = word },
-                [isEn and 'translation' or 'definition'] = res.text,
-            }
+--             result[1] = {
+--                 title = { word = word },
+--                 [isEn and 'translation' or 'definition'] = res.text,
+--             }
 
-            if result.callback then
-                result.callback(result[1])
-            end
-        end
-    })
+--             if result.callback then
+--                 result.callback(result[1])
+--             end
+--         end
+--     })
 
-    return result
-end
+--     return result
+-- end
 
 -- local youdao    = require("Trans").conf.engine.youdao
 -- local uri       = 'https://openapi.youdao.com/api'

@@ -60,7 +60,7 @@ return {
         -- no = '❌'
     },
     theme = 'default',
-    db_path = '$HOME/.vim/dict/ultimate.db',
+    dir = '$HOME/.vim/dict',
     -- float = {
     --     width = 0.8,
     --     height = 0.8,

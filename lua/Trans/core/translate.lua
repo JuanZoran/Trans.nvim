@@ -24,10 +24,22 @@ process = function(opts)
     end
 
 
-    local res = require('Trans.backend').offline.query(data)
-    -- vim.pretty_print(res)
+    require('Trans.backend').baidu.query(data)
+    local thread = coroutine.running()
+    local resume = function()
+        coroutine.resume(thread)
+    end
+
+    local time = 0
+    while data.result == nil do
+        vim.defer_fn(resume, 400)
+        time = time + 1
+        print('waiting' .. ('.'):rep(time))
+        coroutine.yield()
+    end
+    vim.pretty_print(data)
 
     M.translate = coroutine.wrap(process)
 end
 
-return process
+return coroutine.wrap(process)
