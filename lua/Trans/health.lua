@@ -13,11 +13,11 @@ M.check = function()
     -- INFO :Check neovim version
     if has('nvim-0.9') == 1 then
         ok [[
-        [PASS]: you have Trans.nvim with full features in neovim-nightly
+        you have Trans.nvim with full features in neovim-nightly
         ]]
     else
         warn [[
-        [WARN]: Trans Title requires Neovim 0.9 or newer
+        Trans Title requires Neovim 0.9 or newer
         See neovim-nightly: https://github.com/neovim/neovim/releases/tag/nightly
         ]]
     end
@@ -26,22 +26,22 @@ M.check = function()
     local has_sqlite = pcall(require, 'sqlite')
     if has_sqlite then
         ok [[
-        [PASS]: Dependency sqlite.lua is installed
+        Dependency sqlite.lua is installed
         ]]
     else
         error [[
-        [ERROR]: Dependency sqlite.lua can't work correctly
+        Dependency sqlite.lua can't work correctly
         Please Read the doc in github carefully
         ]]
     end
 
     if executable('sqlite3') then
         ok [[
-        [PASS]: Dependency sqlite3 found
+        Dependency sqlite3 found
         ]]
     else
         error [[
-        [ERROR]: Dependency sqlite3 not found
+        Dependency sqlite3 not found
         ]]
     end
 
@@ -50,12 +50,28 @@ M.check = function()
     local db_path = vim.fn.expand(require('Trans').conf.db_path)
     if vim.fn.filereadable(db_path) == 1 then
         ok [[
-        [PASS]: Stardict database found
+        Stardict database found
         ]]
     else
         error [[
-        [PASS]: Stardict database not found
-        Please check the doc in github
+        Stardict database not found
+        Please check the doc in github: https://github.com/JuanZoran/Trans.nvim
+        ]]
+    end
+
+
+    -- INFO :Check Engine configuration file
+    local path = vim.fn.expand("$HOME/.vim/dict/Trans.json")
+    local file = io.open(path, "r")
+    local valid = vim.json.decode(file:read("*a"))
+    if valid then
+        ok [[
+        Engine configuration file found and valid
+        ]]
+    else
+        error [[
+        Engine configuration file not found or invalid
+        Please check the doc in github: https://github.com/JuanZoran/Trans.nvim
         ]]
     end
 end

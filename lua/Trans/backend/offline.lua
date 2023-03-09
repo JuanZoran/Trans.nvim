@@ -1,7 +1,6 @@
-local M = {}
+local M = { no_wait = true }
 
 local db = require 'sqlite.db'
-local util = require("Trans.backend.util")
 vim.api.nvim_create_autocmd('VimLeavePre', {
     once = true,
     callback = function()
@@ -11,45 +10,32 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
-M.query = function(opts)
-    opts = type(opts) == 'string' and { str = opts } or opts
-    if opts.is_word == false then return end
+M.query = function(data)
+    if data.is_word == false or data.from == 'zh' then return end
 
-    opts.engine    = 'offline'
-
-    opts.field     = opts.field or M.field
-    opts.path      = vim.fn.expand(opts.path or require('Trans').conf.db_path)
-    opts.formatter = opts.formatter or M.formatter
+    data.path        = vim.fn.expand(data.path or require('Trans').conf.db_path)
+    data.engine      = 'offline'
+    data.formatter   = data.formatter or M.formatter
+    data.query_field = data.query_field or M.query_field
 
 
-    local dict    = db:open(opts.path)
-    local db_name = opts.db_name or 'stardict'
+    local dict    = db:open(data.path)
+    local db_name = data.db_name or 'stardict'
     local res     = dict:select(db_name, {
-            where = { word = opts.str, },
-            keys = opts.field,
+            where = { word = data.str, },
+            keys = data.query_field,
             limit = 1,
         })[1]
 
-
-    if util.is_English(opts.str) then
-        opts.from = 'en'
-        opts.to = 'zh'
-    else
-        opts.from = 'zh'
-        opts.to = 'en'
-    end
-
     if res then
-        opts.result = opts.formatter(res)
+        data.result = data.formatter(res)
     end
 
 
-    return opts
+    return data
 end
 
-M.nowait = true
-
-M.field = {
+M.query_field = {
     'word',
     'phonetic',
     'definition',
@@ -61,10 +47,13 @@ M.field = {
     'exchange',
 }
 
+local exist = function(str)
+    return str and str ~= ''
+end
 
 local formatter = {
     title = function(res)
-        res.title = {
+        local title = {
             word = res.word,
             oxford = res.oxford,
             collins = res.collins,
@@ -75,8 +64,10 @@ local formatter = {
         res.oxford = nil
         res.collins = nil
         res.phonetic = nil
+        return title
     end,
     tag = function(res)
+        if not exist(res.tag) then return end
         local tag_map = {
             zk    = '中考',
             gk    = '高考',
@@ -96,6 +87,7 @@ local formatter = {
         return tag
     end,
     exchange = function(res)
+        if not exist(res.exchange) then return end
         local exchange_map = {
                 ['p'] = '过去式      ',
                 ['d'] = '过去分词    ',
@@ -110,13 +102,14 @@ local formatter = {
         }
 
         local exchange = {}
-        for i, _exchange in ipairs(vim.split(res.exchange, ' ', { plain = true })) do
-            exchange[i] = exchange_map[_exchange]
+        for _, _exchange in ipairs(vim.split(res.exchange, '/', { plain = true })) do
+            exchange[exchange_map[_exchange:sub(1, 1)]] = _exchange:sub(3)
         end
 
         return exchange
     end,
     pos = function(res)
+        if not exist(res.pos) then return end
         local pos_map = {
             a = '代词pron         ',
             c = '连接词conj       ',
@@ -134,13 +127,14 @@ local formatter = {
         }
 
         local pos = {}
-        for i, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
-            pos[i] = pos_map[_pos]
+        for _, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
+            pos[pos_map[_pos:sub(1, 1)]] = _pos:sub(3)
         end
 
         return pos
     end,
     translation = function(res)
+        if not exist(res.translation) then return end
         local translation = {}
         for i, _translation in ipairs(vim.split(res.translation, '\n', { plain = true })) do
             translation[i] = _translation
@@ -149,6 +143,7 @@ local formatter = {
         return translation
     end,
     definition = function(res)
+        if not exist(res.definition) then return end
         local definition = {}
         for i, _definition in ipairs(vim.split(res.definition, '\n', { plain = true })) do
             --     -- TODO :判断是否需要分割空格

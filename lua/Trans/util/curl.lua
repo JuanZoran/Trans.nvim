@@ -1,44 +1,65 @@
 --- TODO :wrapper for curl
 local curl = {}
--- local example = {
---     data = {},
---     headers = {
---         k = 'v',
---     },
---     callback = function(output)
 
---     end,
--- }
-
-curl.GET = function(uri, opts)
-    --- TODO :
-    vim.validate {
-        uri = { uri, 's' },
-        opts = { opts, 't' }
-    }
-    local cmd = {'curl', '-s', ('"%s"'):format(uri)}
+---Send a GET request
+---@param opts table
+curl.GET = function(opts)
+    local uri = opts.uri
+    local headers = opts.headers
     local callback = opts.callback
 
-    local output = ''
-    local option = {
+    -- INFO :Init Curl command with {s}ilent and {G}et
+    local cmd = { 'curl', '-Gs' }
+    local callback = opts.callback
+
+    -- INFO :Add headers
+    for k, v in pairs(headers) do
+        cmd[#cmd + 1] = ([[-H '%s: %s']]):format(k, v)
+    end
+
+    -- INFO :Add arguments
+    local info = {}
+    for k, v in pairs(opts.arguments) do
+        info[#info + 1] = ('%s=%s'):format(k, v)
+    end
+    cmd[#cmd + 1] = ([['%s?%s']]):format(uri, table.concat(info, '&'))
+
+
+    -- write a function to get the output
+    local outpus = {}
+    vim.fn.jobstart(table.concat(cmd, ' '), {
         stdin = 'null',
         on_stdout = function(_, stdout)
             local str = table.concat(stdout)
             if str ~= '' then
-                output = output .. str
+
             end
         end,
         on_exit = function()
             callback(output)
         end,
-    }
+    })
 
-    vim.fn.jobstart(table.concat(cmd, ' '), option)
+    -- local output = ''
+    -- local option = {
+    --     stdin = 'null',
+    --     on_stdout = function(_, stdout)
+    --         local str = table.concat(stdout)
+    --         if str ~= '' then
+    --             output = output .. str
+    --         end
+    --     end,
+    --     on_exit = function()
+    --         callback(output)
+    --     end,
+    -- }
+
+    -- vim.fn.jobstart(table.concat(cmd, ' '), option)
 end
 
 
 
-curl.POST = function(uri, opts)
+curl.POST = function(opts)
     vim.validate {
         uri = { uri, 's' },
         opts = { opts, 't' }
