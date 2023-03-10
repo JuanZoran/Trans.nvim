@@ -13,7 +13,8 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 M.query = function(data)
     if data.is_word == false or data.from == 'zh' then return end
 
-    data.path        = vim.fn.expand(data.path or require('Trans').conf.dir .. '/ultimate.db')
+
+    data.path        = data.path or require('Trans').conf.dir .. '/ultimate.db'
     data.engine      = 'offline'
     data.formatter   = data.formatter or M.formatter
     data.query_field = data.query_field or M.query_field
@@ -22,10 +23,10 @@ M.query = function(data)
     local dict    = db:open(data.path)
     local db_name = data.db_name or 'stardict'
     local res     = dict:select(db_name, {
-            where = { word = data.str, },
-            keys = data.query_field,
-            limit = 1,
-        })[1]
+        where = { word = data.str, },
+        keys = data.query_field,
+        limit = 1,
+    })[1]
 
     if res then
         data.result = data.formatter(res)
@@ -89,16 +90,16 @@ local formatter = {
     exchange = function(res)
         if not exist(res.exchange) then return end
         local exchange_map = {
-                ['p'] = '过去式      ',
-                ['d'] = '过去分词    ',
-                ['i'] = '现在分词    ',
-                ['r'] = '比较级      ',
-                ['t'] = '最高级      ',
-                ['s'] = '复数        ',
-                ['0'] = '原型        ',
-                ['1'] = '类别        ',
-                ['3'] = '第三人称单数',
-                ['f'] = '第三人称单数',
+            ['p'] = '过去式      ',
+            ['d'] = '过去分词    ',
+            ['i'] = '现在分词    ',
+            ['r'] = '比较级      ',
+            ['t'] = '最高级      ',
+            ['s'] = '复数        ',
+            ['0'] = '原型        ',
+            ['1'] = '类别        ',
+            ['3'] = '第三人称单数',
+            ['f'] = '第三人称单数',
         }
 
         local exchange = {}

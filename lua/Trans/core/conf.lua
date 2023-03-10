@@ -60,7 +60,7 @@ return {
         -- no = '❌'
     },
     theme = 'default',
-    dir = '$HOME/.vim/dict',
+    dir = vim.fn.expand('$HOME/.vim/dict'),
     -- float = {
     --     width = 0.8,
     --     height = 0.8,

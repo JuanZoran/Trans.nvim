@@ -1,8 +1,8 @@
 local check = function()
-    local health = vim.health
-    local ok     = health.report_ok
-    local warn   = health.report_warn
-    local error  = health.report_error
+    local health     = vim.health
+    local ok         = health.report_ok
+    local warn       = health.report_warn
+    local error      = health.report_error
 
     local has        = vim.fn.has
     local executable = vim.fn.executable
@@ -54,7 +54,7 @@ local check = function()
 
 
     -- INFO :Check ultimate.db
-    local db_path = vim.fn.expand(require('Trans').conf.dir .. '/ultimate.db')
+    local db_path = require('Trans').conf.dir .. '/ultimate.db'
     if vim.fn.filereadable(db_path) == 1 then
         ok [[ultimate database found ]]
     else
