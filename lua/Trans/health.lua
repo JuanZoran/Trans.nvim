@@ -59,7 +59,8 @@ local check = function()
         ok [[ultimate database found ]]
     else
         error [[Stardict database not found
-        Please check the doc in github: [https://github.com/JuanZoran/Trans.nvim]
+        [Manually]: Please check the doc in github: [https://github.com/JuanZoran/Trans.nvim]
+        [Automatically]: Try to run `:lua require "Trans".install()`
         ]]
     end
 
@@ -69,11 +70,11 @@ local check = function()
     local file = io.open(path, "r")
     local valid = file and pcall(vim.json.decode, file:read("*a"))
     if valid then
-        ok [[Engine configuration file found and valid ]]
+        ok(string.format([[Engine configuration file[%s] found and valid ]], path))
     else
-        error [[Engine configuration file not found or invalid
+        error(string.format([[Engine configuration file not found[%s] or invalid
         Please check the doc in github: [https://github.com/JuanZoran/Trans.nvim]
-        ]]
+        ]], path))
     end
 end
 

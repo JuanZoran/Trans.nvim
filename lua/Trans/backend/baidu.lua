@@ -1,6 +1,7 @@
-local M          = {}
+local M = {}
 
-local baidu      = require('Trans').conf.engine.baidu
+
+local baidu      = require('Trans').conf.engines.baidu
 local app_id     = baidu.app_id
 local app_passwd = baidu.app_passwd
 local salt       = tostring(math.random(bit.lshift(1, 15)))
@@ -47,10 +48,10 @@ M.query = function(data)
         end
 
         data.result = false
-        data.error = res
+        data.trace = res
     end
 
-    require('plenary.curl').get(uri, {
+    require('Trans.wrapper.curl').get(uri, {
         query = M.get_content(data),
         callback = handle,
     })

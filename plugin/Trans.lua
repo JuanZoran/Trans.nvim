@@ -1,5 +1,6 @@
 local api, fn = vim.api, vim.fn
 
+--- INFO :Define string play method
 if fn.has('linux') == 1 then
     string.play = function(self)
         local cmd = ([[echo "%s" | festival --tts]]):format(self)
@@ -18,6 +19,8 @@ else
     end
 end
 
+
+--- INFO :Define plugin command
 local M = require('Trans')
 local command = api.nvim_create_user_command
 
@@ -28,5 +31,28 @@ command('TransPlay', function()
         str:play()
     end
 end, { desc = ' 自动发音' })
+
+
+
+--- INFO :Parse online engines config file
+local path = vim.fn.expand("$HOME/.vim/dict/Trans.json")
+local file = io.open(path, "r")
+if file then
+    local content = file:read("*a")
+    file:close()
+    local status, engines = pcall(vim.json.decode, content)
+    assert(status, 'Unable to parse json file: ' .. path)
+
+    engines = engines or {}
+    for k, v in pairs(engines) do
+        if not v.enable then
+            engines[k] = nil
+        end
+    end
+
+    M.conf.engines = engines
+else
+    M.conf.engines = {}
+end
 
 -- new_command('TranslateInput', function() M.translate { mode = 'i' } end, { desc = '  搜索翻译', })

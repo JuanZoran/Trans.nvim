@@ -5,12 +5,11 @@ local curl = {}
 ---@param opts table
 curl.GET = function(opts)
     local uri = opts.uri
-    local headers = opts.headers
+    local headers = opts.headers or {}
     local callback = opts.callback
 
     -- INFO :Init Curl command with {s}ilent and {G}et
     local cmd = { 'curl', '-Gs' }
-    local callback = opts.callback
 
     -- INFO :Add headers
     for k, v in pairs(headers) do
