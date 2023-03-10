@@ -7,7 +7,7 @@ curl.get = function(uri, opts)
     local output = opts.output
 
     -- INFO :Init Curl command with {s}ilent and {G}et
-    local cmd = { 'curl', '-Gs' }
+    local cmd = { 'curl', '-GLs' }
 
     -- INFO :Add headers
     if headers then
@@ -56,8 +56,6 @@ curl.get = function(uri, opts)
         end
     end
 
-    vim.pretty_print(table.concat(cmd, ' '))
-    
     vim.fn.jobstart(table.concat(cmd, ' '), {
         stdin = 'null',
         on_stdout = on_stdout,

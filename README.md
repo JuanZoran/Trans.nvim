@@ -87,7 +87,7 @@ _安装之前, 首先需要明确本插件的依赖:_
 use {
     'JuanZoran/Trans.nvim'
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
-    requires = { 'kkharji/sqlite.lua', 'nvim-lua/plenary.nvim' },
+    requires = { 'kkharji/sqlite.lua', },
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
     config = function ()
         require'Trans'.setup{
@@ -108,7 +108,7 @@ use {
         { 'n', 'mi' },
     },
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
-    requires = { 'kkharji/sqlite.lua', 'nvim-lua/plenary.nvim' },
+    requires = { 'kkharji/sqlite.lua',  },
     config = function()
         require("Trans").setup {} -- 启动Trans
         vim.keymap.set({"n", 'x'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
@@ -134,7 +134,7 @@ use {
             -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
             { 'mi', '<Cmd>TranslateInput<CR>', desc = ' Translate From Input' },
         },
-        dependencies = { 'kkharji/sqlite.lua', 'nvim-lua/plenary.nvim' },
+        dependencies = { 'kkharji/sqlite.lua', },
         opts = {
             -- your configuration there
         }
@@ -314,7 +314,7 @@ require'Trans'.setup {
     --         success = '#10b981',
     --     },
     -- },
-} 
+}
 
 ```
 

@@ -18,7 +18,7 @@ local check = function()
 
     -- INFO :Check plugin dependencies
     local plugin_dependencies = {
-        'plenary',
+        -- 'plenary',
         'sqlite',
     }
 
