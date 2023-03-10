@@ -1,8 +1,7 @@
 local M = {}
-
 local fn, api = vim.fn, vim.api
 
-M.get_select = function()
+function M.get_select()
     local _start = fn.getpos("v")
     local _end = fn.getpos('.')
 
@@ -33,24 +32,24 @@ M.get_select = function()
 end
 
 ---Get Text which need to be translated
----@param mode string 'n' | 'v' | 'i'
+---@param method string 'n' | 'v' | 'i'
 ---@return string
-M.get_str = function(mode)
-    if mode == 'n' then
-        return fn.expand('<cword>')
-    elseif mode == 'v' then
-        api.nvim_input('<ESC>')
-        return M.get_select()
-    elseif mode == 'i' then
-        -- TODO Use Telescope with fuzzy finder
-        ---@diagnostic disable-next-line: param-type-mismatch
-        return fn.input('请输入需要查询的单词:')
-    else
-        error('invalid mode: ' .. mode)
-    end
+function M.get_str(method)
+    return ({
+        normal = function()
+            return fn.expand('<cword>')
+        end,
+        visual = function()
+            api.nvim_input('<ESC>')
+            return M.get_select()
+        end,
+        input = function()
+            return fn.input('请输入需要查询的单词:')
+        end,
+    })(method)()
 end
 
-M.is_English = function(str)
+function M.is_English(str)
     local char = { str:byte(1, -1) }
     for i = 1, #str do
         if char[i] > 128 then

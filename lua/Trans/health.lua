@@ -1,13 +1,12 @@
-local check = function()
-    local health     = vim.health
-    local ok         = health.report_ok
-    local warn       = health.report_warn
-    local error      = health.report_error
+local health     = vim.health
+local ok         = health.report_ok
+local warn       = health.report_warn
+local error      = health.report_error
+local has        = vim.fn.has
+local executable = vim.fn.executable
 
-    local has        = vim.fn.has
-    local executable = vim.fn.executable
 
-    -- INFO :Check neovim version
+local function check_neovim_version()
     if has('nvim-0.9') == 1 then
         ok [[You have [neovim-nightly] ]]
     else
@@ -15,8 +14,9 @@ local check = function()
         See neovim-nightly: [https://github.com/neovim/neovim/releases/tag/nightly]
         ]]
     end
+end
 
-    -- INFO :Check plugin dependencies
+local function check_plugin_dependencies()
     local plugin_dependencies = {
         -- 'plenary',
         'sqlite',
@@ -29,8 +29,10 @@ local check = function()
             error(string.format('Dependency [%s] is not installed', dep))
         end
     end
+end
 
-    -- INFO :Check binary dependencies
+
+local function check_binary_dependencies()
     local binary_dependencies = {
         'curl',
         'sqlite3',
@@ -51,9 +53,9 @@ local check = function()
             error(string.format('Binary dependency [%s] is not installed', dep))
         end
     end
+end
 
-
-    -- INFO :Check ultimate.db
+local function check_database()
     local db_path = require('Trans').conf.dir .. '/ultimate.db'
     if vim.fn.filereadable(db_path) == 1 then
         ok [[ultimate database found ]]
@@ -63,12 +65,14 @@ local check = function()
         [Automatically]: Try to run `:lua require "Trans".install()`
         ]]
     end
+end
 
-
-    -- INFO :Check Engine configuration file
+local function check_configure_file()
     local path = vim.fn.expand(require('Trans').conf.dir .. '/Trans.json')
     local file = io.open(path, "r")
     local valid = file and pcall(vim.json.decode, file:read("*a"))
+
+
     if valid then
         ok(string.format([[Engine configuration file[%s] found and valid ]], path))
     else
@@ -78,4 +82,12 @@ local check = function()
     end
 end
 
-return { check = check }
+local function check()
+    check_neovim_version()
+    check_plugin_dependencies()
+    check_binary_dependencies()
+    check_database()
+    check_configure_file()
+end
+
+return { check = check, }

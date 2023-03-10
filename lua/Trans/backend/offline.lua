@@ -10,7 +10,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
-M.query = function(data)
+function M.query(data)
     if data.is_word == false or data.from == 'zh' then return end
 
 
@@ -48,22 +48,23 @@ M.query_field = {
     'exchange',
 }
 
-local exist = function(str)
+local function exist(str)
     return str and str ~= ''
 end
 
 local formatter = {
     title = function(res)
         local title = {
-            word = res.word,
-            oxford = res.oxford,
-            collins = res.collins,
+            word     = res.word,
+            oxford   = res.oxford,
+            collins  = res.collins,
             phonetic = res.phonetic,
         }
 
-        res.word = nil
-        res.oxford = nil
-        res.collins = nil
+
+        res.word     = nil
+        res.oxford   = nil
+        res.collins  = nil
         res.phonetic = nil
         return title
     end,
@@ -73,11 +74,11 @@ local formatter = {
             zk    = '中考',
             gk    = '高考',
             ky    = '考研',
+            gre   = 'gre ',
             cet4  = '四级',
             cet6  = '六级',
             ielts = '雅思',
             toefl = '托福',
-            gre   = 'gre ',
         }
 
         local tag = {}
@@ -90,14 +91,14 @@ local formatter = {
     exchange = function(res)
         if not exist(res.exchange) then return end
         local exchange_map = {
+            ['0'] = '原型        ',
+            ['1'] = '类别        ',
             ['p'] = '过去式      ',
-            ['d'] = '过去分词    ',
-            ['i'] = '现在分词    ',
             ['r'] = '比较级      ',
             ['t'] = '最高级      ',
             ['s'] = '复数        ',
-            ['0'] = '原型        ',
-            ['1'] = '类别        ',
+            ['d'] = '过去分词    ',
+            ['i'] = '现在分词    ',
             ['3'] = '第三人称单数',
             ['f'] = '第三人称单数',
         }
@@ -112,19 +113,19 @@ local formatter = {
     pos = function(res)
         if not exist(res.pos) then return end
         local pos_map = {
-            a = '代词pron         ',
-            c = '连接词conj       ',
-            i = '介词prep         ',
-            j = '形容词adj        ',
-            m = '数词num          ',
-            n = '名词n            ',
-            p = '代词pron         ',
-            r = '副词adv          ',
-            u = '感叹词int        ',
-            v = '动词v            ',
-            x = '否定标记not      ',
-            t = '不定式标记infm   ',
-            d = '限定词determiner ',
+            v = '动词            v',
+            n = '名词            n',
+            r = '副词          adv',
+            m = '数词          num',
+            p = '代词         pron',
+            a = '代词         pron',
+            i = '介词         prep',
+            u = '感叹词        int',
+            j = '形容词        adj',
+            c = '连接词       conj',
+            x = '否定标记      not',
+            t = '不定式标记   infm',
+            d = '限定词 determiner',
         }
 
         local pos = {}
@@ -155,8 +156,7 @@ local formatter = {
     end,
 }
 
-
-M.formatter = function(res)
+function M.formatter(res)
     for field, func in pairs(formatter) do
         res[field] = func(res)
     end

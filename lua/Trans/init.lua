@@ -8,4 +8,6 @@ local M = setmetatable({}, {
     end
 })
 
+M.cache = {}
+
 return M

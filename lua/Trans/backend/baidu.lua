@@ -7,7 +7,8 @@ local app_passwd = baidu.app_passwd
 local salt       = tostring(math.random(bit.lshift(1, 15)))
 local uri        = 'https://fanyi-api.baidu.com/api/trans/vip/translate'
 
-M.get_content    = function(data)
+
+function M.get_content(data)
     local tmp  = app_id .. data.str .. salt .. app_passwd
     local sign = require('Trans.util.md5').sumhexa(tmp)
     return {
@@ -28,7 +29,7 @@ end
 -- }
 
 
-M.query = function(data)
+function M.query(data)
     data.engine = 'baidu'
 
     local handle = function(res)
