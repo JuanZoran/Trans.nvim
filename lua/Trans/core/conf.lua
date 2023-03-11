@@ -8,17 +8,17 @@ if vim.fn.has('nvim-0.9') == 1 then
 end
 
 return {
-    theme = 'default', -- see lua/Trans/style/theme.lua
+    theme     = 'default', -- see lua/Trans/style/theme.lua
     auto_play = true,
-    dir = vim.fn.expand('$HOME/.vim/dict'),
-    strategy = {
+    dir       = vim.fn.expand('$HOME/.vim/dict'),
+    strategy  = {
         frontend = 'hover',
         backend = '*',
     },
-    backend = {
+    backend   = {
         timeout = 2000,
     },
-    frontend = {
+    frontend  = {
         hover = {
             title = title, -- need nvim-0.9
             width = 37,
@@ -54,12 +54,12 @@ return {
         },
     },
     -- or use emoji
-    icon = {
-        star = '',    -- ⭐
+    icon      = {
+        star     = '', -- ⭐
         notfound = ' ', -- ❔
-        yes = '✔',     -- ✔️
-        no = '',      -- ❌
-        cell = '■',    -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+        yes      = '✔', -- ✔️
+        no       = '', -- ❌
+        cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
     },
 }
 

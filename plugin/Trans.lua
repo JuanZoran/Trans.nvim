@@ -35,24 +35,33 @@ end, { desc = ' 自动发音' })
 
 
 --- INFO :Parse online engines config file
-local path = vim.fn.expand("$HOME/.vim/dict/Trans.json")
-local file = io.open(path, "r")
-if file then
-    local content = file:read("*a")
-    file:close()
-    local status, engines = pcall(vim.json.decode, content)
-    assert(status, 'Unable to parse json file: ' .. path)
+local function parse_engine_file()
+    local path = M.conf.dir .. '/Trans.json'
+    local file = io.open(path, "r")
 
-    engines = engines or {}
-    for k, v in pairs(engines) do
-        if not v.enable then
-            engines[k] = nil
+    if file then
+        local content = file:read("*a")
+        local status, result = pcall(vim.json.decode, content)
+        file:close()
+        assert(status, 'Unable to parse json file: ' .. path)
+        return result
+    end
+end
+
+M.conf.backends = { 'offline' }
+M.engines = {}
+
+local result = parse_engine_file()
+if result then
+    local backends = M.conf.backends
+    local engines = M.engines
+    for name, opts in pairs(result) do
+        if opts.enable then
+            backends[#backends + 1] = name
+            engines[name] = opts
         end
     end
-
-    M.conf.engines = engines
-else
-    M.conf.engines = {}
 end
+
 
 -- new_command('TranslateInput', function() M.translate { mode = 'i' } end, { desc = '  搜索翻译', })

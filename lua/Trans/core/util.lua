@@ -46,7 +46,7 @@ function M.get_str(method)
         input = function()
             return fn.input('请输入需要查询的单词:')
         end,
-    })(method)()
+    })[method]()
 end
 
 function M.is_English(str)

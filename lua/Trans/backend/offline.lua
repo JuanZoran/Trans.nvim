@@ -28,11 +28,8 @@ function M.query(data)
         limit = 1,
     })[1]
 
-    if res then
-        data.result = data.formatter(res)
-    end
 
-
+    data.result.offline = res and data.formatter(res) or false
     return data
 end
 

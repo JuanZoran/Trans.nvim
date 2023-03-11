@@ -2,6 +2,9 @@ local M = {}
 
 local api = vim.api
 
+function M.process(data)
+
+end
 
 return M
 

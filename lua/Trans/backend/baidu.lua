@@ -40,7 +40,7 @@ function M.query(data)
                 -- TEST :whether multi result
                 assert(#result == 1, 'multi result :' .. vim.inspect(result))
                 result = result[1]
-                data.result = {
+                data.result.baidu = {
                     title = result.src,
                     translation = result.dst,
                 }
@@ -48,7 +48,7 @@ function M.query(data)
             end
         end
 
-        data.result = false
+        data.result.baidu = false
         data.trace = res
     end
 

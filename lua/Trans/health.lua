@@ -83,11 +83,11 @@ local function check_configure_file()
 end
 
 local function check()
+    check_database()
     check_neovim_version()
+    check_configure_file()
     check_plugin_dependencies()
     check_binary_dependencies()
-    check_database()
-    check_configure_file()
 end
 
 return { check = check, }

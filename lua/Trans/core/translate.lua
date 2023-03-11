@@ -1,17 +1,14 @@
 local Trans = require('Trans')
 local util = Trans.util
 
-local backends = {
-    'offline',
-    'baidu',
-}
+local backends = Trans.conf.backends
 
 local function new_data(opts)
     opts = opts or {}
     local method = opts.method or ({
         n = 'normal',
         v = 'visual',
-    })(vim.api.nvim_get_mode().mode)
+    })[vim.api.nvim_get_mode().mode]
 
     local str = util.get_str(method)
     if str == '' then return end
@@ -21,6 +18,7 @@ local function new_data(opts)
         str = str,
         method = method,
         frontend = strategy.frontend,
+        result = {},
     }
 
     local backend = strategy.backend
@@ -40,6 +38,15 @@ local function new_data(opts)
 end
 
 local function set_result(data)
+    local t_backend = require('Trans.backend')
+    for _, name in data.backend do
+        local backend = t_backend[name]
+        backend.query(data)
+        if backend.no_wait then
+
+        end
+    end
+
     require('Trans.backend').baidu.query(data)
     local thread = coroutine.running()
     local resume = function()
@@ -57,9 +64,10 @@ local function set_result(data)
 end
 
 local function render_window()
-    
+
 end
 
+-- HACK : Core process logic
 local function process(opts)
     Trans.translate = coroutine.wrap(process)
 
