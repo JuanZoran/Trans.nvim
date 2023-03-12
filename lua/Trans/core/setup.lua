@@ -13,27 +13,24 @@ local function set_strategy_opts(conf)
         return backend
     end
 
-    local global_strategy = conf.strategy
-    global_strategy.backend = parse_backend(global_strategy.backend)
+    local default_strategy = conf.strategy.default
+    default_strategy.backend = parse_backend(default_strategy.backend)
+
+
 
 
     local meta = {
         __index = function(tbl, key)
-            tbl[key] = global_strategy[key]
+            tbl[key] = default_strategy[key]
             return tbl[key]
         end
     }
 
-
+    local strategy = conf.strategy
     for _, mode in ipairs(all_modes) do
-        if not global_strategy[mode] then
-            global_strategy[mode] = setmetatable({}, meta)
-        else
-            if mode.backend then
-                mode.backend = parse_backend(mode.backend)
-            end
-
-            setmetatable(mode, meta)
+        strategy[mode] = setmetatable(strategy[mode] or {}, meta)
+        if type(strategy[mode].backend) == 'string' then
+            strategy[mode].backend = parse_backend(strategy[mode].backend)
         end
     end
 end
@@ -102,4 +99,74 @@ return function(opts)
     set_frontend_opts(conf)
     define_keymaps(conf)
     define_highlights(conf)
+
 end
+
+-- {
+--   backend = {
+--     default = {
+--       timeout = 2000
+--     }
+--   },
+--   dir = "/home/zoran/.vim/dict",
+--   frontend = {
+--     default = {
+--       animation = {
+--         close = "slid",
+--         interval = 12,
+--         open = "slid"
+--       },
+--       auto_play = true,
+--       border = "rounded",
+--       title = { { "", "TransTitleRound" }, { " Trans", "TransTitle" }, { "", "TransTitleRound" } }
+--     },
+--     hover = {
+--       auto_close_events = { "InsertEnter", "CursorMoved", "BufLeave" },
+--       height = 27,
+--       keymap = {
+--         close = "<leader>]",
+--         pagedown = "]]",
+--         pageup = "[[",
+--         pin = "<leader>[",
+--         play = "_",
+--         toggle_entry = "<leader>;"
+--       },
+--       order = { "title", "tag", "pos", "exchange", "translation", "definition" },
+--       spinner = "dots",
+--       width = 37,
+--       <metatable> = {
+--         __index = <function 1>
+--       }
+--     }
+--   },
+--   strategy = {
+--     default = {
+--       backend = <1>{ "offline", "baidu" },
+--       frontend = "hover"
+--     },
+--     input = {
+--       backend = <table 1>,
+--       <metatable> = <2>{
+--         __index = <function 2>
+--       }
+--     },
+--     normal = {
+--       backend = <table 1>,
+--       <metatable> = <table 2>
+--     },
+--     visual = {
+--       backend = <table 1>,
+--       <metatable> = <table 2>
+--     }
+--   },
+--   style = {
+--     icon = {
+--       cell = "■",
+--       no = "",
+--       notfound = " ",
+--       star = "",
+--       yes = "✔"
+--     },
+--     theme = "default"
+--   }
+-- }

@@ -48,6 +48,15 @@ function M.get_str(mode)
     end
 end
 
+
+function M.pause(ms)
+    local co = coroutine.running()
+    vim.defer_fn(function()
+        coroutine.resume(co)
+    end, ms)
+    coroutine.yield()
+end
+
 function M.is_English(str)
     local char = { str:byte(1, -1) }
     for i = 1, #str do

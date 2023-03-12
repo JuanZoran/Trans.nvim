@@ -1,13 +1,14 @@
 local api = vim.api
-local display = require('Trans.util.display')
+local Trans = require("Trans")
+
 
 ---@class win
+---@field win_opts table window config [**when open**]
 ---@field winid integer window handle
----@field width integer
----@field height integer
 ---@field ns integer namespace for highlight
 ---@field animation table window animation
----@field buf buf buffer for attached
+---@field enter boolean cursor should [enter] window when open
+---@field buffer buffer attached buffer object
 local window = {}
 
 ---Change window attached buffer
@@ -41,89 +42,96 @@ end
 ---@param height integer
 function window:set_height(height)
     api.nvim_win_set_height(self.winid, height)
-    self.height = height
 end
 
 ---@param width integer
 function window:set_width(width)
     api.nvim_win_set_width(self.winid, width)
-    self.width = width
+end
+
+---Get  window width
+function window:width()
+    return api.nvim_win_get_width(self.winid)
+end
+
+---Get window height
+function window:height()
+    return api.nvim_win_get_height(self.winid)
 end
 
 ---Expand window [width | height] value
 ---@param opts table
 ---|'field'string [width | height]
 ---|'target'integer
----@return function
-function window:expand(opts)
-    self:lock()
-    local field  = opts.field
-    local target = opts.target
-    local cur    = self[field]
-    local times  = math.abs(target - cur)
+function window:smooth_expand(opts)
+    local field = opts.field -- width | height
+    local from  = self[field](self)
+    local to    = opts.target
 
-    local wrap = self:option('wrap')
-    self:set('wrap', false)
-    local interval = opts.interval or self.animation.interval
+    if from == to then return end
+
+
+    local pause  = Trans.util.pause
     local method = api['nvim_win_set_' .. field]
 
-    local winid = self.winid
-    local frame = target > cur and function(_, cur_times)
-        method(winid, cur + cur_times)
-    end or function(_, cur_times)
-        method(winid, cur - cur_times)
+
+    local wrap = self:option('wrap')
+
+    local interval = self.animation.interval
+    for i = from + 1, to, (from < to and 1 or -1) do
+        self:set('wrap', false)
+        method(self.winid, i)
+        pause(interval)
     end
 
-    local run = display {
-        times    = times,
-        frame    = frame,
-        interval = interval,
-    }
-
-    run(function()
-        self:set('wrap', wrap)
-        self[field] = target
-        self:unlock()
-    end)
-    return run
+    self:set('wrap', wrap)
 end
 
 ---Close window
----@return function run run until close done
 function window:try_close()
-    local field = ({
-        slid = 'width',
-        fold = 'height',
-    })[self.animation.close]
+    local close_animation = self.animation.close
+    if close_animation then
+        local field = ({
+            slid = 'width',
+            fold = 'height',
+        })[close_animation]
 
-    --- 播放动画
-    local run = self:expand {
-        field = field,
-        target = 1,
-    }
-    run(function()
-        api.nvim_win_close(self.winid, true)
-    end)
-    return run
-end
-
----lock window [open | close] operation
-function window:lock()
-    while self.busy do
-        vim.wait(50)
+        self:smooth_expand({
+            field = field,
+            target = 1,
+        })
     end
-    self.busy = true
+
+    api.nvim_win_close(self.winid, true)
 end
 
-function window:unlock()
-    self.busy = false
-end
-
----设置窗口本地的高亮组
----@param name string 高亮组的名称
----@param opts table 高亮选项
+---set window local highlight group
+---@param name string
+---@param opts table
 function window:set_hl(name, opts)
     api.nvim_set_hl(self.ns, name, opts)
+end
+
+function window:open()
+    assert(self.winid == nil, 'window already opened')
+    local win_opts = self.win_opts
+    local open_animation = self.animation.open
+    if open_animation then
+        local field = ({
+            slid = 'width',
+            fold = 'height',
+        })[open_animation]
+
+        local to = win_opts[field]
+        win_opts[field] = 1
+        self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
+        self:smooth_expand({
+            field = field,
+            target = to,
+        })
+    else
+        self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
+    end
 end
 
 ---buffer:addline() helper function
@@ -138,86 +146,91 @@ function window:center(node)
     return node
 end
 
----@private
 window.__index = window
 
----@class win_opts
----@field buf buf buffer for attached
----@field height integer
----@field width integer
----@field col integer
----@field row integer
----@field border string
----@field title string | nil | table
----@field relative string
----@field ns integer namespace for highlight
----@field zindex? integer
----@field enter? boolean cursor should [enter] window
----@field animation table window animation
-
----window constructor
----@param opts win_opts
----@return table
----@return function
-return function(opts)
-    assert(type(opts) == 'table')
-    local ns        = opts.ns
-    local buf       = opts.buf
-    local col       = opts.col
-    local row       = opts.row
-    local title     = opts.title
-    local width     = opts.width
-    local enter     = opts.enter or false
-    local height    = opts.height
-    local border    = opts.border
-    local zindex    = opts.zindex
-    local relative  = opts.relative
-    local animation = opts.animation
-
-    local open = animation.open
-
-    local field = ({
-        slid = 'width',
-        fold = 'height',
-    })[open]
-
-    local win_opt = {
-        title_pos = nil,
-        focusable = false,
+local default_opts = {
+    ns       = api.nvim_create_namespace('TransHoverWin'),
+    enter    = false,
+    win_opts = {
         style     = 'minimal',
-        zindex    = zindex,
-        width     = width,
-        height    = height,
-        col       = col,
-        row       = row,
-        border    = border,
-        title     = title,
-        relative  = relative,
-    }
+        border    = 'rounded',
+        focusable = false,
+        noautocmd = true,
+    },
+}
 
-    if field then
-        win_opt[field] = 1
-    end
+return function(opts)
+    opts = vim.tbl_deep_extend('keep', opts, default_opts)
 
-    if win_opt.title then
-        win_opt.title_pos = 'center'
-    end
-
-    local win = setmetatable({
-        buf       = buf,
-        ns        = ns,
-        height    = win_opt.height,
-        width     = win_opt.width,
-        animation = animation,
-        winid     = api.nvim_open_win(buf.bufnr, enter, win_opt),
-    }, window)
-
-    api.nvim_win_set_hl_ns(win.winid, win.ns)
-    win:set_hl('Normal', { link = 'TransWin' })
-    win:set_hl('FloatBorder', { link = 'TransBorder' })
-
-    return win, win:expand {
-        field = field,
-        target = opts[field],
-    }
+    local win = setmetatable(opts, window)
+    win:open()
+    return win
 end
+
+--@class win_opts
+--@field buf buf buffer for attached
+--@field height integer
+--@field width integer
+--@field col integer
+--@field row integer
+--@field border string
+--@field title string | nil | table
+--@field relative string
+--@field ns integer namespace for highlight
+--@field zindex? integer
+--@field enter? boolean cursor should [enter] window
+--@field animation table window animation
+
+-- local ns        = opts.ns
+-- local buf       = opts.buf
+-- local col       = opts.col
+-- local row       = opts.row
+-- local title     = opts.title
+-- local width     = opts.width
+-- local height    = opts.height
+-- local border    = opts.border
+-- local zindex    = opts.zindex
+-- local relative  = opts.relative
+-- local animation = opts.animation
+
+-- local open      = animation.open
+
+-- local field     = ({
+--     slid = 'width',
+--     fold = 'height',
+-- })[open]
+
+-- local win_opt   = {
+--     focusable = false,
+--     style     = 'minimal',
+--     zindex    = zindex,
+--     width     = width,
+--     height    = height,
+--     col       = col,
+--     row       = row,
+--     border    = border,
+--     title     = title,
+--     relative  = relative,
+-- }
+
+-- if field then
+--     win_opt[field] = 1
+-- end
+
+-- if win_opt.title then
+--     win_opt.title_pos = 'center'
+-- end
+
+-- local win = setmetatable({
+--     buf       = buf,
+--     ns        = ns,
+--     height    = win_opt.height,
+--     width     = win_opt.width,
+--     animation = animation,
+--     winid     = api.nvim_open_win(buf.bufnr, enter, win_opt),
+-- }, window)
+
+-- return win, win:expand {
+--     field = field,
+--     target = opts[field],
+-- }

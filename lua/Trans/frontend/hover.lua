@@ -1,7 +1,8 @@
-local M = {}
+local M     = {}
 
-local api = vim.api
-local conf = require('Trans').conf
+local Trans = require('Trans')
+local api   = vim.api
+local conf  = Trans.conf
 
 
 function M.init()
@@ -9,20 +10,12 @@ function M.init()
 end
 
 function M.wait(tbl, name, timeout)
-    local thread = coroutine.running()
-    local function pause(ms)
-        vim.defer_fn(function()
-            coroutine.resume(thread)
-        end, ms)
-        coroutine.yield()
-    end
-
     local error_message = 'Faild'
     local interval = math.floor(timeout / #error_message)
     for i = 1, #error_message do
         if tbl[name] ~= nil then break end
         print('waitting' .. ('.'):rep(i))
-        pause(interval)
+        Trans.util.pause(interval)
     end
 
     -- TODO : End waitting animation

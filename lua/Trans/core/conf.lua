@@ -10,21 +10,27 @@ end
 return {
     dir      = os.getenv('HOME') .. '/.vim/dict',
     strategy = {
-        frontend = 'hover',
-        backend = '*',
+        default = {
+            frontend = 'hover',
+            backend = '*',
+        },
     },
     backend  = {
-        timeout = 2000,
+        default = {
+            timeout = 2000,
+        },
     },
     frontend = {
-        auto_play = true,
-        border = 'rounded',
-        animation = {
-            open = 'slid', -- 'fold', 'slid'
-            close = 'slid',
-            interval = 12,
+        default = {
+            auto_play = true,
+            border = 'rounded',
+            animation = {
+                open = 'slid', -- 'fold', 'slid'
+                close = 'slid',
+                interval = 12,
+            },
+            title = title, -- need nvim-0.9
         },
-        title = title, -- need nvim-0.9
         hover = {
             width = 37,
             height = 27,

@@ -10,3 +10,4 @@
 -   [ ] Check if str is a word
 -   [ ] init frontend window
 -   [ ] build frontend window format logic
+-   [ ] waitting animation
