@@ -1,4 +1,4 @@
-local M = { no_wait = true }
+local M = { no_wait = true, }
 
 local db = require 'sqlite.db'
 vim.api.nvim_create_autocmd('VimLeavePre', {
@@ -12,7 +12,6 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then return end
-
 
     data.path        = data.path or require('Trans').conf.dir .. '/ultimate.db'
     data.engine      = 'offline'

@@ -31,32 +31,3 @@ command('TransPlay', function()
         str:play()
     end
 end, { desc = ' 自动发音' })
-
-
-
---- INFO :Parse online engine keys config file
-local function parse_engine_file()
-    local path = Trans.conf.dir .. '/Trans.json'
-    local file = io.open(path, "r")
-
-    if file then
-        local content = file:read("*a")
-        local status, result = pcall(vim.json.decode, content)
-        file:close()
-        assert(status, 'Unable to parse json file: ' .. path)
-        return result
-    end
-end
-
-local result = parse_engine_file()
-if result then
-    for name, opts in pairs(result) do
-        if not opts.enable then
-            result[name] = nil
-        end
-    end
-
-    Trans.conf.keys = result
-else
-    Trans.conf.keys = {}
-end

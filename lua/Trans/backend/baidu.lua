@@ -1,25 +1,20 @@
-local M     = {}
+local M = {
+    uri  = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+    salt = tostring(math.random(bit.lshift(1, 15))),
+}
 
 local Trans = require('Trans')
 
-
-local baidu      = Trans.conf.keys.baidu
-local app_id     = baidu.app_id
-local app_passwd = baidu.app_passwd
-local salt       = tostring(math.random(bit.lshift(1, 15)))
-local uri        = 'https://fanyi-api.baidu.com/api/trans/vip/translate'
-
-
 function M.get_content(data)
-    local tmp  = app_id .. data.str .. salt .. app_passwd
+    local tmp  = M.app_id .. data.str .. M.salt .. M.app_passwd
     local sign = Trans.util.md5.sumhexa(tmp)
 
     return {
         q     = data.str,
         from  = data.from,
         to    = data.to,
-        appid = app_id,
-        salt  = salt,
+        appid = M.app_id,
+        salt  = M.salt,
         sign  = sign,
     }
 end
@@ -33,7 +28,11 @@ end
 
 
 function M.query(data)
-    data.engine = 'baidu'
+    if M.disable then
+        data.result.baidu = false
+        return
+    end
+
 
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
@@ -41,7 +40,7 @@ function M.query(data)
             local result = body.trans_result
             if result then
                 -- TEST :whether multi result
-                assert(#result == 1, 'multi result :' .. vim.inspect(result))
+                assert(#result == 1)
                 result = result[1]
                 data.result.baidu = {
                     title = result.src,
@@ -56,7 +55,7 @@ function M.query(data)
     end
 
 
-    Trans.wrapper.curl.get(uri, {
+    Trans.wrapper.curl.get(M.uri, {
         query = M.get_content(data),
         callback = handle,
     })

@@ -36,18 +36,16 @@ end
 ---@param mode string 'n' | 'v' | 'i'
 ---@return string
 function M.get_str(mode)
-    return ({
-        normal = function()
-            return fn.expand('<cword>')
-        end,
-        visual = function()
-            api.nvim_input('<ESC>')
-            return M.get_select()
-        end,
-        input = function()
-            return fn.input('请输入需要查询的单词:')
-        end,
-    })[mode]()
+    if mode == 'n' or mode == 'normal' then
+        return fn.expand('<cword>')
+    elseif mode == 'v' or mode == 'visual' then
+        api.nvim_input('<ESC>')
+        return M.get_select()
+    elseif mode == 'input' then
+        return fn.expand('<cword>')
+    else
+        error('Unsupported mode' .. mode)
+    end
 end
 
 function M.is_English(str)

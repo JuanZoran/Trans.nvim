@@ -1,7 +1,6 @@
 local Trans = require('Trans')
 local util = Trans.util
 
-vim.pretty_print(Trans.conf)
 local function new_data(opts)
     opts = opts or {}
     local mode = opts.method or ({
@@ -28,37 +27,41 @@ local function new_data(opts)
         data.from = 'zh'
         data.to = 'en'
     end
+
+    -- TODO : Check if the str is a word
+    data.is_word = true
+
     return data
 end
 
 local function set_result(data)
-    -- local t_backend = require('Trans').backend
-    -- for _, name in rdata.backend do
-    --     local backend = t_backend[name]
-    --     backend.query(data)
-    --     if backend.no_wait then
+    local backend_list = data.backend
+    local backends = Trans.backend
 
-    --     end
-    -- end
 
-    -- Trans.backend.baidu.query(data)
-    -- local thread = coroutine.running()
-    -- local resume = function()
-    --     coroutine.resume(thread)
-    -- end
+    local frontend = Trans.frontend[data.frontend]
 
-    -- local time = 0
-    -- while data.result == nil do
-    --     vim.defer_fn(resume, 400)
-    --     time = time + 1
-    --     print('waiting' .. ('.'):rep(time))
-    --     coroutine.yield()
-    -- end
-    -- vim.pretty_print(data)
+    local function do_query(name)
+        local backend = backends[name]
+        if backend.no_wait then
+            backend.query(data)
+            if type(data.result[name]) == 'table' then
+                return
+            end
+        else
+            backend.query(data)
+            frontend.wait(data.result, name, backend.timeout)
+        end
+    end
+
+    for _, name in ipairs(backend_list) do
+        do_query(name)
+    end
 end
 
-local function render_window()
-
+local function render_window(data)
+    -- TODO
+    print('begin to render window')
 end
 
 -- HACK : Core process logic
@@ -71,7 +74,7 @@ local function process(opts)
     set_result(data)
     if data.result == false then return end
 
-    render_window()
+    render_window(data)
 end
 
 return coroutine.wrap(process)

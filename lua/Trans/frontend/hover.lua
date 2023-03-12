@@ -1,16 +1,67 @@
 local M = {}
 
 local api = vim.api
+local conf = require('Trans').conf
 
-function M.process(data)
 
+function M.init()
+    print('TODO: init hover window')
 end
 
+function M.wait(tbl, key, timeout)
+    local thread = coroutine.running()
+    local function pause(ms)
+        vim.defer_fn(function()
+            coroutine.resume(thread)
+        end, ms)
+        coroutine.yield()
+    end
+
+    local error_message = 'Faild'
+    local times = 0
+    local interval = math.floor(timeout / #error_message)
+    while tbl[key] == nil do
+        print(('waitting' .. (' '):rep(times)))
+        pause(interval)
+    end
+
+    if tbl[key] == false then
+        print('TODO: show error message: ' .. error_message)
+    else
+        vim.pretty_print(tbl[key])
+    end
+end
+
+function M.process(data)
+    print('TODO: process data')
+end
+
+function M.is_available()
+    return true
+end
+
+M.actions = {
+    play = function()
+        print('TODO: play')
+    end,
+    pageup = function()
+        print('TODO: pageup')
+    end,
+    pagedown = function()
+        print('TODO: pagedown')
+    end,
+    pin = function()
+        print('TODO: pin')
+    end,
+    close = function()
+        print('TODO: close')
+    end,
+    toggle_entry = function()
+        print('TODO: toggle_entry')
+    end,
+}
 return M
 
-
--- local api = vim.api
--- local conf = require('Trans').conf
 -- local hover = conf.hover
 -- local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
 

@@ -3,7 +3,7 @@ local Trans = require('Trans')
 local function set_strategy_opts(conf)
     local define       = Trans.define
     local all_modes    = define.modes
-    local all_backends = vim.tbl_keys(conf.keys)
+    local all_backends = define.backends
 
     local function parse_backend(backend)
         if type(backend) == 'string' then
@@ -62,6 +62,26 @@ local function set_frontend_opts(conf)
 end
 
 
+local function define_keymaps(conf)
+    local set = vim.keymap.set
+    local opts = { silent = true, expr = true }
+
+
+    for _, name in ipairs(Trans.define.frontends) do
+        for action, key in pairs(conf.frontend[name].keymap) do
+            set('n', key, function()
+                local frontend = Trans.frontend[name]
+                if frontend.is_available() then
+                    frontend.actions[action]()
+                else
+                    return key
+                end
+            end, opts)
+        end
+    end
+end
+
+
 
 local function define_highlights(conf)
     local set_hl     = vim.api.nvim_set_hl
@@ -80,5 +100,6 @@ return function(opts)
 
     set_strategy_opts(conf)
     set_frontend_opts(conf)
+    define_keymaps(conf)
     define_highlights(conf)
 end

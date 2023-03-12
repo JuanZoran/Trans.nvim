@@ -19,7 +19,6 @@ local M = metatable('core')
 M.metatable = metatable
 M.style     = metatable("style")
 M.wrapper   = metatable("wrapper")
-M.backend   = metatable("backend")
 M.frontend  = metatable("frontend")
 
 
