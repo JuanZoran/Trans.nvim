@@ -1,6 +1,7 @@
 local M = {
     uri  = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
     salt = tostring(math.random(bit.lshift(1, 15))),
+    name = 'baidu',
 }
 
 local Trans = require('Trans')

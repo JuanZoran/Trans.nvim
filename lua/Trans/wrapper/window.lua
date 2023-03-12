@@ -151,6 +151,7 @@ window.__index = window
 local default_opts = {
     ns       = api.nvim_create_namespace('TransHoverWin'),
     enter    = false,
+    winid    = -1,
     win_opts = {
         style     = 'minimal',
         border    = 'rounded',
@@ -159,13 +160,15 @@ local default_opts = {
     },
 }
 
-return function(opts)
+function window.new(opts)
     opts = vim.tbl_deep_extend('keep', opts, default_opts)
 
     local win = setmetatable(opts, window)
     win:open()
     return win
 end
+
+return window
 
 --@class win_opts
 --@field buf buf buffer for attached

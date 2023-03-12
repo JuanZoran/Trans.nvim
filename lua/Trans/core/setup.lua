@@ -18,7 +18,6 @@ local function set_strategy_opts(conf)
 
 
 
-
     local meta = {
         __index = function(tbl, key)
             tbl[key] = default_strategy[key]
@@ -59,26 +58,6 @@ local function set_frontend_opts(conf)
 end
 
 
-local function define_keymaps(conf)
-    local set = vim.keymap.set
-    local opts = { silent = true, expr = true }
-
-
-    for _, name in ipairs(Trans.define.frontends) do
-        for action, key in pairs(conf.frontend[name].keymap) do
-            set('n', key, function()
-                local frontend = Trans.frontend[name]
-                if frontend.is_available() then
-                    frontend.actions[action]()
-                else
-                    return key
-                end
-            end, opts)
-        end
-    end
-end
-
-
 
 local function define_highlights(conf)
     local set_hl     = vim.api.nvim_set_hl
@@ -87,6 +66,8 @@ local function define_highlights(conf)
         set_hl(0, hl, opt)
     end
 end
+
+
 
 return function(opts)
     if opts then
@@ -97,76 +78,5 @@ return function(opts)
 
     set_strategy_opts(conf)
     set_frontend_opts(conf)
-    define_keymaps(conf)
     define_highlights(conf)
-
 end
-
--- {
---   backend = {
---     default = {
---       timeout = 2000
---     }
---   },
---   dir = "/home/zoran/.vim/dict",
---   frontend = {
---     default = {
---       animation = {
---         close = "slid",
---         interval = 12,
---         open = "slid"
---       },
---       auto_play = true,
---       border = "rounded",
---       title = { { "", "TransTitleRound" }, { " Trans", "TransTitle" }, { "", "TransTitleRound" } }
---     },
---     hover = {
---       auto_close_events = { "InsertEnter", "CursorMoved", "BufLeave" },
---       height = 27,
---       keymap = {
---         close = "<leader>]",
---         pagedown = "]]",
---         pageup = "[[",
---         pin = "<leader>[",
---         play = "_",
---         toggle_entry = "<leader>;"
---       },
---       order = { "title", "tag", "pos", "exchange", "translation", "definition" },
---       spinner = "dots",
---       width = 37,
---       <metatable> = {
---         __index = <function 1>
---       }
---     }
---   },
---   strategy = {
---     default = {
---       backend = <1>{ "offline", "baidu" },
---       frontend = "hover"
---     },
---     input = {
---       backend = <table 1>,
---       <metatable> = <2>{
---         __index = <function 2>
---       }
---     },
---     normal = {
---       backend = <table 1>,
---       <metatable> = <table 2>
---     },
---     visual = {
---       backend = <table 1>,
---       <metatable> = <table 2>
---     }
---   },
---   style = {
---     icon = {
---       cell = "■",
---       no = "",
---       notfound = " ",
---       star = "",
---       yes = "✔"
---     },
---     theme = "default"
---   }
--- }

@@ -1,4 +1,7 @@
-local M = { no_wait = true, }
+local M = {
+    no_wait = true,
+    name = 'offline',
+}
 
 local db = require 'sqlite.db'
 vim.api.nvim_create_autocmd('VimLeavePre', {

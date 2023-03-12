@@ -1,15 +1,24 @@
 local M     = {}
 
 local Trans = require('Trans')
-local api   = vim.api
-local conf  = Trans.conf
 
+M.__index   = M
 
-function M.init()
-    print('TODO: init hover window')
+function M.new(data)
+    return setmetatable({
+        buffer = Trans.wrapper.buffer.new(),
+    }, M)
 end
 
-function M.wait(tbl, name, timeout)
+function M.get_active_instance()
+    -- TODO :
+end
+
+function M.clear_dead_instance()
+    -- TODO :
+end
+
+function M:wait(tbl, name, timeout)
     local error_message = 'Faild'
     local interval = math.floor(timeout / #error_message)
     for i = 1, #error_message do
@@ -21,34 +30,38 @@ function M.wait(tbl, name, timeout)
     -- TODO : End waitting animation
 end
 
-function M.process(data)
+function M:process(data)
     print('TODO: process data')
 end
 
-function M.is_available()
+
+function M:is_available()
     return true
 end
 
-M.actions = {
-    play = function()
-        print('TODO: play')
-    end,
-    pageup = function()
-        print('TODO: pageup')
-    end,
-    pagedown = function()
-        print('TODO: pagedown')
-    end,
-    pin = function()
-        print('TODO: pin')
-    end,
-    close = function()
-        print('TODO: close')
-    end,
-    toggle_entry = function()
-        print('TODO: toggle_entry')
-    end,
-}
+function M:execute(action)
+    -- M.actions = {
+    --     play = function()
+    --         print('TODO: play')
+    --     end,
+    --     pageup = function()
+    --         print('TODO: pageup')
+    --     end,
+    --     pagedown = function()
+    --         print('TODO: pagedown')
+    --     end,
+    --     pin = function()
+    --         print('TODO: pin')
+    --     end,
+    --     close = function()
+    --         print('TODO: close')
+    --     end,
+    --     toggle_entry = function()
+    --         print('TODO: toggle_entry')
+    --     end,
+    -- }
+end
+
 return M
 
 -- local hover = conf.hover
