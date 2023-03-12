@@ -41,21 +41,24 @@ local function set_result(data)
 
     local frontend = Trans.frontend[data.frontend]
 
+    -- HACK :Rewrite this function to support multi request
     local function do_query(name)
         local backend = backends[name]
         if backend.no_wait then
             backend.query(data)
-            if type(data.result[name]) == 'table' then
-                return
-            end
         else
             backend.query(data)
             frontend.wait(data.result, name, backend.timeout)
         end
+
+        return type(data.result[name]) == "table"
     end
 
     for _, name in ipairs(backend_list) do
-        do_query(name)
+        if do_query(name) then
+            -- TODO : process data
+            break
+        end
     end
 end
 
@@ -72,8 +75,16 @@ local function process(opts)
     if not data then return end
 
     set_result(data)
-    if data.result == false then return end
+    local success = false
+    for _, v in pairs(data.result) do
+        if type(v) == "table" then
+            success = true
+            break
+        end
+    end
 
+    vim.pretty_print(data)
+    if success == false then return end
     render_window(data)
 end
 

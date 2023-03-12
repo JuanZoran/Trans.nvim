@@ -1,35 +1,37 @@
 local curl = {}
 
 curl.get = function(uri, opts)
-    local query = opts.query
-    local headers = opts.headers
+    local query    = opts.query
+    local output   = opts.output
+    local headers  = opts.headers
     local callback = opts.callback
-    local output = opts.output
+
 
     -- INFO :Init Curl command with {s}ilent and {G}et
-    local cmd = { 'curl', '-GLs' }
+    local cmd  = { 'curl', '-GLs', uri }
+    local size = #cmd
+    local function insert(value)
+        size = size + 1
+        cmd[size] = value
+    end
 
     -- INFO :Add headers
     if headers then
         for k, v in pairs(headers) do
-            cmd[#cmd + 1] = ([[-H '%s: %s']]):format(k, v)
+            insert(('-H %q: %q'):format(k, v))
+        end
+    end
+
+    -- INFO :Add arguments
+    if query then
+        for k, v in pairs(query) do
+            insert(('--data-urlencode %q=%q'):format(k, v))
         end
     end
 
     -- INFO :Store output to file
     if output then
-        cmd[#cmd + 1] = [[-o ]] .. output
-    end
-
-    -- INFO :Add arguments
-    if query then
-        local info = {}
-        for k, v in pairs(query) do
-            info[#info + 1] = ('%s=%s'):format(k, v)
-        end
-        cmd[#cmd + 1] = ([['%s?%s']]):format(uri, table.concat(info, '&'))
-    else
-        cmd[#cmd + 1] = uri
+        insert(('-o %q'):format(output))
     end
 
     -- INFO : Start a job

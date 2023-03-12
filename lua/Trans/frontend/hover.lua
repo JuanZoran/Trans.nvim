@@ -8,7 +8,7 @@ function M.init()
     print('TODO: init hover window')
 end
 
-function M.wait(tbl, key, timeout)
+function M.wait(tbl, name, timeout)
     local thread = coroutine.running()
     local function pause(ms)
         vim.defer_fn(function()
@@ -18,18 +18,14 @@ function M.wait(tbl, key, timeout)
     end
 
     local error_message = 'Faild'
-    local times = 0
     local interval = math.floor(timeout / #error_message)
-    while tbl[key] == nil do
-        print(('waitting' .. (' '):rep(times)))
+    for i = 1, #error_message do
+        if tbl[name] ~= nil then break end
+        print('waitting' .. ('.'):rep(i))
         pause(interval)
     end
 
-    if tbl[key] == false then
-        print('TODO: show error message: ' .. error_message)
-    else
-        vim.pretty_print(tbl[key])
-    end
+    -- TODO : End waitting animation
 end
 
 function M.process(data)

@@ -13,25 +13,22 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then return end
 
-    data.path        = data.path or require('Trans').conf.dir .. '/ultimate.db'
-    data.engine      = 'offline'
-    data.formatter   = data.formatter or M.formatter
-    data.query_field = data.query_field or M.query_field
+    local path       = require('Trans').conf.dir .. '/ultimate.db'
 
-
-    local dict    = db:open(data.path)
+    local dict    = db:open(path)
     local db_name = data.db_name or 'stardict'
     local res     = dict:select(db_name, {
         where = { word = data.str, },
-        keys = data.query_field,
+        keys = M.query_field,
         limit = 1,
     })[1]
 
 
-    data.result.offline = res and data.formatter(res) or false
+    data.result.offline = res and M.formatter(res) or false
     return data
 end
 
+-- this is a awesome plugin
 M.query_field = {
     'word',
     'phonetic',

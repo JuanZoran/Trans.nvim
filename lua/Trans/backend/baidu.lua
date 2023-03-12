@@ -43,8 +43,8 @@ function M.query(data)
                 assert(#result == 1)
                 result = result[1]
                 data.result.baidu = {
-                    title = result.src,
-                    translation = result.dst,
+                    ['title'] = result.src,
+                    [data.from == 'en' and 'translation' or 'definition'] = result.dst,
                 }
                 return
             end
