@@ -113,7 +113,6 @@ function window:set_hl(name, opts)
 end
 
 function window:open()
-    assert(self.winid == nil, 'window already opened')
     local win_opts = self.win_opts
     local open_animation = self.animation.open
     if open_animation then

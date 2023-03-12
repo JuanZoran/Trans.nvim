@@ -130,13 +130,6 @@ function buffer:addline(nodes, index)
     end
 end
 
-function buffer:init()
-    self.bufnr = api.nvim_create_buf(false, false)
-    self:set('filetype', 'Trans')
-    self:set('buftype', 'nofile')
-    self.size = 0
-end
-
 ---@private
 buffer.__index = function(self, key)
     local res = buffer[key]
@@ -158,10 +151,16 @@ end
 ---buffer constructor
 ---@return buf
 function buffer.new()
-    return setmetatable({
+    local new_buf = setmetatable({
         bufnr = -1,
         size = 0,
     }, buffer)
+
+
+    new_buf.bufnr = api.nvim_create_buf(false, false)
+    new_buf:set('filetype', 'Trans')
+    new_buf:set('buftype', 'nofile')
+    return new_buf
 end
 
 return buffer

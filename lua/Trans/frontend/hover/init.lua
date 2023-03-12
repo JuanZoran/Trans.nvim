@@ -1,5 +1,4 @@
 local Trans = require('Trans')
-local style = Trans.conf.style
 
 local M = Trans.metatable('frontend.hover')
 
@@ -25,13 +24,38 @@ end
 function M.clear_dead_instance()
     for i = #M.queue, 1, -1 do
         if not M.queue[i]:is_available() then
+            --- FIXME :Del Buffer or ... ?
             table.remove(M.queue, i)
         end
     end
 end
 
-function M.new_window()
+---Init hover window
+---@param opts table @window options: width, height
+---@return unknown
+function M:init_window(opts)
+    opts           = opts or {}
+    local win_opts = opts.win_opts or {}
+    opts.win_opts  = win_opts
+    local m_opts   = self.opts
 
+
+    opts.buffer       = self.buffer
+    win_opts.col      = 1
+    win_opts.row      = 1
+    win_opts.relative = 'cursor'
+    win_opts.title    = m_opts.title
+    if win_opts.title then
+        win_opts.title_pos = 'center'
+    end
+    win_opts.width    = win_opts.width or m_opts.width
+    win_opts.height   = win_opts.height or m_opts.height
+    opts.animation    = m_opts.animation
+
+
+
+    self.window = Trans.wrapper.window.new(opts)
+    return self.window
 end
 
 function M:wait(tbl, name, timeout)
@@ -44,12 +68,19 @@ function M:wait(tbl, name, timeout)
         return spinner[times % size + 1] .. ('.'):rep(times)
     end
 
+    self:init_window({
+        win_opts = {
+            height = 1,
+            width = wid,
+        }
+    })
 
     local interval = math.floor(timeout / wid)
+    local pause = Trans.util.pause
     for i = 1, wid do
         if tbl[name] ~= nil then break end
-        print(update_text(i))
-        Trans.util.pause(interval)
+        self.buffer[1] = update_text(i)
+        pause(interval)
     end
 
     -- TODO : End waitting animation
