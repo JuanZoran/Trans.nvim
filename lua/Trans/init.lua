@@ -1,13 +1,27 @@
-local M = setmetatable({}, {
-    __index = function(tbl, key)
-        local status, field = pcall(require, 'Trans.core.' .. key)
-        assert(status, 'Unknown field: ' .. key)
-        
-        tbl[key] = field
-        return field
-    end
-})
+local function metatable(folder_name)
+    return setmetatable({}, {
+        __index = function(tbl, key)
+            local status, result = pcall(require, ('Trans.%s.%s'):format(folder_name, key))
+
+            if not status then
+                error('fail to load: ' .. key .. '\n' .. result)
+            end
+
+            tbl[key] = result
+            return result
+        end
+    })
+end
+
+local M = metatable('core')
+
+
+M.metatable = metatable
+M.style     = metatable("style")
+M.wrapper   = metatable("wrapper")
+M.backend   = metatable("backend")
+M.frontend  = metatable("frontend")
+
 
 M.cache = {}
-
 return M

@@ -34,7 +34,7 @@ end, { desc = ' 自动发音' })
 
 
 
---- INFO :Parse online engines config file
+--- INFO :Parse online engine keys config file
 local function parse_engine_file()
     local path = Trans.conf.dir .. '/Trans.json'
     local file = io.open(path, "r")
@@ -55,8 +55,8 @@ if result then
             result[name] = nil
         end
     end
-    Trans.conf.engines = result
 
+    Trans.conf.keys = result
 else
-    Trans.conf.engines = {}
+    Trans.conf.keys = {}
 end

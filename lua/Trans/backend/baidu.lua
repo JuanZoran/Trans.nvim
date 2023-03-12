@@ -1,6 +1,9 @@
-local M = {}
+local M     = {}
 
-local baidu      = require('Trans').conf.engines.baidu
+local Trans = require('Trans')
+
+
+local baidu      = Trans.conf.keys.baidu
 local app_id     = baidu.app_id
 local app_passwd = baidu.app_passwd
 local salt       = tostring(math.random(bit.lshift(1, 15)))
@@ -9,7 +12,8 @@ local uri        = 'https://fanyi-api.baidu.com/api/trans/vip/translate'
 
 function M.get_content(data)
     local tmp  = app_id .. data.str .. salt .. app_passwd
-    local sign = require('Trans.util.md5').sumhexa(tmp)
+    local sign = Trans.util.md5.sumhexa(tmp)
+
     return {
         q     = data.str,
         from  = data.from,
@@ -51,7 +55,8 @@ function M.query(data)
         data.trace = res
     end
 
-    require('Trans.wrapper.curl').get(uri, {
+
+    Trans.wrapper.curl.get(uri, {
         query = M.get_content(data),
         callback = handle,
     })

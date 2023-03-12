@@ -1,9 +1,10 @@
-local function set_strategy_opts(conf)
-    local define       = require('Trans').define
-    local all_modes    = define.modes
-    local all_backends = vim.tbl_keys(conf.engines)
+local Trans = require('Trans')
 
-    -- FIXME : Wrong backend baidu
+local function set_strategy_opts(conf)
+    local define       = Trans.define
+    local all_modes    = define.modes
+    local all_backends = vim.tbl_keys(conf.keys)
+
     local function parse_backend(backend)
         if type(backend) == 'string' then
             return backend == '*' and all_backends or { backend }
@@ -11,6 +12,7 @@ local function set_strategy_opts(conf)
 
         return backend
     end
+
     local global_strategy = conf.strategy
     global_strategy.backend = parse_backend(global_strategy.backend)
 
@@ -38,7 +40,7 @@ end
 
 
 local function set_frontend_opts(conf)
-    local all_frontends = require('Trans').define.frontends
+    local all_frontends = Trans.define.frontends
 
 
     local global_frontend_opts = conf.frontend
@@ -63,18 +65,17 @@ end
 
 local function define_highlights(conf)
     local set_hl     = vim.api.nvim_set_hl
-    local highlights = require('Trans.style.theme')[conf.style.theme]
+    local highlights = Trans.style.theme[conf.style.theme]
     for hl, opt in pairs(highlights) do
         set_hl(0, hl, opt)
     end
 end
 
 return function(opts)
-    local M = require('Trans')
     if opts then
-        M.conf = vim.tbl_deep_extend('force', M.conf, opts)
+        Trans.conf = vim.tbl_deep_extend('force', Trans.conf, opts)
     end
-    local conf = M.conf
+    local conf = Trans.conf
     conf.dir = vim.fn.expand(conf.dir)
 
     set_strategy_opts(conf)

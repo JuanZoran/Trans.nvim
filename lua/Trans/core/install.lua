@@ -1,7 +1,9 @@
 return function()
+    local Trans = require('Trans')
     -- INFO :Check ultimate.db exists
-    local dir = require('Trans').conf.dir
+    local dir = Trans.conf.dir
     local path = dir .. '/ultimate.db'
+
     if vim.fn.filereadable(path) == 1 then
         vim.notify('Database already exists', vim.log.WARN)
         return
@@ -33,7 +35,8 @@ return function()
         vim.notify(debug_message, vim.log.ERROR)
     end
 
-    require('Trans.wrapper.curl').get(uri, {
+
+    Trans.wrapper.curl.get(uri, {
         output = loc,
         callback = handle,
     })

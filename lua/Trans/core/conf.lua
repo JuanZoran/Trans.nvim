@@ -8,7 +8,7 @@ if vim.fn.has('nvim-0.9') == 1 then
 end
 
 return {
-    dir      = '$HOME/.vim/dict',
+    dir      = os.getenv('HOME') .. '/.vim/dict',
     strategy = {
         frontend = 'hover',
         backend = '*',
@@ -24,7 +24,7 @@ return {
             close = 'slid',
             interval = 12,
         },
-        title = title,     -- need nvim-0.9
+        title = title, -- need nvim-0.9
         hover = {
             width = 37,
             height = 27,

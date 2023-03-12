@@ -1,4 +1,5 @@
-local M = {}
+M = require('Trans').metatable('util')
+
 local fn, api = vim.fn, vim.api
 
 function M.get_select()

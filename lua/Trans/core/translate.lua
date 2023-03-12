@@ -32,7 +32,7 @@ local function new_data(opts)
 end
 
 local function set_result(data)
-    -- local t_backend = require('Trans.backend')
+    -- local t_backend = require('Trans').backend
     -- for _, name in rdata.backend do
     --     local backend = t_backend[name]
     --     backend.query(data)
@@ -41,20 +41,20 @@ local function set_result(data)
     --     end
     -- end
 
-    require('Trans.backend').baidu.query(data)
-    local thread = coroutine.running()
-    local resume = function()
-        coroutine.resume(thread)
-    end
+    -- Trans.backend.baidu.query(data)
+    -- local thread = coroutine.running()
+    -- local resume = function()
+    --     coroutine.resume(thread)
+    -- end
 
-    local time = 0
-    while data.result == nil do
-        vim.defer_fn(resume, 400)
-        time = time + 1
-        print('waiting' .. ('.'):rep(time))
-        coroutine.yield()
-    end
-    vim.pretty_print(data)
+    -- local time = 0
+    -- while data.result == nil do
+    --     vim.defer_fn(resume, 400)
+    --     time = time + 1
+    --     print('waiting' .. ('.'):rep(time))
+    --     coroutine.yield()
+    -- end
+    -- vim.pretty_print(data)
 end
 
 local function render_window()
