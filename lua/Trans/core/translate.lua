@@ -65,14 +65,6 @@ local function set_result(data)
 end
 
 
-local function render_window(data)
-    -- TODO :
-    vim.pretty_print(data)
-    print('begin to render window')
-end
-
-
-
 -- HACK : Core process logic
 local function process(opts)
     Trans.translate = coroutine.wrap(process)
@@ -82,8 +74,8 @@ local function process(opts)
 
     -- Find in cache
     if Trans.cache[str] then
-        local data = Trans.cache[opts.str]
-        render_window(data)
+        local data = Trans.cache[str]
+        data.frontend:process(data)
         return
     end
 
@@ -101,7 +93,7 @@ local function process(opts)
     if success == false then return end
 
     Trans.cache[data.str] = data
-    render_window(data)
+    data.frontend:process(data)
 end
 
 return coroutine.wrap(process)

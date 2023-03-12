@@ -56,6 +56,7 @@ return {
                 'definition',
             },
             spinner = 'dots', -- see: /lua/Trans/style/spinner
+            fallback_message = '翻译超时或没有找到相关的翻译' -- TODO :support replace with {{special word}}
         },
     },
     style    = {

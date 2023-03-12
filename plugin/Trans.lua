@@ -1,5 +1,6 @@
 local api, fn = vim.api, vim.fn
 
+string.width = api.nvim_strwidth
 --- INFO :Define string play method
 if fn.has('linux') == 1 then
     string.play = function(self)

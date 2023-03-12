@@ -1,29 +1,54 @@
-local M     = {}
-
 local Trans = require('Trans')
+local style = Trans.conf.style
 
-M.__index   = M
+local M = Trans.metatable('frontend.hover')
 
-function M.new(data)
-    return setmetatable({
+M.queue = {}
+
+M.__index = M
+
+
+function M.new()
+    local new_instance = {
         buffer = Trans.wrapper.buffer.new(),
-    }, M)
+    }
+    M.queue[#M.queue + 1] = new_instance
+
+    return setmetatable(new_instance, M)
 end
 
 function M.get_active_instance()
-    -- TODO :
+    M.clear_dead_instance()
+    return M.queue[1]
 end
 
 function M.clear_dead_instance()
-    -- TODO :
+    for i = #M.queue, 1, -1 do
+        if not M.queue[i]:is_available() then
+            table.remove(M.queue, i)
+        end
+    end
+end
+
+function M.new_window()
+
 end
 
 function M:wait(tbl, name, timeout)
-    local error_message = 'Faild'
-    local interval = math.floor(timeout / #error_message)
-    for i = 1, #error_message do
+    local msg     = self.opts.fallback_message
+    local wid     = msg:width()
+    local spinner = Trans.style.spinner[self.opts.spinner]
+    local size    = #spinner
+
+    local function update_text(times)
+        return spinner[times % size + 1] .. ('.'):rep(times)
+    end
+
+
+    local interval = math.floor(timeout / wid)
+    for i = 1, wid do
         if tbl[name] ~= nil then break end
-        print('waitting' .. ('.'):rep(i))
+        print(update_text(i))
         Trans.util.pause(interval)
     end
 
@@ -31,42 +56,17 @@ function M:wait(tbl, name, timeout)
 end
 
 function M:process(data)
+    vim.pretty_print(data.result)
     print('TODO: process data')
 end
 
-
 function M:is_available()
-    return true
-end
-
-function M:execute(action)
-    -- M.actions = {
-    --     play = function()
-    --         print('TODO: play')
-    --     end,
-    --     pageup = function()
-    --         print('TODO: pageup')
-    --     end,
-    --     pagedown = function()
-    --         print('TODO: pagedown')
-    --     end,
-    --     pin = function()
-    --         print('TODO: pin')
-    --     end,
-    --     close = function()
-    --         print('TODO: close')
-    --     end,
-    --     toggle_entry = function()
-    --         print('TODO: toggle_entry')
-    --     end,
-    -- }
+    return self.buffer:is_valid() and self.window:is_valid()
 end
 
 return M
 
--- local hover = conf.hover
 -- local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
-
 -- local buffer = require('Trans.buffer')()
 
 -- local node = require('Trans.node')
