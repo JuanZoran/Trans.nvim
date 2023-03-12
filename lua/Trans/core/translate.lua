@@ -1,31 +1,25 @@
 local Trans = require('Trans')
 local util = Trans.util
 
-local backends = Trans.conf.backends
-
+vim.pretty_print(Trans.conf)
 local function new_data(opts)
     opts = opts or {}
-    local method = opts.method or ({
+    local mode = opts.method or ({
         n = 'normal',
         v = 'visual',
     })[vim.api.nvim_get_mode().mode]
 
-    local str = util.get_str(method)
+    local str = util.get_str(mode)
     if str == '' then return end
 
-    local strategy = Trans.conf.strategy[method] or Trans.conf.strategy
+    local strategy = Trans.conf.strategy[mode]
     local data = {
         str = str,
-        method = method,
+        mode = mode,
         frontend = strategy.frontend,
+        backend = strategy.backend,
         result = {},
     }
-
-    local backend = strategy.backend
-    if type(backend) == 'string' then
-        backend = backend == '*' and backends or { backend }
-    end
-    data.backend = backend
 
     if util.is_English(str) then
         data.from = 'en'
@@ -38,14 +32,14 @@ local function new_data(opts)
 end
 
 local function set_result(data)
-    local t_backend = require('Trans.backend')
-    for _, name in data.backend do
-        local backend = t_backend[name]
-        backend.query(data)
-        if backend.no_wait then
+    -- local t_backend = require('Trans.backend')
+    -- for _, name in rdata.backend do
+    --     local backend = t_backend[name]
+    --     backend.query(data)
+    --     if backend.no_wait then
 
-        end
-    end
+    --     end
+    -- end
 
     require('Trans.backend').baidu.query(data)
     local thread = coroutine.running()

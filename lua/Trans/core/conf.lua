@@ -8,34 +8,33 @@ if vim.fn.has('nvim-0.9') == 1 then
 end
 
 return {
-    theme     = 'default', -- see lua/Trans/style/theme.lua
-    auto_play = true,
-    dir       = vim.fn.expand('$HOME/.vim/dict'),
-    strategy  = {
+    dir      = '$HOME/.vim/dict',
+    strategy = {
         frontend = 'hover',
         backend = '*',
     },
-    backend   = {
+    backend  = {
         timeout = 2000,
     },
-    frontend  = {
+    frontend = {
+        auto_play = true,
+        border = 'rounded',
+        animation = {
+            open = 'slid', -- 'fold', 'slid'
+            close = 'slid',
+            interval = 12,
+        },
+        title = title,     -- need nvim-0.9
         hover = {
-            title = title, -- need nvim-0.9
             width = 37,
             height = 27,
-            border = 'rounded',
             keymap = {
-                pageup = '[[',
-                pagedown = ']]',
-                pin = '<leader>[',
-                close = '<leader>]',
+                play         = '_',
+                pageup       = '[[',
+                pagedown     = ']]',
+                pin          = '<leader>[',
+                close        = '<leader>]',
                 toggle_entry = '<leader>;',
-                play = '_',
-            },
-            animation = {
-                open = 'slid', -- 'fold', 'slid'
-                close = 'slid',
-                interval = 12,
             },
             auto_close_events = {
                 'InsertEnter',
@@ -53,13 +52,17 @@ return {
             spinner = 'dots', -- see: /lua/Trans/style/spinner
         },
     },
-    -- or use emoji
-    icon      = {
-        star     = '', -- ⭐
-        notfound = ' ', -- ❔
-        yes      = '✔', -- ✔️
-        no       = '', -- ❌
-        cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+    style    = {
+        -- see lua/Trans/style/theme.lua
+        theme = 'default', -- default | tokyonight | dracula
+        -- or use emoji
+        icon  = {
+            star     = '', -- ⭐
+            notfound = ' ', -- ❔
+            yes      = '✔', -- ✔️
+            no       = '', -- ❌
+            cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+        },
     },
 }
 

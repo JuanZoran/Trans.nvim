@@ -32,9 +32,9 @@ function M.get_select()
 end
 
 ---Get Text which need to be translated
----@param method string 'n' | 'v' | 'i'
+---@param mode string 'n' | 'v' | 'i'
 ---@return string
-function M.get_str(method)
+function M.get_str(mode)
     return ({
         normal = function()
             return fn.expand('<cword>')
@@ -46,7 +46,7 @@ function M.get_str(method)
         input = function()
             return fn.input('请输入需要查询的单词:')
         end,
-    })[method]()
+    })[mode]()
 end
 
 function M.is_English(str)

@@ -21,13 +21,13 @@ end
 
 
 --- INFO :Define plugin command
-local M = require('Trans')
+local Trans = require('Trans')
 local command = api.nvim_create_user_command
 
-command('Translate', function() M.translate() end, { desc = '  单词翻译', })
+command('Translate', function() Trans.translate() end, { desc = '  单词翻译', })
 command('TransPlay', function()
-    local str = M.util.get_str(api.nvim_get_mode().mode)
-    if str and str ~= '' and M.util.is_English(str) then
+    local str = Trans.util.get_str(api.nvim_get_mode().mode)
+    if str and str ~= '' and Trans.util.is_English(str) then
         str:play()
     end
 end, { desc = ' 自动发音' })
@@ -36,7 +36,7 @@ end, { desc = ' 自动发音' })
 
 --- INFO :Parse online engines config file
 local function parse_engine_file()
-    local path = M.conf.dir .. '/Trans.json'
+    local path = Trans.conf.dir .. '/Trans.json'
     local file = io.open(path, "r")
 
     if file then
@@ -48,20 +48,15 @@ local function parse_engine_file()
     end
 end
 
-M.conf.backends = { 'offline' }
-M.engines = {}
-
 local result = parse_engine_file()
 if result then
-    local backends = M.conf.backends
-    local engines = M.engines
     for name, opts in pairs(result) do
-        if opts.enable then
-            backends[#backends + 1] = name
-            engines[name] = opts
+        if not opts.enable then
+            result[name] = nil
         end
     end
+    Trans.conf.engines = result
+
+else
+    Trans.conf.engines = {}
 end
-
-
--- new_command('TranslateInput', function() M.translate { mode = 'i' } end, { desc = '  搜索翻译', })

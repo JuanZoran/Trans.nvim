@@ -1,6 +1,5 @@
 local M = {}
 
-
 local baidu      = require('Trans').conf.engines.baidu
 local app_id     = baidu.app_id
 local app_passwd = baidu.app_passwd
