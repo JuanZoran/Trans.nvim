@@ -1,6 +1,5 @@
 ---@class buf
 ---@field bufnr integer buffer handle
----@field size integer buffer line count
 local buffer = {}
 
 local api, fn = vim.api, vim.fn
@@ -8,7 +7,6 @@ local api, fn = vim.api, vim.fn
 ---Clear all content in buffer
 function buffer:wipe()
     api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
-    self.size = 0
 end
 
 ---delete buffer [_start, _end] line content [one index]
@@ -21,7 +19,6 @@ function buffer:del(_start, _end)
         _end = _end or _start
         fn.deletebufline(self.bufnr, _start, _end)
     end
-    self.size = api.nvim_buf_line_count(self.bufnr)
 end
 
 ---Set buffer option
@@ -38,7 +35,8 @@ function buffer:option(name)
     return api.nvim_buf_get_option(self.bufnr, name)
 end
 
-function buffer:delete()
+---Destory buffer
+function buffer:destory()
     api.nvim_buf_delete(self.bufnr, { force = true })
 end
 
@@ -76,57 +74,79 @@ function buffer:lines(i, j)
     return api.nvim_buf_get_lines(self.bufnr, i, j, false)
 end
 
+---Add Extmark to buffer
+---@param linenr number line number should be set[one index]
+---@param col_start number column start
+---@param col_end number column end
+---@param hl_group string highlight group
+---@param ns number? highlight namespace
+function buffer:add_extmark(linenr, col_start, col_end, hl_group, ns)
+    linenr = linenr and linenr - 1 or -1
+    api.nvim_buf_set_extmark(self.bufnr, ns or -1, linenr, col_start, {
+        end_line = linenr,
+        end_col = col_end,
+        hl_group = hl_group,
+    })
+end
+
+---Add highlight to buffer
+---@param linenr number line number should be set[one index]
+---@param col_start number column start
+---@param col_end number column end
+---@param hl_group string highlight group
+---@param ns number? highlight namespace
+function buffer:add_highlight(linenr, col_start, col_end, hl_group, ns)
+    linenr = linenr and linenr - 1 or -1
+    api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end)
+end
+
 ---Calculate buffer content display height
 ---@param width integer
 ---@return integer height
 function buffer:height(width)
-    local size = self.size
     local lines = self:lines()
     local height = 0
-    for i = 1, size do
-        height = height + math.max(1, (math.ceil(lines[i]:width() / width)))
+    for _, line in ipairs(lines) do
+        height = height + math.max(1, (math.ceil(line:width() / width)))
     end
     return height
 end
 
----Add|Set line content
+---Get buffer line count
+---@return integer
+function buffer:line_count()
+    return api.nvim_buf_line_count(self.bufnr)
+end
+
+---Set line content
 ---@param nodes string|table|table[] string -> as line content | table -> as a node | table[] -> as node[]
----@param index number? line number should be set[one index]
-function buffer:addline(nodes, index)
-    local newsize = self.size + 1
-    assert(index == nil or index <= newsize)
-    index = index or newsize
-    if index == newsize then
-        self.size = newsize
-    end
+---@param linenr number? line number should be set[one index] or let it be nil to append
+function buffer:setline(nodes, linenr)
+    linenr = linenr and linenr - 1 or -1
 
     if type(nodes) == 'string' then
-        self[index] = nodes
-        return
-    end
+        api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { nodes })
+    elseif type(nodes) == 'table' then
+        if type(nodes[1]) == 'string' then
+            -- FIXME :set [nodes] type as node
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { nodes[1] })
+            nodes:render(self, linenr, 0)
+        else
+            local strs = {}
+            local num = #nodes
+            for i = 1, num do
+                strs[i] = nodes[i][1]
+            end
 
-
-    local line = index - 1
-    local bufnr = self.bufnr
-    local col = 0
-    if type(nodes[1]) == 'string' then
-        self[index] = nodes[1]
-        nodes:load(bufnr, line, col)
-        return
-    end
-
-
-    local strs = {}
-    local num = #nodes
-    for i = 1, num do
-        strs[i] = nodes[i][1]
-    end
-
-    self[index] = table.concat(strs)
-    for i = 1, num do
-        local node = nodes[i]
-        node:load(bufnr, line, col)
-        col = col + #node[1]
+            api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { table.concat(strs) })
+            local col = 0
+            for i = 1, num do
+                local node = nodes[i]
+                node:render(self, linenr, col)
+                col = col + #node[1]
+            end
+        end
     end
 end
 
@@ -136,28 +156,32 @@ buffer.__index = function(self, key)
     if res then
         return res
     elseif type(key) == 'number' then
-        return fn.getbufoneline(self.bufnr, key)
+        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
+        return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
     else
         error('invalid key' .. key)
     end
 end
 
+
 ---@private
-buffer.__newindex = function(self, key, text)
-    assert(key <= self.size + 1)
-    fn.setbufline(self.bufnr, key, text)
+buffer.__newindex = function(self, key, nodes)
+    if type(key) == 'number' then
+        self:setline(nodes, key)
+    else
+        rawset(self, key, nodes)
+    end
 end
 
 ---buffer constructor
 ---@return buf
 function buffer.new()
     local new_buf = setmetatable({
-        bufnr = -1,
-        size = 0,
+        bufnr = api.nvim_create_buf(false, false),
+        extmarks = {},
     }, buffer)
 
 
-    new_buf.bufnr = api.nvim_create_buf(false, false)
     new_buf:set('filetype', 'Trans')
     new_buf:set('buftype', 'nofile')
     return new_buf

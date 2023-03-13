@@ -1,33 +1,68 @@
 local Trans = require('Trans')
 
-local M = Trans.metatable('frontend.hover')
+---@class hover
+---@field queue table @hover queue for all hover instances
+---@field buffer buffer @buffer for hover window
+---@field destroy_funcs table @functions to be executed when hover window is closed
+---@field window window @hover window
+---@field opts table @options for hover window
+---@field opts.title string @title for hover window
+---@field opts.width number @width for hover window
+---@field opts.height number @height for hover window
+---@field opts.animation boolean @whether to use animation for hover window
+---@field opts.fallback_message string @message to be displayed when hover window is waiting for data
+---@field opts.spinner string @spinner to be displayed when hover window is waiting for data
+---@field opts.icon table @icons for hover window
+---@field opts.icon.notfound string @icon for not found
+---@field opts.icon.yes string @icon for yes
+---@field opts.icon.no string @icon for no
+---@field opts.icon.star string @icon for star
+---@field opts.icon.cell string @icon for cell used in waitting animation
 
-M.queue = {}
 
+local M = Trans.metatable('frontend.hover', {
+    queue = {},
+})
 M.__index = M
 
-
+---Create a new hover instance
+---@return hover new_instance
 function M.new()
     local new_instance = {
         buffer = Trans.wrapper.buffer.new(),
+        destroy_funcs = {},
     }
     M.queue[#M.queue + 1] = new_instance
 
     return setmetatable(new_instance, M)
 end
 
+---Get the first active instances
+---@return hover
 function M.get_active_instance()
     M.clear_dead_instance()
     return M.queue[1]
 end
 
+---Clear dead instance
 function M.clear_dead_instance()
-    for i = #M.queue, 1, -1 do
-        if not M.queue[i]:is_available() then
-            --- FIXME :Del Buffer or ... ?
-            table.remove(M.queue, i)
+    local queue = M.queue
+    for i = #queue, 1, -1 do
+        if not queue[i]:is_available() then
+            queue[i]:destroy()
+            table.remove(queue, i)
         end
     end
+end
+
+---Destroy hover instance and execute destroy functions
+function M:destroy()
+    for _, func in ipairs(self.destroy_funcs) do
+        func(self)
+    end
+
+    self.window:try_close()
+    self.buffer:destroy()
 end
 
 ---Init hover window
@@ -48,9 +83,9 @@ function M:init_window(opts)
     if win_opts.title then
         win_opts.title_pos = 'center'
     end
-    win_opts.width    = win_opts.width or m_opts.width
-    win_opts.height   = win_opts.height or m_opts.height
-    opts.animation    = m_opts.animation
+    win_opts.width  = win_opts.width or m_opts.width
+    win_opts.height = win_opts.height or m_opts.height
+    opts.animation  = m_opts.animation
 
 
 
@@ -58,14 +93,20 @@ function M:init_window(opts)
     return self.window
 end
 
+---Wait for data
+---@param tbl table @table to be checked
+---@param name string @key to be checked
+---@param timeout number @timeout for waiting
 function M:wait(tbl, name, timeout)
     local msg     = self.opts.fallback_message
     local wid     = msg:width()
     local spinner = Trans.style.spinner[self.opts.spinner]
     local size    = #spinner
+    local cell    = self.opts.icon.cell
+
 
     local function update_text(times)
-        return spinner[times % size + 1] .. ('.'):rep(times)
+        return spinner[times % size + 1] .. (cell):rep(times)
     end
 
     self:init_window({
@@ -86,11 +127,15 @@ function M:wait(tbl, name, timeout)
     -- TODO : End waitting animation
 end
 
+---Process data and display it in hover window
+---@param data table @data to be processed
 function M:process(data)
     vim.pretty_print(data.result)
     print('TODO: process data')
 end
 
+---Check if hover window and buffer are valid
+---@return boolean @whether hover window and buffer are valid
 function M:is_available()
     return self.buffer:is_valid() and self.window:is_valid()
 end

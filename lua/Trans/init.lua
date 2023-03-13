@@ -1,5 +1,9 @@
-local function metatable(folder_name)
-    return setmetatable({}, {
+---Set or Get metatable which will find module in folder
+---@param folder_name string
+---@param origin table?
+---@return table
+local function metatable(folder_name, origin)
+    return setmetatable(origin or {}, {
         __index = function(tbl, key)
             local status, result = pcall(require, ('Trans.%s.%s'):format(folder_name, key))
 

@@ -32,9 +32,9 @@ return {
             title = title, -- need nvim-0.9
         },
         hover = {
-            width = 37,
-            height = 27,
-            keymap = {
+            width             = 37,
+            height            = 27,
+            keymap            = {
                 play         = '_',
                 pageup       = '[[',
                 pagedown     = ']]',
@@ -47,7 +47,7 @@ return {
                 'CursorMoved',
                 'BufLeave',
             },
-            order = {
+            order             = {
                 'title',
                 'tag',
                 'pos',
@@ -55,21 +55,21 @@ return {
                 'translation',
                 'definition',
             },
-            spinner = 'dots', -- see: /lua/Trans/style/spinner
-            fallback_message = '翻译超时或没有找到相关的翻译' -- TODO :support replace with {{special word}}
+            spinner           = 'dots',          -- see: /lua/Trans/style/spinner
+            fallback_message  = '翻译超时或没有找到相关的翻译', -- TODO :support replace with {{special word}}
+            icon              = {
+                -- or use emoji
+                star     = '', -- ⭐
+                notfound = ' ', -- ❔
+                yes      = '✔', -- ✔️
+                no       = '', -- ❌
+                cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+            },
         },
     },
     style    = {
         -- see lua/Trans/style/theme.lua
         theme = 'default', -- default | tokyonight | dracula
-        -- or use emoji
-        icon  = {
-            star     = '', -- ⭐
-            notfound = ' ', -- ❔
-            yes      = '✔', -- ✔️
-            no       = '', -- ❌
-            cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
-        },
     },
 }
 

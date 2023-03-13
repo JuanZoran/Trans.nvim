@@ -1,24 +1,23 @@
 local api = vim.api
-local ns = require('Trans').ns
 local add_hl = api.nvim_buf_add_highlight
 
 local item_meta = {
-    load = function(self, bufnr, line, col)
+    render = function(self, bufnr, line, col)
         if self[2] then
-            add_hl(bufnr, ns, self[2], line, col, col + #self[1])
+            add_hl(bufnr, self.ns or -1, self[2], line, col, col + #self[1])
         end
     end,
 }
 
 local text_meta = {
-    load = function(self, bufnr, line, col)
+    render = function(self, bufnr, line, col)
         local items = self.items
         local step = self.step or ''
         local len = #step
 
         for i = 1, self.size do
             local item = items[i]
-            item:load(bufnr, line, col)
+            item:render(bufnr, line, col)
             col = col + #item[1] + len
         end
     end
@@ -41,7 +40,6 @@ return {
             [2] = highlight,
         }, item_meta)
     end,
-
     text = function(items)
         local strs = {}
         local size = #items
@@ -56,7 +54,6 @@ return {
             items = items,
         }, text_meta)
     end,
-
     format = function(opts)
         local text  = opts.text
         local size  = text.size

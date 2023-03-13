@@ -3,7 +3,7 @@ local Trans = require("Trans")
 
 
 ---@class win
----@field win_opts table window config [**when open**]
+---@field win_opts table window config [**When open**]
 ---@field winid integer window handle
 ---@field ns integer namespace for highlight
 ---@field animation table window animation
@@ -49,7 +49,7 @@ function window:set_width(width)
     api.nvim_win_set_width(self.winid, width)
 end
 
----Get  window width
+---Get window width
 function window:width()
     return api.nvim_win_get_width(self.winid)
 end
@@ -87,7 +87,7 @@ function window:smooth_expand(opts)
     self:set('wrap', wrap)
 end
 
----Close window
+---Try to close window with animation?
 function window:try_close()
     local close_animation = self.animation.close
     if close_animation then
@@ -112,6 +112,7 @@ function window:set_hl(name, opts)
     api.nvim_set_hl(self.ns, name, opts)
 end
 
+---Open window with animation?
 function window:open()
     local win_opts = self.win_opts
     local open_animation = self.animation.open
@@ -159,6 +160,10 @@ local default_opts = {
     },
 }
 
+
+---Create new window
+---@param opts table window config
+---@return win
 function window.new(opts)
     opts = vim.tbl_deep_extend('keep', opts, default_opts)
 
