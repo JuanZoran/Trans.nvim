@@ -13,19 +13,26 @@ local function init_opts(opts)
     return opts
 end
 
-local function set_result(data)
+
+local function do_query(data)
     -- HACK :Rewrite this function to support multi requests
     local frontend = data.frontend
+    local result = data.result
     for _, backend in ipairs(data.backend) do
         local name = backend.name
         if backend.no_wait then
             backend.query(data)
         else
             backend.query(data)
-            frontend:wait(data.result, name, backend.timeout)
+            frontend:wait(result, name, backend.timeout)
         end
 
-        if type(data.result[name]) == 'table' then break end
+
+        if type(result[name]) == 'table' then
+            return result[name]
+        else
+            result[name] = nil
+        end
     end
 end
 
@@ -46,20 +53,11 @@ local function process(opts)
 
 
     local data = Trans.data.new(opts)
-    set_result(data)
+    local result = do_query(data)
 
-
-    local success = false
-    for _, v in pairs(data.result) do
-        if type(v) == "table" then
-            success = true
-            break
-        end
-    end
-    if success == false then return end
-
+    if not result then return end
     Trans.cache[data.str] = data
-    data.frontend:process(data)
+    data.frontend:process(data, result)
 end
 
 return coroutine.wrap(process)

@@ -123,11 +123,13 @@ end
 ---@param nodes string|table|table[] string -> as line content | table -> as a node | table[] -> as node[]
 ---@param linenr number? line number should be set[one index] or let it be nil to append
 function buffer:setline(nodes, linenr)
-    linenr = linenr and linenr - 1 or -1
+    self:set('modifiable', true)
+    linenr = linenr and linenr - 1 or self:line_count()
 
     if type(nodes) == 'string' then
         api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { nodes })
-    elseif type(nodes) == 'table' then
+
+    else
         if type(nodes[1]) == 'string' then
             -- FIXME :set [nodes] type as node
             ---@diagnostic disable-next-line: assign-type-mismatch
@@ -149,6 +151,8 @@ function buffer:setline(nodes, linenr)
             end
         end
     end
+
+    self:set('modifiable', false)
 end
 
 ---@private
@@ -183,6 +187,7 @@ function buffer.new()
     }, buffer)
 
 
+    new_buf:set('modifiable', false)
     new_buf:set('filetype', 'Trans')
     new_buf:set('buftype', 'nofile')
     return new_buf

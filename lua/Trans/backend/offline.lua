@@ -16,7 +16,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then return end
 
-    local path       = require('Trans').conf.dir .. '/ultimate.db'
+    local path    = require('Trans').conf.dir .. '/ultimate.db'
 
     local dict    = db:open(path)
     local db_name = data.db_name or 'stardict'
@@ -109,24 +109,24 @@ local formatter = {
     pos = function(res)
         if not exist(res.pos) then return end
         local pos_map = {
-            v = '动词            v',
-            n = '名词            n',
-            r = '副词          adv',
-            m = '数词          num',
-            p = '代词         pron',
-            a = '代词         pron',
-            i = '介词         prep',
-            u = '感叹词        int',
-            j = '形容词        adj',
-            c = '连接词       conj',
-            x = '否定标记      not',
-            t = '不定式标记   infm',
-            d = '限定词 determiner',
+            a = '代词pron         ',
+            c = '连接词conj       ',
+            i = '介词prep         ',
+            j = '形容词adj        ',
+            m = '数词num          ',
+            n = '名词n            ',
+            p = '代词pron         ',
+            r = '副词adv          ',
+            u = '感叹词int        ',
+            v = '动词v            ',
+            x = '否定标记not      ',
+            t = '不定式标记infm   ',
+            d = '限定词determiner ',
         }
 
         local pos = {}
         for _, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
-            pos[pos_map[_pos:sub(1, 1)]] = _pos:sub(3)
+            pos[pos_map[_pos:sub(1, 1)]] = ('%2s%%'):format(_pos:sub(3))
         end
 
         return pos
