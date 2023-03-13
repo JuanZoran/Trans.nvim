@@ -7,9 +7,7 @@ local function metatable(folder_name, origin)
         __index = function(tbl, key)
             local status, result = pcall(require, ('Trans.%s.%s'):format(folder_name, key))
 
-            if not status then
-                error('fail to load: ' .. key .. '\n' .. result)
-            end
+            if not status then error('fail to load: ' .. key .. '\n' .. result) end
 
             tbl[key] = result
             return result
@@ -17,12 +15,13 @@ local function metatable(folder_name, origin)
     })
 end
 
+
 local M = metatable('core')
 
 
 M.metatable = metatable
 M.style     = metatable("style")
-M.wrapper   = metatable("wrapper")
 
-M.cache = {}
+M.cache     = {}
+
 return M

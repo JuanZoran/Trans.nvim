@@ -25,12 +25,7 @@ local text_meta = {
 
 item_meta.__index = item_meta
 text_meta.__index = function(self, key)
-    local res = text_meta[key]
-    if res then
-        return res
-    elseif key == 1 then
-        return table.concat(self.strs, self.step)
-    end
+    return text_meta[key] or (key == 1 and table.concat(self.strs, self.step) or nil)
 end
 
 return {

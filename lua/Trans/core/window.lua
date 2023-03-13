@@ -54,6 +54,11 @@ function window:width()
     return api.nvim_win_get_width(self.winid)
 end
 
+
+function window:highlight_line(linenr, highlight)
+    self.buffer:highlight_line(linenr, highlight, self.ns)
+end
+
 ---Get window height
 function window:height()
     return api.nvim_win_get_height(self.winid)
@@ -149,7 +154,6 @@ end
 window.__index = window
 
 local default_opts = {
-    ns       = api.nvim_create_namespace('TransHoverWin'),
     enter    = false,
     winid    = -1,
     win_opts = {
@@ -173,20 +177,6 @@ function window.new(opts)
 end
 
 return window
-
---@class win_opts
---@field buf buf buffer for attached
---@field height integer
---@field width integer
---@field col integer
---@field row integer
---@field border string
---@field title string | nil | table
---@field relative string
---@field ns integer namespace for highlight
---@field zindex? integer
---@field enter? boolean cursor should [enter] window
---@field animation table window animation
 
 -- local ns        = opts.ns
 -- local buf       = opts.buf

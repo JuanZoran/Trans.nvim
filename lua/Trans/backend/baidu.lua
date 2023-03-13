@@ -56,7 +56,7 @@ function M.query(data)
     end
 
 
-    Trans.wrapper.curl.get(M.uri, {
+    Trans.curl.get(M.uri, {
         query = M.get_content(data),
         callback = handle,
     })

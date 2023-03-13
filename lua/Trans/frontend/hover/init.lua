@@ -21,6 +21,7 @@ local Trans = require('Trans')
 
 
 local M = Trans.metatable('frontend.hover', {
+    ns    = vim.api.nvim_create_namespace('TransHoverWin'),
     queue = {},
 })
 M.__index = M
@@ -29,7 +30,7 @@ M.__index = M
 ---@return hover new_instance
 function M.new()
     local new_instance = {
-        buffer = Trans.wrapper.buffer.new(),
+        buffer = Trans.buffer.new(),
         destroy_funcs = {},
     }
     M.queue[#M.queue + 1] = new_instance
@@ -75,6 +76,7 @@ function M:init_window(opts)
     local m_opts   = self.opts
 
 
+    opts.ns           = self.ns
     opts.buffer       = self.buffer
     win_opts.col      = 1
     win_opts.row      = 1
@@ -89,7 +91,7 @@ function M:init_window(opts)
 
 
 
-    self.window = Trans.wrapper.window.new(opts)
+    self.window = Trans.window.new(opts)
     return self.window
 end
 
@@ -98,8 +100,8 @@ end
 ---@param name string @key to be checked
 ---@param timeout number @timeout for waiting
 function M:wait(tbl, name, timeout)
-    local msg     = self.opts.fallback_message
-    local wid     = msg:width()
+    local opts    = self.opts
+    local width   = opts.width
     local spinner = Trans.style.spinner[self.opts.spinner]
     local size    = #spinner
     local cell    = self.opts.icon.cell
@@ -112,15 +114,16 @@ function M:wait(tbl, name, timeout)
     self:init_window({
         win_opts = {
             height = 1,
-            width = wid,
+            width = width,
         }
     })
 
-    local interval = math.floor(timeout / wid)
+    local interval = math.floor(timeout / width)
     local pause = Trans.util.pause
-    for i = 1, wid do
+    for i = 1, width do
         if tbl[name] ~= nil then break end
         self.buffer[1] = update_text(i)
+        self.buffer:add_highlight(1, 'MoreMsg')
         pause(interval)
     end
 
@@ -141,7 +144,6 @@ function M:is_available()
 end
 
 return M
-
 -- local error_msg = conf.icon.notfound .. '    没有找到相关的翻译'
 -- local buffer = require('Trans.buffer')()
 

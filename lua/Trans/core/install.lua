@@ -36,7 +36,7 @@ return function()
     end
 
 
-    Trans.wrapper.curl.get(uri, {
+    Trans.curl.get(uri, {
         output = loc,
         callback = handle,
     })

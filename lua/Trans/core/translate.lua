@@ -13,41 +13,6 @@ local function init_opts(opts)
     return opts
 end
 
-
-local function new_data(opts)
-    local mode = opts.mode
-    local str  = opts.str
-
-
-    local strategy = Trans.conf.strategy[mode]
-    local data     = {
-        str    = str,
-        mode   = mode,
-        result = {},
-    }
-
-    data.frontend  = Trans.frontend[strategy.frontend].new()
-
-    data.backend   = {}
-    for i, name in ipairs(strategy.backend) do
-        data.backend[i] = Trans.backend[name]
-    end
-
-
-    if util.is_English(str) then
-        data.from = 'en'
-        data.to = 'zh'
-    else
-        data.from = 'zh'
-        data.to = 'en'
-    end
-
-    -- FIXME : Check if the str is a word
-    data.is_word = true
-
-    return data
-end
-
 local function set_result(data)
     -- HACK :Rewrite this function to support multi requests
     local frontend = data.frontend
@@ -80,9 +45,10 @@ local function process(opts)
     end
 
 
-
-    local data = new_data(opts)
+    local data = Trans.data.new(opts)
     set_result(data)
+
+
     local success = false
     for _, v in pairs(data.result) do
         if type(v) == "table" then
