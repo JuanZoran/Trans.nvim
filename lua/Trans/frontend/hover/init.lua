@@ -90,7 +90,6 @@ function M:init_window(opts)
     opts.animation  = m_opts.animation
 
 
-
     self.window = Trans.window.new(opts)
     return self.window
 end
@@ -120,27 +119,47 @@ function M:wait(tbl, name, timeout)
 
     local interval = math.floor(timeout / width)
     local pause = Trans.util.pause
+    local buffer = self.buffer
     for i = 1, width do
         if tbl[name] ~= nil then break end
-        self.buffer[1] = update_text(i)
-        self.buffer:add_highlight(1, 'MoreMsg')
+        buffer[1] = update_text(i)
+        buffer:add_highlight(1, 'MoreMsg')
         pause(interval)
     end
+
+    buffer[1] = ''
 
     -- TODO : End waitting animation
 end
 
-
 function M:process(_, result)
-    if not self.window then self:init_window() end
+    -- local node = Trans.util.node
+    -- local it, t, f = node.item, node.text, node.format
+    -- self.buffer:setline(it('hello', 'MoreMsg'))
+    local opts = self.opts
 
-    local node = Trans.util.node
-    local it, t, f = node.item, node.text, node.format
-    self.buffer:setline(it('hello', 'MoreMsg'))
+    for _, field in ipairs(opts.order) do
+        if result[field] then
+            self:load(result, field)
+        end
+    end
 
-    -- for _, field in ipairs(self.opts.order) do
-    --     self:load(result, field)
-    -- end
+    local win = self.window
+    if not win then
+        win = self:init_window()
+    elseif win:width() ~= opts.width then
+        win:expand {
+            field = 'width',
+            to = opts.width
+        }
+    elseif win:height() ~= opts.height then
+        win:expand {
+            field = 'height',
+            to = opts.height
+        }
+    end
+
+    win:set('wrap', true)
 end
 
 ---Check if hover window and buffer are valid
@@ -148,7 +167,6 @@ end
 function M:is_available()
     return self.buffer:is_valid() and self.window:is_valid()
 end
-
 
 return M
 -- local function handle_keymap(win, word)

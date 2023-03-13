@@ -32,7 +32,7 @@ local strategy = {
             hover.buffer:setline(it(word, 'TransWord'))
         else
             hover.buffer:setline(f {
-                width = hover.width,
+                width = hover.opts.width,
                 text = t {
                     it(word, 'TransWord'),
                     t {

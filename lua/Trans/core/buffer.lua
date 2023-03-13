@@ -121,20 +121,23 @@ end
 
 ---Set line content
 ---@param nodes string|table|table[] string -> as line content | table -> as a node | table[] -> as node[]
----@param linenr number? line number should be set[one index] or let it be nil to append
-function buffer:setline(nodes, linenr)
+---@param one_index number? line number should be set[one index] or let it be nil to append
+function buffer:setline(nodes, one_index)
     self:set('modifiable', true)
-    linenr = linenr and linenr - 1 or self:line_count()
+    if not one_index then
+        local line_count = self:line_count()
+        one_index = (line_count == 1 and self[1] == '') and 1 or line_count + 1
+    end
 
+    local zero_index = one_index - 1
     if type(nodes) == 'string' then
-        api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { nodes })
-
+        api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { nodes })
     else
         if type(nodes[1]) == 'string' then
             -- FIXME :set [nodes] type as node
             ---@diagnostic disable-next-line: assign-type-mismatch
-            api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { nodes[1] })
-            nodes:render(self, linenr, 0)
+            api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { nodes[1] })
+            nodes:render(self, one_index, 0)
         else
             local strs = {}
             local num = #nodes
@@ -142,11 +145,11 @@ function buffer:setline(nodes, linenr)
                 strs[i] = nodes[i][1]
             end
 
-            api.nvim_buf_set_lines(self.bufnr, linenr, linenr, false, { table.concat(strs) })
+            api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { table.concat(strs) })
             local col = 0
             for i = 1, num do
                 local node = nodes[i]
-                node:render(self, linenr, col)
+                node:render(self, one_index, col)
                 col = col + #node[1]
             end
         end
@@ -185,7 +188,6 @@ function buffer.new()
         bufnr = api.nvim_create_buf(false, false),
         extmarks = {},
     }, buffer)
-
 
     new_buf:set('modifiable', false)
     new_buf:set('filetype', 'Trans')
