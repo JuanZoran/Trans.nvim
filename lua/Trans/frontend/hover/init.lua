@@ -1,5 +1,6 @@
 local Trans = require('Trans')
 
+-- FIXME :Adjust Window Size
 
 ---@class TransHover: TransFrontend
 ---@field ns integer @namespace for hover window
@@ -117,7 +118,6 @@ function M:wait(tbl, name, timeout)
         pause(interval)
     end
 
-    -- TODO : End waitting animation
     buffer[1] = ''
 end
 

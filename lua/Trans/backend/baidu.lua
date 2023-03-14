@@ -72,7 +72,7 @@ function M.query(data)
             result = result[1]
             data.result.baidu = {
                 ['title'] = result.src,
-                [data.from == 'en' and 'translation' or 'definition'] = result.dst,
+                [data.from == 'en' and 'translation' or 'definition'] = { result.dst },
             }
         end
     end

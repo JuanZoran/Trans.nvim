@@ -11,15 +11,14 @@ function buffer:wipe()
 end
 
 ---Delete buffer [_start, _end] line content [one index]
----@param _start integer start line index
----@param _end integer end line index
+---@param _start? integer start line index
+---@param _end? integer end line index
 function buffer:del(_start, _end)
-    if not _start then
-        fn.deletebufline(self.bufnr, '$')
-    else
-        _end = _end or _start
-        fn.deletebufline(self.bufnr, _start, _end)
-    end
+    -- FIXME :
+
+    ---@diagnostic disable-next-line: cast-local-type
+    _start = _start or '$'
+    fn.deletebufline(self.bufnr, _start, _end)
 end
 
 ---Set buffer option
@@ -97,6 +96,7 @@ end
 ---@param col_end? number column end
 ---@param ns number? highlight namespace
 function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
+    -- vim.print(linenr, hl_group, col_start, col_end, ns)
     linenr = linenr - 1 or -1
     col_start = col_start or 0
     api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
@@ -125,19 +125,20 @@ end
 ---@param one_index number? line number should be set[one index] or let it be nil to append
 function buffer:setline(nodes, one_index)
     self:set('modifiable', true)
-    if not one_index then
-        local line_count = self:line_count()
-        one_index = (line_count == 1 and self[1] == '') and 1 or line_count + 1
-    end
 
-    local zero_index = one_index - 1
+
+    ---@diagnostic disable-next-line: cast-local-type, param-type-mismatch
+    one_index = one_index or self:line_count() + 1
+    if one_index == 2 and self[1] == '' then one_index = 1 end
+    ---@cast one_index integer
+
     if type(nodes) == 'string' then
-        api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { nodes })
+        fn.setbufline(self.bufnr, one_index, nodes)
     else
+        -- FIXME :set [nodes] type as node
         if type(nodes[1]) == 'string' then
-            -- FIXME :set [nodes] type as node
-            ---@diagnostic disable-next-line: assign-type-mismatch
-            api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { nodes[1] })
+            ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
+            fn.setbufline(self.bufnr, one_index, nodes[1])
             nodes:render(self, one_index, 0)
         else
             local strs = {}
@@ -146,7 +147,7 @@ function buffer:setline(nodes, one_index)
                 strs[i] = nodes[i][1]
             end
 
-            api.nvim_buf_set_lines(self.bufnr, zero_index, zero_index, false, { table.concat(strs) })
+            fn.setbufline(self.bufnr, one_index, table.concat(strs))
             local col = 0
             for i = 1, num do
                 local node = nodes[i]
@@ -164,8 +165,8 @@ buffer.__index = function(self, key)
     if res then
         return res
     elseif type(key) == 'number' then
-        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
-        return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
+        return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
+        -- return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
     else
         error('invalid key: ' .. key)
     end

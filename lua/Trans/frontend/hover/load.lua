@@ -14,7 +14,7 @@ local interval = (' '):rep(4)
 local strategy = {
     title = function(hover, title)
         if type(title) == 'string' then
-            hover.buffer:setline(it(title, 'TransTitle'))
+            hover.buffer:setline(it(title, 'TransWord'))
             return
         end
 
