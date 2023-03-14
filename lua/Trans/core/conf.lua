@@ -48,7 +48,7 @@ return {
                 interval = 12,
             },
         },
-        ---@class HoverOptions : TransFrontendOpts
+        ---@class TransHoverOpts : TransFrontendOpts
         hover = {
             ---@type integer Max Width of Hover Window
             width             = 37,

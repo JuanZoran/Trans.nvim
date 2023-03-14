@@ -92,12 +92,12 @@ end
 
 ---Add highlight to buffer
 ---@param linenr number line number should be set[one index]
----@param col_start number column start [zero index]
----@param col_end number column end
 ---@param hl_group string highlight group
+---@param col_start? number column start [zero index]
+---@param col_end? number column end
 ---@param ns number? highlight namespace
 function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
-    linenr = linenr and linenr - 1 or -1
+    linenr = linenr - 1 or -1
     col_start = col_start or 0
     api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
 end

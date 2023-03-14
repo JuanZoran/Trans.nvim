@@ -7,7 +7,7 @@ local Trans = require('Trans')
 ---@field is_word boolean @Is the str a word
 ---@field str string @The original string
 ---@field mode string @The mode of the str
----@field result table<string, TransResult> @The result of the translation
+---@field result table<string, TransResult|boolean> @The result of the translation
 ---@field frontend TransFrontend
 ---@field backends table<string, TransBackend>
 local M = {}

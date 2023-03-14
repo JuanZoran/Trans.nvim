@@ -1,5 +1,3 @@
----@class Trans
----@field util TransUtil
 local Trans = require('Trans')
 
 local fn, api = vim.fn, vim.api
@@ -79,4 +77,6 @@ function M.is_English(str)
     return true
 end
 
-Trans.util = M
+---@class Trans
+---@field util TransUtil
+return M

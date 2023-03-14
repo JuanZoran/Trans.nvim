@@ -27,7 +27,7 @@ local function do_query(data)
             backend.query(data)
         else
             backend.query(data)
-            frontend:wait(result, name, backend.timeout)
+            frontend:wait(result, name, backend.opts.timeout)
         end
 
 

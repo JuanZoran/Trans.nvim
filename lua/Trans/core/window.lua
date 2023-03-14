@@ -169,11 +169,15 @@ end
 window.__index = window
 
 
+---@alias WindowOpts
+---|{style: string, border: string, focusable: boolean, noautocmd?: boolean, relative: string, width: integer, height: integer, col: integer, row: integer, zindex?: integer, title?: table | string}
+
 
 ---@class TransWindowOpts
 local default_opts = {
     enter    = false,
     winid    = -1,
+    ---@type WindowOpts
     win_opts = {
         style     = 'minimal',
         border    = 'rounded',
@@ -181,6 +185,9 @@ local default_opts = {
         noautocmd = true,
     },
 }
+
+
+
 
 ---@class TransWindow
 ---@field buffer TransBuffer attached buffer object

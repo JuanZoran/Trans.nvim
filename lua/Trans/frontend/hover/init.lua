@@ -1,23 +1,13 @@
 local Trans = require('Trans')
 
----@class hover
+
+---@class TransHover: TransFrontend
+---@field ns integer @namespace for hover window
 ---@field buffer TransBuffer @buffer for hover window
 ---@field window TransWindow @hover window
----@field queue hover[] @hover queue for all hover instances
----@field destroy_funcs table @functions to be executed when hover window is closed
----@field opts table @options for hover window
----@field opts.title string @title for hover window
----@field opts.width number @width for hover window
----@field opts.height number @height for hover window
----@field opts.animation boolean @whether to use animation for hover window
----@field opts.fallback_message string @message to be displayed when hover window is waiting for data
----@field opts.spinner string @spinner to be displayed when hover window is waiting for data
----@field opts.icon table @icons for hover window
----@field opts.icon.notfound string @icon for not found
----@field opts.icon.yes string @icon for yes
----@field opts.icon.no string @icon for no
----@field opts.icon.star string @icon for star
----@field opts.icon.cell string @icon for cell used in waitting animation
+---@field queue TransHover[] @hover queue for all hover instances
+---@field destroy_funcs fun(hover:TransHover)[] @functions to be executed when hover window is closed
+---@field opts TransHoverOpts @options for hover window
 local M = Trans.metatable('frontend.hover', {
     ns    = vim.api.nvim_create_namespace('TransHoverWin'),
     queue = {},
@@ -25,7 +15,7 @@ local M = Trans.metatable('frontend.hover', {
 M.__index = M
 
 ---Create a new hover instance
----@return hover new_instance
+---@return TransHover new_instance
 function M.new()
     local new_instance = {
         buffer = Trans.buffer.new(),
@@ -37,7 +27,7 @@ function M.new()
 end
 
 ---Get the first active instances
----@return hover
+---@return TransHover
 function M.get_active_instance()
     M.clear_dead_instance()
     return M.queue[1]
@@ -66,7 +56,8 @@ function M:destroy()
 end
 
 ---Init hover window
----@param opts table? @window options: width, height
+---@param opts?
+---|{win_opts: WindowOpts,}
 ---@return unknown
 function M:init_window(opts)
     opts           = opts or {}
@@ -104,10 +95,10 @@ function M:wait(tbl, name, timeout)
     local size    = #spinner
     local cell    = self.opts.icon.cell
 
-
     local function update_text(times)
         return spinner[times % size + 1] .. (cell):rep(times)
     end
+
 
     self:init_window({
         win_opts = {
@@ -130,6 +121,10 @@ function M:wait(tbl, name, timeout)
     buffer[1] = ''
 end
 
+---Display Result in hover window
+---@param _ any
+---@param result TransResult
+---@overload fun(result:TransResult)
 function M:process(_, result)
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
@@ -158,6 +153,8 @@ function M:is_available()
     return self.buffer:is_valid() and self.window:is_valid()
 end
 
+---@class TransFrontend
+---@field hover TransHover @hover frontend
 return M
 --     local cmd_id
 --     local next

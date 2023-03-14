@@ -20,6 +20,8 @@ local strategy = {
 }
 
 
+---@class TransHover
+---@field execute fun(hover: TransHover, action: string)
 return function(hover, action)
     -- TODO :
     strategy[action](hover)

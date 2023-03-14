@@ -1,3 +1,7 @@
+---@class TransUtil
+---@field md5 TransUtilMd5
+
+---@class TransUtilMd5
 local md5 = {}
 -- local md5 = {
 --     _VERSION     = "md5.lua 1.1.0",

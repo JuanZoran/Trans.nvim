@@ -1,7 +1,6 @@
 local node = require('Trans').util.node
 local it, t, f = node.item, node.text, node.format
 
-
 local function conjunction(text)
     return {
         it('', 'TransTitleRound'),
@@ -116,6 +115,11 @@ local strategy = {
     end,
 }
 
+
+
+
+---@class TransHover
+---@field load fun(hover: TransHover, result: TransResult, field: string)
 return function(hover, result, field)
     strategy[field](hover, result[field])
 end

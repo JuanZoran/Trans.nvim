@@ -5,9 +5,11 @@
 local function metatable(folder_name, origin)
     return setmetatable(origin or {}, {
         __index = function(tbl, key)
-            local result = require(('Trans.%s.%s'):format(folder_name, key))
-            tbl[key] = result
-            return result
+            local status, result = pcall(require, ('Trans.%s.%s'):format(folder_name, key))
+            if status then
+                tbl[key] = result
+                return result
+            end
         end
     })
 end

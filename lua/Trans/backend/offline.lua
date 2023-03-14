@@ -1,7 +1,9 @@
+---@class Offline: TransBackend
 local M = {
     no_wait = true,
     name = 'offline',
 }
+
 
 local db = require 'sqlite.db'
 vim.api.nvim_create_autocmd('VimLeavePre', {
@@ -13,6 +15,10 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
     end
 })
 
+
+---@param data any
+---@return any
+---@overload fun(TransData): TransResult
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then return end
 
@@ -48,6 +54,7 @@ local function exist(str)
     return str and str ~= ''
 end
 
+---@type (fun(res):any)[]
 local formatter = {
     title = function(res)
         local title = {
@@ -152,6 +159,9 @@ local formatter = {
     end,
 }
 
+---Formater for TransResul
+---@param res TransResult
+---@return TransResult
 function M.formatter(res)
     for field, func in pairs(formatter) do
         res[field] = func(res)
@@ -159,5 +169,6 @@ function M.formatter(res)
 
     return res
 end
+
 
 return M

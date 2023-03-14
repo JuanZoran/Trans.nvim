@@ -1,3 +1,9 @@
+---@class Baidu: TransBackend
+---@field uri string api uri
+---@field salt string
+---@field app_id string
+---@field app_passwd string
+---@field disable boolean
 local M = {
     uri  = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
     salt = tostring(math.random(bit.lshift(1, 15))),
@@ -6,6 +12,19 @@ local M = {
 
 local Trans = require('Trans')
 
+
+---@class BaiduQuery
+---@field q string
+---@field from string
+---@field to string
+---@field appid string
+---@field salt string
+---@field sign string
+
+
+---Get content for query
+---@param data TransData
+---@return BaiduQuery
 function M.get_content(data)
     local tmp  = M.app_id .. data.str .. M.salt .. M.app_passwd
     local sign = Trans.util.md5.sumhexa(tmp)
@@ -27,7 +46,9 @@ end
 --   status = 200
 -- }
 
-
+---@overload fun(TransData): TransResult
+---Query Using Baidu API
+---@param data TransData
 function M.query(data)
     if M.disable then
         data.result.baidu = false
@@ -37,22 +58,23 @@ function M.query(data)
 
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
-        if status and body then
-            local result = body.trans_result
-            if result then
-                -- TEST :whether multi result
-                assert(#result == 1)
-                result = result[1]
-                data.result.baidu = {
-                    ['title'] = result.src,
-                    [data.from == 'en' and 'translation' or 'definition'] = result.dst,
-                }
-                return
-            end
+        if not status or not body then
+            data.result.baidu = false
+            data.trace = res
+            return
         end
 
-        data.result.baidu = false
-        data.trace = res
+
+        local result = body.trans_result
+        if result then
+            -- TEST :whether multi result
+            assert(#result == 1)
+            result = result[1]
+            data.result.baidu = {
+                ['title'] = result.src,
+                [data.from == 'en' and 'translation' or 'definition'] = result.dst,
+            }
+        end
     end
 
 
@@ -62,6 +84,8 @@ function M.query(data)
     })
 end
 
+---@class TransBackend
+---@field baidu Baidu
 return M
 
 -- -- NOTE :free tts:
