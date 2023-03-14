@@ -58,7 +58,6 @@ local function set_frontend_opts(conf)
 end
 
 
-
 local function define_highlights(conf)
     local set_hl     = vim.api.nvim_set_hl
     local highlights = Trans.style.theme[conf.style.theme]
@@ -68,7 +67,12 @@ local function define_highlights(conf)
 end
 
 
-
+---@alias TransMode
+---|'normal' # Normal mode
+---|'visual' # Visual mode
+---|'input' # Input mode
+---@class Trans
+---@field setup fun(opts: { mode: string, mode: TransMode })
 return function(opts)
     if opts then
         Trans.conf = vim.tbl_deep_extend('force', Trans.conf, opts)

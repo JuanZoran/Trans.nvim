@@ -1,18 +1,11 @@
 local api = vim.api
 local Trans = require("Trans")
 
-
----@class win
----@field win_opts table window config [**When open**]
----@field winid integer window handle
----@field ns integer namespace for highlight
----@field animation table window animation
----@field enter boolean cursor should [enter] window when open
----@field buffer buffer attached buffer object
+---@class TransWindow
 local window = {}
 
 ---Change window attached buffer
----@param buf buf
+---@param buf TransBuffer
 function window:set_buf(buf)
     api.nvim_win_set_buf(self.winid, buf.bufnr)
     self.buf = buf
@@ -25,11 +18,11 @@ function window:is_valid()
 end
 
 ---Set window option
----@param option string option name
+---@param name string option name
 ---@param value any
-function window:set(option, value)
+function window:set(name, value)
     if self:is_valid() then
-        api.nvim_win_set_option(self.winid, option, value)
+        api.nvim_win_set_option(self.winid, name, value)
     end
 end
 
@@ -50,19 +43,25 @@ function window:set_width(width)
 end
 
 ---Get window width
+---@return integer
 function window:width()
     return api.nvim_win_get_width(self.winid)
 end
 
 ---Get window height
+---@return integer
 function window:height()
     return api.nvim_win_get_height(self.winid)
 end
 
+-- TODO :
+-- function window:adjust()
+
+-- end
+
 ---Expand window [width | height] value
----@param opts table
----|'field'string [width | height]
----|'target'integer
+---@param opts
+---|{ field: string, to: integer}
 function window:smooth_expand(opts)
     local field = opts.field -- width | height
     local from  = api['nvim_win_get_' .. field](self.winid)
@@ -76,18 +75,19 @@ function window:smooth_expand(opts)
 
 
     local wrap = self:option('wrap')
-
     local interval = self.animation.interval
     for i = from + 1, to, (from < to and 1 or -1) do
         self:set('wrap', false)
         method(self.winid, i)
         pause(interval)
     end
-
     self:set('wrap', wrap)
 end
 
-function M:resize(opts)
+---Resize window
+---@param opts
+---|{ width: integer, height: integer }
+function window:resize(opts)
     local width = opts[1]
     local height = opts[2]
 
@@ -126,9 +126,9 @@ function window:try_close()
     api.nvim_win_close(self.winid, true)
 end
 
----set window local highlight group
+---Set window local highlight group
 ---@param name string
----@param opts table
+---@param opts table highlight config
 function window:set_hl(name, opts)
     api.nvim_set_hl(self.ns, name, opts)
 end
@@ -155,20 +155,22 @@ function window:open()
     end
 end
 
-
-function window:center(node)
-    -- TODO :
-    print('TODO Center')
-    -- local text = node[1]
-    -- local width = text:width()
-    -- local win_width = self.width
-    -- local space = math.max(math.floor((win_width - width) / 2), 0)
-    -- node[1] = (' '):rep(space) .. text
-    -- return node
-end
+-- function window:center(node)
+--     -- TODO :
+--     print('TODO Center')
+--     -- local text = node[1]
+--     -- local width = text:width()
+--     -- local win_width = self.width
+--     -- local space = math.max(math.floor((win_width - width) / 2), 0)
+--     -- node[1] = (' '):rep(space) .. text
+--     -- return node
+-- end
 
 window.__index = window
 
+
+
+---@class TransWindowOpts
 local default_opts = {
     enter    = false,
     winid    = -1,
@@ -180,23 +182,33 @@ local default_opts = {
     },
 }
 
+---@class TransWindow
+---@field buffer TransBuffer attached buffer object
+---@field win_opts table window config [**When open**]
+---@field private winid integer window handle
+---@field ns integer namespace for highlight
+---@field enter boolean cursor should [enter] window when open
+---@field animation
+---|{open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
+
 
 ---Create new window
----@param opts table window config
----@return win
+---@param opts TransWindowOpts window config
+---@return TransWindow
 function window.new(opts)
     opts = vim.tbl_deep_extend('keep', opts, default_opts)
 
     local win = setmetatable(opts, window)
+    ---@cast win TransWindow
+
     win:open()
     return win
 end
 
+---@class Trans
+---@field window TransWindow
 return window
-
 -- local win_opt   = {
---     focusable = false,
---     style     = 'minimal',
 --     zindex    = zindex,
 --     width     = width,
 --     height    = height,
@@ -205,26 +217,4 @@ return window
 --     border    = border,
 --     title     = title,
 --     relative  = relative,
--- }
-
--- if field then
---     win_opt[field] = 1
--- end
-
--- if win_opt.title then
---     win_opt.title_pos = 'center'
--- end
-
--- local win = setmetatable({
---     buf       = buf,
---     ns        = ns,
---     height    = win_opt.height,
---     width     = win_opt.width,
---     animation = animation,
---     winid     = api.nvim_open_win(buf.bufnr, enter, win_opt),
--- }, window)
-
--- return win, win:expand {
---     field = field,
---     target = opts[field],
 -- }

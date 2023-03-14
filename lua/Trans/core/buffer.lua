@@ -1,17 +1,16 @@
----@class buf
----@field bufnr integer buffer handle
-
----@type buf
-local buffer = {}
-
 local api, fn = vim.api, vim.fn
+
+---@class TransBuffer
+---@field bufnr integer buffer handle
+---@field [number] string buffer[line] content
+local buffer = {}
 
 ---Clear all content in buffer
 function buffer:wipe()
     api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
 end
 
----delete buffer [_start, _end] line content [one index]
+---Delete buffer [_start, _end] line content [one index]
 ---@param _start integer start line index
 ---@param _end integer end line index
 function buffer:del(_start, _end)
@@ -30,7 +29,7 @@ function buffer:set(name, value)
     api.nvim_buf_set_option(self.bufnr, name, value)
 end
 
----get buffer option
+---Get buffer option
 ---@param name string option name
 ---@return any
 function buffer:option(name)
@@ -42,7 +41,6 @@ function buffer:destroy()
     api.nvim_buf_delete(self.bufnr, { force = true })
 end
 
-
 ---Set buffer load keymap
 ---@param key string
 ---@param operation function | string
@@ -53,7 +51,7 @@ function buffer:map(key, operation)
     })
 end
 
----Execute normal keycode in this buffer[no recursive]
+---Execute keycode in normal this buffer[no recursive]
 ---@param key string key code
 function buffer:normal(key)
     api.nvim_buf_call(self.bufnr, function()
@@ -61,8 +59,8 @@ function buffer:normal(key)
     end)
 end
 
----@return boolean
 ---@nodiscard
+---@return boolean
 function buffer:is_valid()
     return api.nvim_buf_is_valid(self.bufnr)
 end
@@ -161,7 +159,6 @@ function buffer:setline(nodes, one_index)
     self:set('modifiable', false)
 end
 
----@private
 buffer.__index = function(self, key)
     local res = buffer[key]
     if res then
@@ -169,14 +166,12 @@ buffer.__index = function(self, key)
     elseif type(key) == 'number' then
         -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
         return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
-
     else
         error('invalid key: ' .. key)
     end
 end
 
 
----@private
 buffer.__newindex = function(self, key, nodes)
     if type(key) == 'number' then
         self:setline(nodes, key)
@@ -185,12 +180,13 @@ buffer.__newindex = function(self, key, nodes)
     end
 end
 
----buffer constructor
----@return buf
+
+---@nodiscard
+---TransBuffer constructor
+---@return TransBuffer
 function buffer.new()
     local new_buf = setmetatable({
         bufnr = api.nvim_create_buf(false, false),
-        extmarks = {},
     }, buffer)
 
     new_buf:set('modifiable', false)
@@ -199,4 +195,6 @@ function buffer.new()
     return new_buf
 end
 
+---@class Trans
+---@field buffer TransBuffer
 return buffer

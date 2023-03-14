@@ -1,9 +1,9 @@
 local Trans = require('Trans')
 local util = Trans.util
 
-
 local function init_opts(opts)
     opts = opts or {}
+    ---@type TransMode
     opts.mode = opts.mode or ({
         n = 'normal',
         v = 'visual',
@@ -14,11 +14,14 @@ local function init_opts(opts)
 end
 
 
+---To Query All Backends
+---@param data TransData
+---@return TransResult? @return nil if no result
 local function do_query(data)
     -- HACK :Rewrite this function to support multi requests
     local frontend = data.frontend
     local result = data.result
-    for _, backend in ipairs(data.backend) do
+    for _, backend in ipairs(data.backends) do
         local name = backend.name
         if backend.no_wait then
             backend.query(data)
@@ -39,7 +42,6 @@ end
 
 -- HACK : Core process logic
 local function process(opts)
-    Trans.translate = coroutine.wrap(process)
     opts = init_opts(opts)
     local str = opts.str
     if not str or str == '' then return end
@@ -64,4 +66,9 @@ local function process(opts)
     data.frontend:process(data, result)
 end
 
-return coroutine.wrap(process)
+
+---@class Trans
+---@field translate fun(opts: { word: string, mode: string?}) Translate string core function
+return function(opts)
+    coroutine.wrap(process)(opts)
+end

@@ -1,7 +1,15 @@
-M = require('Trans').metatable('util')
+---@class Trans
+---@field util TransUtil
+local Trans = require('Trans')
 
 local fn, api = vim.fn, vim.api
 
+---@class TransUtil
+local M = require('Trans').metatable('util')
+
+
+---Get selected text
+---@return string
 function M.get_select()
     local _start = fn.getpos("v")
     local _end = fn.getpos('.')
@@ -33,7 +41,7 @@ function M.get_select()
 end
 
 ---Get Text which need to be translated
----@param mode string 'n' | 'v' | 'i'
+---@param mode TransMode
 ---@return string
 function M.get_str(mode)
     if mode == 'n' or mode == 'normal' then
@@ -48,9 +56,8 @@ function M.get_str(mode)
     end
 end
 
-
 ---Puase coroutine for {ms} milliseconds
----@param ms integer milliseconds
+---@param ms integer
 function M.pause(ms)
     local co = coroutine.running()
     vim.defer_fn(function()
@@ -59,9 +66,8 @@ function M.pause(ms)
     coroutine.yield()
 end
 
-
 ---Detect whether the string is English
----@param str string string to detect
+---@param str string
 ---@return boolean
 function M.is_English(str)
     local char = { str:byte(1, -1) }
@@ -73,4 +79,4 @@ function M.is_English(str)
     return true
 end
 
-return M
+Trans.util = M

@@ -20,8 +20,7 @@ local strategy = {
 }
 
 
-
 return function(hover, action)
     -- TODO :
-    coroutine.wrap(strategy[action])(hover)
+    strategy[action](hover)
 end

@@ -1,6 +1,25 @@
+---@class TransCurl
 local curl = {}
 
-curl.get = function(uri, opts)
+---@class RequestResult
+---@field body string
+---@field exit integer exit code
+---@field error string error message from stderr
+
+
+---@class TransCurlOptions
+---@field query table<string, string> query arguments
+---@field output string output file path
+---@field headers table<string, string> headers
+---@field callback fun(result: RequestResult)
+
+
+---@async
+---Send a GET request use curl
+---@param uri string uri for request
+---@param opts
+---| { query?: table<string, string>, output?: string, headers?: table<string, string>, callback: fun(result: RequestResult) }
+function curl.get(uri, opts)
     local query    = opts.query
     local output   = opts.output
     local headers  = opts.headers
@@ -49,13 +68,11 @@ curl.get = function(uri, opts)
     end
 
     local on_exit = function(_, exit)
-        if callback then
-            callback {
-                exit = exit,
-                body = table.concat(outputs),
-                error = error
-            }
-        end
+        callback {
+            exit = exit,
+            body = table.concat(outputs),
+            error = table.concat(error, '\n')
+        }
     end
 
     -- vim.pretty_print(table.concat(cmd, ' '))
@@ -67,10 +84,12 @@ curl.get = function(uri, opts)
     })
 end
 
-
----- TODO :
+--- TODO :
 -- curl.post = function ()
 --
 -- end
 
+
+---@class Trans
+---@field curl TransCurl
 return curl

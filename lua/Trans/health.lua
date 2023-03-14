@@ -31,7 +31,6 @@ local function check_plugin_dependencies()
     end
 end
 
-
 local function check_binary_dependencies()
     local binary_dependencies = {
         'curl',

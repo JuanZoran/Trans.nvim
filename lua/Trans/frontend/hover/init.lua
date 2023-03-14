@@ -1,10 +1,10 @@
 local Trans = require('Trans')
 
 ---@class hover
----@field queue table @hover queue for all hover instances
----@field buffer buf @buffer for hover window
+---@field buffer TransBuffer @buffer for hover window
+---@field window TransWindow @hover window
+---@field queue hover[] @hover queue for all hover instances
 ---@field destroy_funcs table @functions to be executed when hover window is closed
----@field window window @hover window
 ---@field opts table @options for hover window
 ---@field opts.title string @title for hover window
 ---@field opts.width number @width for hover window
@@ -18,8 +18,6 @@ local Trans = require('Trans')
 ---@field opts.icon.no string @icon for no
 ---@field opts.icon.star string @icon for star
 ---@field opts.icon.cell string @icon for cell used in waitting animation
-
-
 local M = Trans.metatable('frontend.hover', {
     ns    = vim.api.nvim_create_namespace('TransHoverWin'),
     queue = {},
@@ -66,7 +64,6 @@ function M:destroy()
     if self.window:is_valid() then self.window:try_close() end
     if self.buffer:is_valid() then self.buffer:destroy() end
 end
-
 
 ---Init hover window
 ---@param opts table? @window options: width, height

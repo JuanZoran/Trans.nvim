@@ -1,4 +1,9 @@
+---@class Trans
+---@field define TransDefine
+
+---@class TransDefine
 return {
+    ---@type TransMode[]
     modes = {
         'normal',
         'visual',

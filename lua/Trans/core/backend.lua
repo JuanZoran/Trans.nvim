@@ -1,10 +1,15 @@
 local Trans = require('Trans')
-local conf = Trans.conf
 
+
+---@class TransBackend
+---@field query fun(TransData): TransResult
+---@field opts TransBackendOpts
+
+
+local conf = Trans.conf
 --- INFO :Parse online engine keys config file
 local path = conf.dir .. '/Trans.json'
 local file = io.open(path, "r")
-
 
 local result = {}
 if file then
@@ -13,16 +18,32 @@ if file then
     file:close()
 end
 
+
+local default_opts = conf.backend.default
+default_opts.__index = default_opts
+
+
+---@class Trans
+---@field backend table<string, TransBackend>
 return setmetatable({}, {
     __index = function(self, name)
-        local opts = vim.tbl_extend('keep', conf.backend[name] or {}, conf.backend.default, result[name] or {})
+        ---@type TransBackend
         local backend = require('Trans.backend.' .. name)
-
-        for k, v in pairs(opts) do
-            backend[k] = v
+        if backend then
+            self[name] = backend
+        else
+            backend = self[name]
         end
 
-        self[name] = backend
+        backend.opts = setmetatable(conf.backend[name] or {}, default_opts)
+
+        local private_opts = result[name]
+        if private_opts then
+            for k, v in pairs(private_opts) do
+                backend[k] = v
+            end
+        end
+
         return backend
     end
 })

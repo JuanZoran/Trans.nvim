@@ -1,10 +1,13 @@
+---@class Trans
+---@field install fun() Download database and tts dependencies
 return function()
     local Trans = require('Trans')
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
     local path = dir .. '/ultimate.db'
+    local fn = vim.fn
 
-    if vim.fn.filereadable(path) == 1 then
+    if fn.filereadable(path) == 1 then
         vim.notify('Database already exists', vim.log.WARN)
         return
     else
@@ -16,8 +19,8 @@ return function()
     local uri = 'https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdict-ultimate-sqlite.zip'
     local loc = dir .. '/ultimate.zip'
     local handle = function(output)
-        if output.exit == 0 and vim.fn.filereadable(loc) then
-            if vim.fn.executable('unzip') == 0 then
+        if output.exit == 0 and fn.filereadable(loc) then
+            if fn.executable('unzip') == 0 then
                 vim.notify('unzip not found, Please unzip ' .. loc .. 'manually', vim.log.ERROR)
                 return
             end
@@ -42,7 +45,7 @@ return function()
     })
 
     -- INFO : Install tts dependencies
-    if vim.fn.has('linux') == 0 and vim.fn.has('mac') == 0 then
+    if fn.has('linux') == 0 and fn.has('mac') == 0 then
         os.execute('cd ./tts/ && npm install')
     end
 end
