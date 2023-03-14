@@ -2,7 +2,7 @@ local Trans = require('Trans')
 
 ---@class hover
 ---@field queue table @hover queue for all hover instances
----@field buffer buffer @buffer for hover window
+---@field buffer buf @buffer for hover window
 ---@field destroy_funcs table @functions to be executed when hover window is closed
 ---@field window window @hover window
 ---@field opts table @options for hover window
@@ -62,9 +62,11 @@ function M:destroy()
         func(self)
     end
 
-    self.window:try_close()
-    self.buffer:destroy()
+
+    if self.window:is_valid() then self.window:try_close() end
+    if self.buffer:is_valid() then self.buffer:destroy() end
 end
+
 
 ---Init hover window
 ---@param opts table? @window options: width, height
@@ -127,9 +129,8 @@ function M:wait(tbl, name, timeout)
         pause(interval)
     end
 
-    buffer[1] = ''
-
     -- TODO : End waitting animation
+    buffer[1] = ''
 end
 
 function M:process(_, result)
@@ -145,18 +146,10 @@ function M:process(_, result)
     end
 
     local win = self.window
-    if not win then
+    if win and win:is_valid() then
+        win:resize { self.opts.width, self.opts.height }
+    else
         win = self:init_window()
-    elseif win:width() ~= opts.width then
-        win:expand {
-            field = 'width',
-            to = opts.width
-        }
-    elseif win:height() ~= opts.height then
-        win:expand {
-            field = 'height',
-            to = opts.height
-        }
     end
 
     win:set('wrap', true)
@@ -169,17 +162,6 @@ function M:is_available()
 end
 
 return M
--- local function handle_keymap(win, word)
---     local keymap = hover.keymap
---     local cur_buf = api.nvim_get_current_buf()
---     local del = vim.keymap.del
---     local function try_del_keymap()
---         for _, key in pairs(keymap) do
---             pcall(del, 'n', key)
---         end
---     end
-
---     local lock = false
 --     local cmd_id
 --     local next
 --     local action = {
@@ -257,6 +239,7 @@ return M
 --     for act, key in pairs(hover.keymap) do
 --         set('n', key, action[act])
 --     end
+
 
 --     if hover.auto_close_events then
 --         cmd_id = api.nvim_create_autocmd(

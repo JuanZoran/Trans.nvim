@@ -47,8 +47,12 @@ local function process(opts)
     -- Find in cache
     if Trans.cache[str] then
         local data = Trans.cache[str]
-        data.frontend:process(data)
-        return
+
+        local result = data:get_available_result()
+        if result then
+            data.frontend:process(data, result)
+            return
+        end
     end
 
 

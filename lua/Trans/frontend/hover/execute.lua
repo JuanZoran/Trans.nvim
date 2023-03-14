@@ -1,5 +1,5 @@
 local strategy = {
-    play = function(self)
+    play = function()
         print('TODO: play')
     end,
     pageup = function()
@@ -11,8 +11,8 @@ local strategy = {
     pin = function()
         print('TODO: pin')
     end,
-    close = function()
-        print('TODO: close')
+    close = function(hover)
+        hover:destroy()
     end,
     toggle_entry = function()
         print('TODO: toggle_entry')
@@ -21,7 +21,7 @@ local strategy = {
 
 
 
-return function(self, action)
+return function(hover, action)
     -- TODO :
-    strategy[action](self)
+    coroutine.wrap(strategy[action])(hover)
 end

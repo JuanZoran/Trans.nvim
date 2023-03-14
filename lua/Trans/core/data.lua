@@ -51,17 +51,17 @@ function M.new(opts)
     return setmetatable(data, M)
 end
 
--- ---Get the first available result [return nil if no result]
--- ---@return table?
--- function M:get_available_result()
---     local result = self.result
---     local backend = self.backend
+---Get the first available result [return nil if no result]
+---@return table?
+function M:get_available_result()
+    local result = self.result
+    local backend = self.backend
 
---     for _, name in ipairs(backend) do
---         if result[name] then
---             return result[name]
---         end
---     end
--- end
+    for _, name in ipairs(backend) do
+        if result[name] then
+            return result[name]
+        end
+    end
+end
 
 return M

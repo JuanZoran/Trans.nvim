@@ -1,5 +1,7 @@
 ---@class buf
 ---@field bufnr integer buffer handle
+
+---@type buf
 local buffer = {}
 
 local api, fn = vim.api, vim.fn
@@ -36,9 +38,10 @@ function buffer:option(name)
 end
 
 ---Destory buffer
-function buffer:destory()
+function buffer:destroy()
     api.nvim_buf_delete(self.bufnr, { force = true })
 end
+
 
 ---Set buffer load keymap
 ---@param key string
@@ -166,8 +169,9 @@ buffer.__index = function(self, key)
     elseif type(key) == 'number' then
         -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
         return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
+
     else
-        error('invalid key' .. key)
+        error('invalid key: ' .. key)
     end
 end
 

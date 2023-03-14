@@ -10,6 +10,7 @@ local function set_frontend_keymap(frontend)
     for action, key in pairs(frontend.opts.keymap) do
         set('n', key, function()
             local instance = frontend.get_active_instance()
+
             if instance then
                 instance:execute(action)
             else

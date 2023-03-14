@@ -54,11 +54,6 @@ function window:width()
     return api.nvim_win_get_width(self.winid)
 end
 
-
-function window:highlight_line(linenr, highlight)
-    self.buffer:highlight_line(linenr, highlight, self.ns)
-end
-
 ---Get window height
 function window:height()
     return api.nvim_win_get_height(self.winid)
@@ -70,8 +65,8 @@ end
 ---|'target'integer
 function window:smooth_expand(opts)
     local field = opts.field -- width | height
-    local from  = self[field](self)
-    local to    = opts.target
+    local from  = api['nvim_win_get_' .. field](self.winid)
+    local to    = opts.to
 
     if from == to then return end
 
@@ -92,6 +87,27 @@ function window:smooth_expand(opts)
     self:set('wrap', wrap)
 end
 
+function M:resize(opts)
+    local width = opts[1]
+    local height = opts[2]
+
+
+    if self:width() ~= width then
+        self:smooth_expand {
+            field = 'width',
+            to = width
+        }
+    end
+
+
+    if self:height() ~= height then
+        self:smooth_expand {
+            field = 'height',
+            to = height
+        }
+    end
+end
+
 ---Try to close window with animation?
 function window:try_close()
     local close_animation = self.animation.close
@@ -103,7 +119,7 @@ function window:try_close()
 
         self:smooth_expand({
             field = field,
-            target = 1,
+            to = 1,
         })
     end
 
@@ -132,23 +148,23 @@ function window:open()
         self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
         self:smooth_expand({
             field = field,
-            target = to,
+            to = to,
         })
     else
         self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
     end
 end
 
----buffer:addline() helper function
----@param node table
----@return table node formatted node
+
 function window:center(node)
-    local text = node[1]
-    local width = text:width()
-    local win_width = self.width
-    local space = math.max(math.floor((win_width - width) / 2), 0)
-    node[1] = (' '):rep(space) .. text
-    return node
+    -- TODO :
+    print('TODO Center')
+    -- local text = node[1]
+    -- local width = text:width()
+    -- local win_width = self.width
+    -- local space = math.max(math.floor((win_width - width) / 2), 0)
+    -- node[1] = (' '):rep(space) .. text
+    -- return node
 end
 
 window.__index = window
@@ -177,25 +193,6 @@ function window.new(opts)
 end
 
 return window
-
--- local ns        = opts.ns
--- local buf       = opts.buf
--- local col       = opts.col
--- local row       = opts.row
--- local title     = opts.title
--- local width     = opts.width
--- local height    = opts.height
--- local border    = opts.border
--- local zindex    = opts.zindex
--- local relative  = opts.relative
--- local animation = opts.animation
-
--- local open      = animation.open
-
--- local field     = ({
---     slid = 'width',
---     fold = 'height',
--- })[open]
 
 -- local win_opt   = {
 --     focusable = false,
