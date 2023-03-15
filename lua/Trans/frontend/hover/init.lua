@@ -92,58 +92,56 @@ function M:init_window(opts)
     return self.window
 end
 
----Wait for data
----@param tbl table @table to be checked
----@param name string @key to be checked
----@param timeout number @timeout for waiting
-function M:wait(tbl, name, timeout)
-    local opts    = self.opts
-    local width   = opts.width
-    local spinner = Trans.style.spinner[self.opts.spinner]
-    local size    = #spinner
-    local cell    = self.opts.icon.cell
+---Get Check function for waiting
+---@return function
+function M:wait()
+    local cur      = 0
+    local opts     = self.opts
+    local buffer   = self.buffer
+    local times    = opts.width
+    local pause    = Trans.util.pause
+    local cell     = opts.icon.cell
+    local spinner  = Trans.style.spinner[opts.spinner]
+    local size     = #spinner
+    local interval = math.floor(opts.timeout / opts.width)
 
-    local function update_text(times)
-        return spinner[times % size + 1] .. (cell):rep(times)
-    end
-
-
-    self:init_window({
+    self:init_window {
         height = 1,
-        width = width,
-    })
+        width = times,
+    }
 
-
-    local interval = math.floor(timeout / width)
-    local pause = Trans.util.pause
-    local buffer = self.buffer
-    for i = 1, width do
-        if tbl[name] ~= nil then break end
-        buffer[1] = update_text(i)
+    return function()
+        cur = cur + 1
+        buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)
         buffer:add_highlight(1, 'MoreMsg')
         pause(interval)
+        return cur == times
     end
-
-    -- FIXME :
-    -- buffer:wipe()
-    -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
-    -- print('jklajsdk')
-    -- print(vim.fn.deletebufline(buffer.bufnr, 1))
-    -- buffer:del()
-    buffer[1] = ''
 end
+
+--     -- FIXME :
+--     -- buffer:wipe()
+--     -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
+--     -- print('jklajsdk')
+--     -- print(vim.fn.deletebufline(buffer.bufnr, 1))
+--     -- buffer:del()
+--     buffer[1] = ''
 
 ---Display Result in hover window
 ---@param data TransData
 ---@param result TransResult
 ---@overload fun(result:TransResult)
 function M:process(data, result)
-    if self.pin then return end
+    local buffer = self.buffer
+    print(vim.fn.deletebufline(buffer.bufnr, 1))
+    -- buffer[1] = ''
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))
+    if self.pin then return end
+
     local opts = self.opts
-    if not self.buffer:is_valid() then self.buffer:init() end
+    if not buffer:is_valid() then buffer:init() end
 
     if opts.auto_play then
         (data.from == 'en' and data.str or result.definition[1]):play()
@@ -156,7 +154,7 @@ function M:process(data, result)
     end
 
     local window = self.window
-    local display_size = Trans.util.display_size(self.buffer:lines(), opts.width)
+    local display_size = Trans.util.display_size(buffer:lines(), opts.width)
     if window and window:is_valid() then
         if opts.auto_resize then
             display_size.width = math.min(opts.width, display_size.width + opts.padding)

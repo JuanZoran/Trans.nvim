@@ -13,36 +13,28 @@ local function init_opts(opts)
 end
 
 
----To Query All Backends
----@param data TransData
----@return TransResult? @return nil if no result
-local function do_query(data)
-    -- HACK :Rewrite this function to support multi requests
-
-    ---@type TransFrontend
-    local frontend = data.frontend
-    local result = data.result
-
-
-    for _, backend in ipairs(data.backends) do
-        ---@cast backend TransBackend
-        local name = backend.name
-        if backend.no_wait then
+---@type table<string, fun(data: TransData, update: fun()): TransResult|false?>
+local strategy = {
+    fallback = function(data, update)
+        local result = data.result
+        for _, backend in ipairs(data.backends) do
+            ---@cast backend TransBackend
+            local name = backend.name
             backend.query(data)
-        else
-            backend.query(data)
-            frontend:wait(result, name, backend.opts.timeout)
-        end
 
 
-        if type(result[name]) == 'table' then
-            ---@diagnostic disable-next-line: return-type-mismatch
-            return result[name]
-        else
-            result[name] = nil
+            if not backend.no_wait then
+                while result[name] == nil do
+                    update()
+                end
+            end
+
+            if type(result[name]) == 'table' then
+                return result[name]
+            end
         end
     end
-end
+}
 
 
 -- HACK : Core process logic
@@ -62,13 +54,14 @@ local function process(opts)
         end
     end
 
-
     local data = Trans.data.new(opts)
-    local result = do_query(data)
+    local frontend = data.frontend
 
+    local result = strategy[Trans.conf.query](data, frontend:wait())
     if not result then return end
+
     Trans.cache[data.str] = data
-    data.frontend:process(data, result)
+    frontend:process(data, result)
 end
 
 

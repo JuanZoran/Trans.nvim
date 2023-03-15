@@ -25,13 +25,6 @@ return {
             backend = '*',
         },
     },
-    ---@type table<string, TransBackendOpts> fallback backend for mode
-    backend  = {
-        ---@class TransBackendOpts -- TODO :More core options
-        default = {
-            timeout = 2000,
-        },
-    },
     ---@type table frontend options
     frontend = {
         ---@class TransFrontendOpts
@@ -47,6 +40,7 @@ return {
                 close = 'slid',
                 interval = 12,
             },
+            timeout = 2000,
         },
         ---@class TransHoverOpts : TransFrontendOpts
         hover = {

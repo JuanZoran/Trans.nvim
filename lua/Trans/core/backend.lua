@@ -3,7 +3,6 @@ local Trans = require('Trans')
 
 ---@class TransBackend
 ---@field query fun(data: TransData)---@async
----@field opts TransBackendOpts
 ---@field no_wait? boolean whether need to wait for the result
 ---@field name string @backend name
 
@@ -21,9 +20,6 @@ if file then
 end
 
 
-local default_opts = conf.backend.default
-default_opts.__index = default_opts
-
 ---@class Trans
 ---@field backend table<string, TransBackend>
 return setmetatable({}, {
@@ -35,8 +31,6 @@ return setmetatable({}, {
         else
             backend = self[name]
         end
-
-        backend.opts = setmetatable(conf.backend[name] or {}, default_opts)
 
         local private_opts = result[name]
         if private_opts then

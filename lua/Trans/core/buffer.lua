@@ -5,12 +5,13 @@ local api, fn = vim.api, vim.fn
 ---@field [number] string buffer[line] content
 local buffer = {}
 
+-- INFO : corountine can't invoke C function
 ---Clear all content in buffer
-function buffer:wipe()
-    print('begin')
-    api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
-    print('end')
-end
+-- function buffer:wipe()
+--     print('begin')
+--     api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
+--     print('end')
+-- end
 
 ---Delete buffer [_start, _end] line content [one index]
 ---@param _start? integer start line index

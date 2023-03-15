@@ -27,7 +27,7 @@ end
 ---@field opts TransFrontendOpts
 ---@field get_active_instance fun():TransFrontend?
 ---@field process fun(self: TransFrontend, data: TransData, result: TransResult)
----@field wait fun(self: TransFrontend, result: TransResult, name: string, timeout: integer)
+---@field wait fun(self: TransFrontend): fun() Update wait status
 ---@field execute fun(action: string) @Execute action for frontend instance
 
 ---@class Trans
