@@ -60,7 +60,7 @@ end
 
 local function define_highlights(conf)
     local set_hl     = vim.api.nvim_set_hl
-    local highlights = Trans.style.theme[conf.style.theme]
+    local highlights = Trans.style.theme[conf.theme]
     for hl, opt in pairs(highlights) do
         set_hl(0, hl, opt)
     end

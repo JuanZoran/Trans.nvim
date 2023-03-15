@@ -124,7 +124,6 @@ function M:wait(tbl, name, timeout)
         pause(interval)
     end
 
-
     -- FIXME :
     -- buffer:wipe()
     -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
@@ -139,6 +138,7 @@ end
 ---@param result TransResult
 ---@overload fun(result:TransResult)
 function M:process(data, result)
+    if self.pin then return end
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))

@@ -7,7 +7,6 @@ if vim.fn.has('nvim-0.9') == 1 then
     }
 end
 
-
 ---@class Trans
 ---@field conf TransConf
 
@@ -16,9 +15,11 @@ end
 return {
     ---@type string the directory for database file and password file
     dir      = os.getenv('HOME') .. '/.vim/dict',
-    ---@type table modeStrategy default strategy for mode
+    query    = 'fallback',
+    ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
+    theme    = 'default', -- default | tokyonight | dracula
     strategy = {
-        ---@type { frontend:string, backend:string } fallback strategy for mode
+        ---@type { frontend:string, backend:string | string[] } fallback strategy for mode
         default = {
             frontend = 'hover',
             backend = '*',
@@ -26,9 +27,8 @@ return {
     },
     ---@type table<string, TransBackendOpts> fallback backend for mode
     backend  = {
-        ---@class TransBackendOpts
+        ---@class TransBackendOpts -- TODO :More core options
         default = {
-            ---@type integer timeout for backend send request
             timeout = 2000,
         },
     },
@@ -57,16 +57,16 @@ return {
             ---@type string -- see: /lua/Trans/style/spinner
             spinner           = 'dots',
             ---@type string -- TODO :support replace with {{special word}}
-            fallback_message  = '翻译超时或没有找到相关的翻译',
+            fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
             padding           = 10, -- padding for hover window width
             keymaps           = {
-                -- play         = '_', -- Deprecated
                 pageup       = '[[',
                 pagedown     = ']]',
                 pin          = '<leader>[',
                 close        = '<leader>]',
                 toggle_entry = '<leader>;',
+                -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
             auto_close_events = {
@@ -93,10 +93,6 @@ return {
                 cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
             },
         },
-    },
-    style    = {
-        ---@type string global Trans theme [see lua/Trans/style/theme.lua]
-        theme = 'default', -- default | tokyonight | dracula
     },
 }
 

@@ -12,6 +12,7 @@ local strategy = {
 
     pin = function(hover)
         if hover.pin then return end
+        hover.pin = true
         local window = hover.window
         local width, height = window:width(), window:height()
         local col = vim.o.columns - width - 3
@@ -25,7 +26,6 @@ local strategy = {
         })
 
         window:set('wrap', true)
-        hover.pin = true
     end,
 
     close = function(hover)

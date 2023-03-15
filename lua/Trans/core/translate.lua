@@ -22,6 +22,8 @@ local function do_query(data)
     ---@type TransFrontend
     local frontend = data.frontend
     local result = data.result
+
+
     for _, backend in ipairs(data.backends) do
         ---@cast backend TransBackend
         local name = backend.name
@@ -40,7 +42,6 @@ local function do_query(data)
             result[name] = nil
         end
     end
-
 end
 
 
