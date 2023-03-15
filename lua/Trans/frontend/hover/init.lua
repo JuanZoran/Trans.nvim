@@ -128,7 +128,6 @@ function M:wait(tbl, name, timeout)
     buffer[1] = ''
 end
 
-
 ---Display Result in hover window
 ---@param _ TransData
 ---@param result TransResult
@@ -148,8 +147,8 @@ function M:process(_, result)
     local window = self.window
     local display_size = Trans.util.display_size(self.buffer:lines(), opts.width)
     if window and window:is_valid() then
-        -- win:adjust_height(opts.height)
-        display_size.width = math.min(opts.width, display_size.width + 6)
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        display_size.width = opts.auto_resize and math.min(opts.width, display_size.width + opts.padding) or nil
         window:resize(display_size)
     else
         window = self:init_window {

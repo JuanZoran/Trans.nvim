@@ -58,6 +58,8 @@ return {
             spinner           = 'dots',
             ---@type string -- TODO :support replace with {{special word}}
             fallback_message  = '翻译超时或没有找到相关的翻译',
+            auto_resize       = true,
+            padding           = 10, -- only work when auto_resize is true
             keymaps           = {
                 play         = '_',
                 pageup       = '[[',

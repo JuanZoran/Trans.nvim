@@ -95,21 +95,17 @@ end
 ---@param opts
 ---|{ width: integer, height: integer }
 function window:resize(opts)
-    local width  = opts.width
-    local height = opts.height
-
-
-    if self:height() ~= height then
+    if opts.height and self:height() ~= opts.height then
         self:smooth_expand {
             field = 'height',
-            to = height
+            to = opts.height
         }
     end
 
-    if self:width() ~= width then
+    if opts.width and self:width() ~= opts.width then
         self:smooth_expand {
             field = 'width',
-            to = width
+            to = opts.width
         }
     end
 end
