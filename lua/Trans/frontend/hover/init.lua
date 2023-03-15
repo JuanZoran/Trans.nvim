@@ -137,6 +137,8 @@ function M:process(_, result)
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))
     local opts = self.opts
+    if not self.buffer:is_valid() then self.buffer:init() end
+
 
     for _, field in ipairs(opts.order) do
         if result[field] then
@@ -147,13 +149,17 @@ function M:process(_, result)
     local window = self.window
     local display_size = Trans.util.display_size(self.buffer:lines(), opts.width)
     if window and window:is_valid() then
-        ---@diagnostic disable-next-line: assign-type-mismatch
-        display_size.width = opts.auto_resize and math.min(opts.width, display_size.width + opts.padding) or nil
+        if opts.auto_resize then
+            display_size.width = math.min(opts.width, display_size.width + opts.padding)
+        else
+            display_size.width = nil
+        end
         window:resize(display_size)
+
     else
         window = self:init_window {
             height = math.min(opts.height, display_size.height),
-            width = math.min(opts.width, display_size.width),
+            width = math.min(opts.width, display_size.width + opts.padding),
         }
     end
 

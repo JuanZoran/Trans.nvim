@@ -112,11 +112,8 @@ end
 function buffer:setline(nodes, one_index)
     self:set('modifiable', true)
 
-
-    ---@diagnostic disable-next-line: cast-local-type, param-type-mismatch
     one_index = one_index or self:line_count() + 1
     if one_index == 2 and self[1] == '' then one_index = 1 end
-    ---@cast one_index integer
 
     if type(nodes) == 'string' then
         fn.setbufline(self.bufnr, one_index, nodes)
@@ -167,18 +164,21 @@ buffer.__newindex = function(self, key, nodes)
     end
 end
 
+---Init buffer with bufnr
+---@param bufnr? integer buffer handle
+function buffer:init(bufnr)
+    self.bufnr = bufnr or api.nvim_create_buf(false, false)
+    self:set('modifiable', false)
+    self:set('filetype', 'Trans')
+    self:set('buftype', 'nofile')
+end
 
 ---@nodiscard
 ---TransBuffer constructor
 ---@return TransBuffer
 function buffer.new()
-    local new_buf = setmetatable({
-        bufnr = api.nvim_create_buf(false, false),
-    }, buffer)
-
-    new_buf:set('modifiable', false)
-    new_buf:set('filetype', 'Trans')
-    new_buf:set('buftype', 'nofile')
+    local new_buf = setmetatable({}, buffer)
+    new_buf:init()
     return new_buf
 end
 

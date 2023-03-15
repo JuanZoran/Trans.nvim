@@ -59,7 +59,7 @@ return {
             ---@type string -- TODO :support replace with {{special word}}
             fallback_message  = '翻译超时或没有找到相关的翻译',
             auto_resize       = true,
-            padding           = 10, -- only work when auto_resize is true
+            padding           = 10, -- padding for hover window width
             keymaps           = {
                 play         = '_',
                 pageup       = '[[',

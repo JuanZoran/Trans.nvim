@@ -64,11 +64,11 @@ end
 ---@return TransResult?
 function M:get_available_result()
     local result = self.result
-    local backend = self.backends
 
-    for _, name in ipairs(backend) do
-        if result[name] then
-            return result[name]
+    for _, backend in ipairs(self.backends) do
+        if result[backend.name] then
+            ---@diagnostic disable-next-line: return-type-mismatch
+            return result[backend.name]
         end
     end
 end
