@@ -79,20 +79,20 @@ function buffer:lines(i, j)
     return api.nvim_buf_get_lines(self.bufnr, i, j, false)
 end
 
----Add Extmark to buffer
----@param linenr number line number should be set[one index]
----@param col_start number column start
----@param col_end number column end
----@param hl_group string highlight group
----@param ns number? highlight namespace
-function buffer:add_extmark(linenr, col_start, col_end, hl_group, ns)
-    linenr = linenr and linenr - 1 or -1
-    api.nvim_buf_set_extmark(self.bufnr, ns or -1, linenr, col_start, {
-        end_line = linenr,
-        end_col = col_end,
-        hl_group = hl_group,
-    })
-end
+-- ---Add Extmark to buffer
+-- ---@param linenr number line number should be set[one index]
+-- ---@param col_start number column start
+-- ---@param col_end number column end
+-- ---@param hl_group string highlight group
+-- ---@param ns number? highlight namespace
+-- function buffer:add_extmark(linenr, col_start, col_end, hl_group, ns)
+--     linenr = linenr and linenr - 1 or -1
+--     api.nvim_buf_set_extmark(self.bufnr, ns or -1, linenr, col_start, {
+--         end_line = linenr,
+--         end_col = col_end,
+--         hl_group = hl_group,
+--     })
+-- end
 
 ---Add highlight to buffer
 ---@param linenr number line number should be set[one index]

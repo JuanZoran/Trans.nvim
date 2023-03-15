@@ -34,7 +34,7 @@ end
 ---@return TransHover
 function M.get_active_instance()
     M.clear_dead_instance()
-    return M.queue[1]
+    return M.queue[#M.queue]
 end
 
 ---Clear dead instance

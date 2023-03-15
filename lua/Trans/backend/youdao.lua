@@ -1,5 +1,12 @@
--- local GET = require("Trans.util.curl").GET
+---@class Youdao: TransBackend
+---@field uri string api uri
+---@field salt string
+---@field app_id string
+---@field app_passwd string
+---@field disable boolean
 
+
+-- local GET = require("Trans.util.curl").GET
 -- return function(word)
 --     local isEn = word:isEn()
 --     local result = {}

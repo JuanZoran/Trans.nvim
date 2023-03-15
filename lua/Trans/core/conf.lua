@@ -16,6 +16,7 @@ return {
     ---@type string the directory for database file and password file
     dir      = os.getenv('HOME') .. '/.vim/dict',
     query    = 'fallback',
+    -- backend_order = {},
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
     strategy = {

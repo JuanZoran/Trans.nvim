@@ -7,7 +7,10 @@ local frontend_opts = conf.frontend
 ---@param frontend TransFrontend
 local function set_frontend_keymap(frontend)
     local set = vim.keymap.set
-    local keymap_opts = { silent = true, expr = false, }
+    local keymap_opts = {
+        silent = true,
+        -- expr = true,
+    }
 
     for action, key in pairs(frontend.opts.keymaps) do
         set('n', key, function()

@@ -20,11 +20,20 @@ if file then
     file:close()
 end
 
+local all_name = {}
+for name, opts in pairs(result) do
+    if opts.disable then
+        result[name] = nil
+    else
+        all_name[#all_name + 1] = name
+    end
+end
+
 
 ---@class Trans
 ---@field backend table<string, TransBackend>
 return setmetatable({
-    all_name = vim.tbl_keys(result),
+    all_name = Trans.conf.backend_order or all_name,
 }, {
     __index = function(self, name)
         ---@type TransBackend
