@@ -1,4 +1,4 @@
-*Trans.txt*             For NVIM v0.8.0             Last change: 2023 March 14
+*Trans.txt*             For NVIM v0.8.0             Last change: 2023 March 15
 
 ==============================================================================
 Table of Contents                                    *Trans-table-of-contents*
