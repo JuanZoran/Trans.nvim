@@ -34,7 +34,6 @@ function M.query(data)
 
 
     data.result.offline = res and M.formatter(res) or false
-    return data
 end
 
 -- this is a awesome plugin

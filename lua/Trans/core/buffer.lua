@@ -1,4 +1,5 @@
 local api, fn = vim.api, vim.fn
+local Trans = require('Trans')
 
 ---@class TransBuffer
 ---@field bufnr integer buffer handle
@@ -7,19 +8,22 @@ local buffer = {}
 
 -- INFO : corountine can't invoke C function
 ---Clear all content in buffer
--- function buffer:wipe()
---     print('begin')
---     api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
---     print('end')
--- end
+function buffer:wipe()
+    Trans.util.main_loop(function()
+        api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
+    end)
+end
 
 ---Delete buffer [_start, _end] line content [one index]
 ---@param _start? integer start line index
 ---@param _end? integer end line index
-function buffer:del(_start, _end)
-    ---@diagnostic disable-next-line: cast-local-type
-    _start = _start or '$'
-    fn.deletebufline(self.bufnr, _start, _end)
+function buffer:deleteline(_start, _end)
+    Trans.util.main_loop(function()
+        ---@diagnostic disable-next-line: cast-local-type
+        _start = _start and _start - 1 or self:line_count() - 1
+        _end = _end and _end - 1 or _start + 1
+        api.nvim_buf_set_lines(self.bufnr, _start, _end, false, {})
+    end)
 end
 
 ---Set buffer option
@@ -113,37 +117,36 @@ end
 ---@param nodes string|table|table[] string -> as line content | table -> as a node | table[] -> as node[]
 ---@param one_index number? line number should be set[one index] or let it be nil to append
 function buffer:setline(nodes, one_index)
-    self:set('modifiable', true)
-
     one_index = one_index or self:line_count() + 1
     if one_index == 2 and self[1] == '' then one_index = 1 end
 
     if type(nodes) == 'string' then
         fn.setbufline(self.bufnr, one_index, nodes)
-    else
-        -- FIXME :set [nodes] type as node
-        if type(nodes[1]) == 'string' then
-            ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
-            fn.setbufline(self.bufnr, one_index, nodes[1])
-            nodes:render(self, one_index, 0)
-        else
-            local strs = {}
-            local num = #nodes
-            for i = 1, num do
-                strs[i] = nodes[i][1]
-            end
-
-            fn.setbufline(self.bufnr, one_index, table.concat(strs))
-            local col = 0
-            for i = 1, num do
-                local node = nodes[i]
-                node:render(self, one_index, col)
-                col = col + #node[1]
-            end
-        end
+        return
     end
 
-    self:set('modifiable', false)
+    -- FIXME :set [nodes] type as node
+    if type(nodes[1]) == 'string' then
+        ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
+        fn.setbufline(self.bufnr, one_index, nodes[1])
+        nodes:render(self, one_index, 0)
+        return
+    end
+
+
+    local strs = {}
+    local num = #nodes
+    for i = 1, num do
+        strs[i] = nodes[i][1]
+    end
+
+    fn.setbufline(self.bufnr, one_index, table.concat(strs))
+    local col = 0
+    for i = 1, num do
+        local node = nodes[i]
+        node:render(self, one_index, col)
+        col = col + #node[1]
+    end
 end
 
 buffer.__index = function(self, key)
@@ -171,7 +174,6 @@ end
 ---@param bufnr? integer buffer handle
 function buffer:init(bufnr)
     self.bufnr = bufnr or api.nvim_create_buf(false, false)
-    self:set('modifiable', false)
     self:set('filetype', 'Trans')
     self:set('buftype', 'nofile')
 end

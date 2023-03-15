@@ -9,10 +9,10 @@ return {
         'visual',
         'input',
     },
-    backends = {
-        'offline',
-        'baidu',
-    },
+    -- backends = {
+    --     'offline',
+    --     'baidu',
+    -- },
     frontends = {
         'hover',
     }

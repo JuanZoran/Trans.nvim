@@ -26,6 +26,7 @@ function M.new()
     }
     M.queue[#M.queue + 1] = new_instance
 
+    new_instance.buffer:deleteline(1)
     return setmetatable(new_instance, M)
 end
 
@@ -120,7 +121,6 @@ function M:wait()
 end
 
 --     -- FIXME :
---     -- buffer:wipe()
 --     -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
 --     -- print('jklajsdk')
 --     -- print(vim.fn.deletebufline(buffer.bufnr, 1))
@@ -132,16 +132,17 @@ end
 ---@param result TransResult
 ---@overload fun(result:TransResult)
 function M:process(data, result)
-    local buffer = self.buffer
-    print(vim.fn.deletebufline(buffer.bufnr, 1))
-    -- buffer[1] = ''
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))
-    if self.pin then return end
 
     local opts = self.opts
+    if self.pin then return end
+
+    local buffer = self.buffer
     if not buffer:is_valid() then buffer:init() end
+    buffer:deleteline(1)
+
 
     if opts.auto_play then
         (data.from == 'en' and data.str or result.definition[1]):play()
@@ -170,6 +171,7 @@ function M:process(data, result)
     end
 
     window:set('wrap', true)
+    buffer:set('modifiable', false)
 
 
     local auto_close_events = opts.auto_close_events
@@ -182,21 +184,6 @@ function M:process(data, result)
             end,
         })
     end
-
-    -- vim.api.nvim_create_autocmd('User', {
-    --     pattern = 'TransHoverReady',
-    --     callback = function(opts)
-    --         vim.print(opts)
-    --         ---@type TransHover
-    --         local hover = opts.data
-    --     end,
-    --     desc = 'Auto Close Hover Window',
-    -- })
-
-    -- vim.api.nvim_exec_autocmds('User', {
-    --     pattern = 'TransHoverReady',
-    --     data = self,
-    -- })
 end
 
 ---Check if hover window and buffer are valid

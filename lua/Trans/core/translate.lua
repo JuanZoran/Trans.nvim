@@ -17,16 +17,14 @@ end
 local strategy = {
     fallback = function(data, update)
         local result = data.result
+
         for _, backend in ipairs(data.backends) do
             ---@cast backend TransBackend
             local name = backend.name
             backend.query(data)
 
-
-            if not backend.no_wait then
-                while result[name] == nil do
-                    update()
-                end
+            while result[name] == nil do
+                update()
             end
 
             if type(result[name]) == 'table' then
@@ -55,13 +53,19 @@ local function process(opts)
     end
 
     local data = Trans.data.new(opts)
-    local frontend = data.frontend
+    Trans.backend.offline.query(data)
+    local result = data.result['offline']
+    if not result then
+        result = strategy[Trans.conf.query](data, data.frontend:wait())
+        if not result then
+            -- data.frontend:fallback()
+            return
+        end
+    end
 
-    local result = strategy[Trans.conf.query](data, frontend:wait())
-    if not result then return end
 
     Trans.cache[data.str] = data
-    frontend:process(data, result)
+    data.frontend:process(data, result)
 end
 
 

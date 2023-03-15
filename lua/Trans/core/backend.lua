@@ -4,6 +4,7 @@ local Trans = require('Trans')
 ---@class TransBackend
 ---@field query fun(data: TransData)---@async
 ---@field no_wait? boolean whether need to wait for the result
+---@field all_name string[] @all backend name
 ---@field name string @backend name
 
 
@@ -22,7 +23,9 @@ end
 
 ---@class Trans
 ---@field backend table<string, TransBackend>
-return setmetatable({}, {
+return setmetatable({
+    all_name = vim.tbl_keys(result),
+}, {
     __index = function(self, name)
         ---@type TransBackend
         local backend = require('Trans.backend.' .. name)

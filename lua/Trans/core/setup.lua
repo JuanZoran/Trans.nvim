@@ -3,7 +3,7 @@ local Trans = require('Trans')
 local function set_strategy_opts(conf)
     local define       = Trans.define
     local all_modes    = define.modes
-    local all_backends = define.backends
+    local all_backends = Trans.backend.all_name
 
     local function parse_backend(backend)
         if type(backend) == 'string' then

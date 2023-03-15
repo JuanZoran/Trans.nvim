@@ -115,6 +115,17 @@ function M.display_size(lines, width)
     return { height = ds_height, width = ds_width }
 end
 
+---Execute function in main loop
+---@param func function function to be executed
+function M.main_loop(func)
+    local co = coroutine.running()
+    vim.defer_fn(function()
+        func()
+        coroutine.resume(co)
+    end, 0)
+    coroutine.yield()
+end
+
 ---@class Trans
 ---@field util TransUtil
 return M
