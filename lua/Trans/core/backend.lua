@@ -2,7 +2,7 @@ local Trans = require('Trans')
 
 
 ---@class TransBackend
----@field query fun(TransData): TransResult
+---@field query fun(data: TransData)---@async
 ---@field opts TransBackendOpts
 ---@field no_wait? boolean whether need to wait for the result
 ---@field name string @backend name

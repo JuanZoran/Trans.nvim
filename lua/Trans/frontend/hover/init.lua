@@ -58,30 +58,32 @@ end
 
 ---Init hover window
 ---@param opts?
----|{win_opts: WindowOpts,}
+---|{width?: integer, height?: integer}
 ---@return unknown
 function M:init_window(opts)
     opts           = opts or {}
-    local win_opts = opts.win_opts or {}
-    opts.win_opts  = win_opts
     local m_opts   = self.opts
+    local option   = {
+        ns        = self.ns,
+        buffer    = self.buffer,
+        animation = m_opts.animation,
+    }
 
+    local win_opts = {
+        col      = 1,
+        row      = 1,
+        relative = 'cursor',
+        title    = m_opts.title,
+        width    = opts.width or m_opts.width,
+        height   = opts.height or m_opts.height,
+    }
 
-    opts.ns           = self.ns
-    opts.buffer       = self.buffer
-    win_opts.col      = 1
-    win_opts.row      = 1
-    win_opts.relative = 'cursor'
-    win_opts.title    = m_opts.title
     if win_opts.title then
         win_opts.title_pos = 'center'
     end
-    win_opts.width  = win_opts.width or m_opts.width
-    win_opts.height = win_opts.height or m_opts.height
-    opts.animation  = m_opts.animation
 
-
-    self.window = Trans.window.new(opts)
+    option.win_opts = win_opts
+    self.window = Trans.window.new(option)
     return self.window
 end
 
@@ -102,11 +104,10 @@ function M:wait(tbl, name, timeout)
 
 
     self:init_window({
-        win_opts = {
-            height = 1,
-            width = width,
-        }
+        height = 1,
+        width = width,
     })
+
 
     local interval = math.floor(timeout / width)
     local pause = Trans.util.pause
@@ -118,11 +119,18 @@ function M:wait(tbl, name, timeout)
         pause(interval)
     end
 
+
+    -- FIXME :
+    -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, { '' })
+    -- print('jklajsdk')
+    -- print(vim.fn.deletebufline(buffer.bufnr, 1))
+    -- buffer:del()
     buffer[1] = ''
 end
 
+
 ---Display Result in hover window
----@param _ any
+---@param _ TransData
 ---@param result TransResult
 ---@overload fun(result:TransResult)
 function M:process(_, result)
@@ -137,14 +145,20 @@ function M:process(_, result)
         end
     end
 
-    local win = self.window
-    if win and win:is_valid() then
-        win:resize { self.opts.width, self.opts.height }
+    local window = self.window
+    local display_size = Trans.util.display_size(self.buffer:lines(), opts.width)
+    if window and window:is_valid() then
+        -- win:adjust_height(opts.height)
+        display_size.width = math.min(opts.width, display_size.width + 6)
+        window:resize(display_size)
     else
-        win = self:init_window()
+        window = self:init_window {
+            height = math.min(opts.height, display_size.height),
+            width = math.min(opts.width, display_size.width),
+        }
     end
 
-    win:set('wrap', true)
+    window:set('wrap', true)
 end
 
 ---Check if hover window and buffer are valid

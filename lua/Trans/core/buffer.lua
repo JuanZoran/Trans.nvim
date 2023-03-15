@@ -14,8 +14,6 @@ end
 ---@param _start? integer start line index
 ---@param _end? integer end line index
 function buffer:del(_start, _end)
-    -- FIXME :
-
     ---@diagnostic disable-next-line: cast-local-type
     _start = _start or '$'
     fn.deletebufline(self.bufnr, _start, _end)
@@ -100,18 +98,6 @@ function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
     linenr = linenr - 1 or -1
     col_start = col_start or 0
     api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
-end
-
----Calculate buffer content display height
----@param width integer
----@return integer height
-function buffer:height(width)
-    local lines = self:lines()
-    local height = 0
-    for _, line in ipairs(lines) do
-        height = height + math.max(1, (math.ceil(line:width() / width)))
-    end
-    return height
 end
 
 ---Get buffer line count

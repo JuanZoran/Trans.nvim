@@ -3,7 +3,6 @@ local util = Trans.util
 
 local function init_opts(opts)
     opts = opts or {}
-    ---@type TransMode
     opts.mode = opts.mode or ({
         n = 'normal',
         v = 'visual',
@@ -19,9 +18,12 @@ end
 ---@return TransResult? @return nil if no result
 local function do_query(data)
     -- HACK :Rewrite this function to support multi requests
+
+    ---@type TransFrontend
     local frontend = data.frontend
     local result = data.result
     for _, backend in ipairs(data.backends) do
+        ---@cast backend TransBackend
         local name = backend.name
         if backend.no_wait then
             backend.query(data)
@@ -32,11 +34,13 @@ local function do_query(data)
 
 
         if type(result[name]) == 'table' then
+            ---@diagnostic disable-next-line: return-type-mismatch
             return result[name]
         else
             result[name] = nil
         end
     end
+
 end
 
 
@@ -68,7 +72,7 @@ end
 
 
 ---@class Trans
----@field translate fun(opts: { word: string, mode: string?}) Translate string core function
+---@field translate fun(opts: { frontend: string?, mode: string?}?) Translate string core function
 return function(opts)
     coroutine.wrap(process)(opts)
 end

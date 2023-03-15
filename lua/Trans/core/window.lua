@@ -5,10 +5,10 @@ local Trans = require("Trans")
 local window = {}
 
 ---Change window attached buffer
----@param buf TransBuffer
-function window:set_buf(buf)
-    api.nvim_win_set_buf(self.winid, buf.bufnr)
-    self.buf = buf
+---@param buffer TransBuffer
+function window:set_buf(buffer)
+    api.nvim_win_set_buf(self.winid, buffer.bufnr)
+    self.buffer = buffer
 end
 
 ---Check window valid
@@ -54,10 +54,17 @@ function window:height()
     return api.nvim_win_get_height(self.winid)
 end
 
--- TODO :
--- function window:adjust()
+---Auto adjust window size
+---@param height? integer max height
+function window:adjust_height(height)
+    local display_height = Trans.util.display_height(self.buffer:lines(), self:width())
+    height = height and math.min(display_height, height) or display_height
 
--- end
+    self:smooth_expand({
+        field = 'height',
+        to = height
+    })
+end
 
 ---Expand window [width | height] value
 ---@param opts
@@ -88,22 +95,21 @@ end
 ---@param opts
 ---|{ width: integer, height: integer }
 function window:resize(opts)
-    local width = opts[1]
-    local height = opts[2]
-
-
-    if self:width() ~= width then
-        self:smooth_expand {
-            field = 'width',
-            to = width
-        }
-    end
+    local width  = opts.width
+    local height = opts.height
 
 
     if self:height() ~= height then
         self:smooth_expand {
             field = 'height',
             to = height
+        }
+    end
+
+    if self:width() ~= width then
+        self:smooth_expand {
+            field = 'width',
+            to = width
         }
     end
 end
