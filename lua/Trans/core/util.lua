@@ -115,6 +115,23 @@ function M.display_size(lines, width)
     return { height = ds_height, width = ds_width }
 end
 
+---Center node utility function
+---@param node string -- TODO :Node
+---@param win_width integer window width
+---@return string
+function M.center(node, win_width)
+    if type(node) == 'string' then
+        local space = math.max(0, math.floor((win_width - node:width()) / 2))
+        return string.rep(' ', space) .. node
+    end
+
+    local str = node[1]
+    win_width = str:width()
+    local space = math.max(0, math.floor((win_width - str:width()) / 2))
+    node[1] = string.rep(' ', space) .. str
+    return node
+end
+
 ---Execute function in main loop
 ---@param func function function to be executed
 function M.main_loop(func)

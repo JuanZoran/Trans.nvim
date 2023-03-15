@@ -44,6 +44,9 @@ return {
         TransFailed = {
             fg = '#7aa89f',
         },
+        TransWaitting = {
+            link = 'MoreMsg'
+        },
     },
 
     --- TODO :
@@ -91,6 +94,9 @@ return {
         TransFailed = {
             fg = '#f4b085',
         },
+        TransWaitting = {
+            link = 'MoreMsg'
+        },
     },
     dracula = {
         TransWord = {
@@ -135,6 +141,9 @@ return {
         },
         TransFailed = {
             fg = '#8be9fd',
+        },
+        TransWaitting = {
+            link = 'MoreMsg'
         },
     },
 }

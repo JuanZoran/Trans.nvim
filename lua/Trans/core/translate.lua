@@ -24,14 +24,18 @@ local strategy = {
             backend.query(data)
 
             while result[name] == nil do
-                update()
+                if not update() then
+                    break
+                end
             end
 
             if type(result[name]) == 'table' then
                 return result[name]
             end
         end
-    end
+    end,
+
+    --- TODO :More Strategys
 }
 
 
@@ -58,7 +62,7 @@ local function process(opts)
     if not result then
         result = strategy[Trans.conf.query](data, data.frontend:wait())
         if not result then
-            -- data.frontend:fallback()
+            data.frontend:fallback()
             return
         end
     end

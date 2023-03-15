@@ -11,3 +11,4 @@
 -   [x] waitting animation
 -   [x] init frontend window
 -   [ ] build frontend window format logic
+-   [ ] Add Query FallBack

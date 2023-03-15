@@ -157,17 +157,6 @@ function window:open()
     end
 end
 
--- function window:center(node)
---     -- TODO :
---     print('TODO Center')
---     -- local text = node[1]
---     -- local width = text:width()
---     -- local win_width = self.width
---     -- local space = math.max(math.floor((win_width - width) / 2), 0)
---     -- node[1] = (' '):rep(space) .. text
---     -- return node
--- end
-
 window.__index = window
 
 

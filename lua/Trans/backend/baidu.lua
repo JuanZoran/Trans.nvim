@@ -4,6 +4,7 @@
 ---@field app_id string
 ---@field app_passwd string
 ---@field disable boolean
+
 local M = {
     uri  = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
     salt = tostring(math.random(bit.lshift(1, 15))),
@@ -11,7 +12,6 @@ local M = {
 }
 
 local Trans = require('Trans')
-
 
 ---@class BaiduQuery
 ---@field q string
@@ -50,12 +50,6 @@ end
 ---Query Using Baidu API
 ---@param data TransData
 function M.query(data)
-    if M.disable then
-        data.result.baidu = false
-        return
-    end
-
-
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
         if not status or not body then

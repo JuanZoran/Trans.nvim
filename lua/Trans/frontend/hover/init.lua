@@ -114,18 +114,42 @@ function M:wait()
     return function()
         cur = cur + 1
         buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)
-        buffer:add_highlight(1, 'MoreMsg')
+        buffer:add_highlight(1, 'TransWaitting')
         pause(interval)
         return cur == times
     end
 end
 
---     -- FIXME :
---     -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
---     -- print('jklajsdk')
---     -- print(vim.fn.deletebufline(buffer.bufnr, 1))
---     -- buffer:del()
---     buffer[1] = ''
+---FallBack window for no result
+function M:fallback()
+    local buffer = self.buffer
+    local opts = self.opts
+    buffer:wipe()
+    local fallback_msg = opts.fallback_message:gsub('{{(%w+)}}', opts.icon)
+
+    -- TODO :Center
+    buffer[1] = Trans.util.center(fallback_msg, opts.width)
+    buffer:add_highlight(1, 'TransFailed')
+    self:defer()
+end
+
+---Defer function when process done
+function M:defer()
+    self.window:set('wrap', true)
+    self.buffer:set('modifiable', false)
+
+
+    local auto_close_events = self.opts.auto_close_events
+    if auto_close_events then
+        vim.api.nvim_create_autocmd(auto_close_events, {
+            once = true,
+            callback = function()
+                if self.pin then return end
+                self:destroy()
+            end,
+        })
+    end
+end
 
 ---Display Result in hover window
 ---@param data TransData
@@ -156,6 +180,7 @@ function M:process(data, result)
 
     local window = self.window
     local display_size = Trans.util.display_size(buffer:lines(), opts.width)
+
     if window and window:is_valid() then
         if opts.auto_resize then
             display_size.width = math.min(opts.width, display_size.width + opts.padding)
@@ -169,21 +194,7 @@ function M:process(data, result)
             width = math.min(opts.width, display_size.width + opts.padding),
         }
     end
-
-    window:set('wrap', true)
-    buffer:set('modifiable', false)
-
-
-    local auto_close_events = opts.auto_close_events
-    if auto_close_events then
-        vim.api.nvim_create_autocmd(auto_close_events, {
-            once = true,
-            callback = function()
-                if self.pin then return end
-                self:destroy()
-            end,
-        })
-    end
+    self:defer()
 end
 
 ---Check if hover window and buffer are valid
