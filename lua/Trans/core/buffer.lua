@@ -7,7 +7,9 @@ local buffer = {}
 
 ---Clear all content in buffer
 function buffer:wipe()
+    print('begin')
     api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
+    print('end')
 end
 
 ---Delete buffer [_start, _end] line content [one index]

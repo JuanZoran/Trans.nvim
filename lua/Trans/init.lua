@@ -26,6 +26,7 @@ end
 local M = metatable('core', {
     style = metatable("style"),
     cache = {},
+    augroup = vim.api.nvim_create_augroup('Trans', { clear = true })
 })
 
 M.metatable = metatable

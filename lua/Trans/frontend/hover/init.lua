@@ -9,6 +9,7 @@ local Trans = require('Trans')
 ---@field queue TransHover[] @hover queue for all hover instances
 ---@field destroy_funcs fun(hover:TransHover)[] @functions to be executed when hover window is closed
 ---@field opts TransHoverOpts @options for hover window
+---@field pin boolean @whether hover window is pinned
 local M = Trans.metatable('frontend.hover', {
     ns    = vim.api.nvim_create_namespace('TransHoverWin'),
     queue = {},
@@ -19,6 +20,7 @@ M.__index = M
 ---@return TransHover new_instance
 function M.new()
     local new_instance = {
+        pin = false,
         buffer = Trans.buffer.new(),
         destroy_funcs = {},
     }
@@ -47,18 +49,21 @@ end
 
 ---Destroy hover instance and execute destroy functions
 function M:destroy()
-    for _, func in ipairs(self.destroy_funcs) do
-        func(self)
-    end
+    coroutine.wrap(function()
+        for _, func in ipairs(self.destroy_funcs) do
+            func(self)
+        end
 
 
-    if self.window:is_valid() then self.window:try_close() end
-    if self.buffer:is_valid() then self.buffer:destroy() end
+        if self.window:is_valid() then self.window:try_close() end
+        if self.buffer:is_valid() then self.buffer:destroy() end
+        self.pin = false
+    end)()
 end
 
 ---Init hover window
 ---@param opts?
----|{width?: integer, height?: integer}
+---|{width?: integer, height?: integer, col?: integer, row?: integer, relative?: string}
 ---@return unknown
 function M:init_window(opts)
     opts           = opts or {}
@@ -70,10 +75,10 @@ function M:init_window(opts)
     }
 
     local win_opts = {
-        col      = 1,
-        row      = 1,
-        relative = 'cursor',
+        col      = opts.col or 1,
+        row      = opts.row or 1,
         title    = m_opts.title,
+        relative = opts.relative or 'cursor',
         width    = opts.width or m_opts.width,
         height   = opts.height or m_opts.height,
     }
@@ -121,7 +126,8 @@ function M:wait(tbl, name, timeout)
 
 
     -- FIXME :
-    -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, { '' })
+    -- buffer:wipe()
+    -- vim.api.nvim_buf_set_lines(buffer.bufnr, 1, -1, true, {})
     -- print('jklajsdk')
     -- print(vim.fn.deletebufline(buffer.bufnr, 1))
     -- buffer:del()
@@ -129,16 +135,19 @@ function M:wait(tbl, name, timeout)
 end
 
 ---Display Result in hover window
----@param _ TransData
+---@param data TransData
 ---@param result TransResult
 ---@overload fun(result:TransResult)
-function M:process(_, result)
+function M:process(data, result)
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))
     local opts = self.opts
     if not self.buffer:is_valid() then self.buffer:init() end
 
+    if opts.auto_play then
+        (data.from == 'en' and data.str or result.definition[1]):play()
+    end
 
     for _, field in ipairs(opts.order) do
         if result[field] then
@@ -155,7 +164,6 @@ function M:process(_, result)
             display_size.width = nil
         end
         window:resize(display_size)
-
     else
         window = self:init_window {
             height = math.min(opts.height, display_size.height),
@@ -164,6 +172,33 @@ function M:process(_, result)
     end
 
     window:set('wrap', true)
+
+
+    local auto_close_events = opts.auto_close_events
+    if auto_close_events then
+        vim.api.nvim_create_autocmd(auto_close_events, {
+            once = true,
+            callback = function()
+                if self.pin then return end
+                self:destroy()
+            end,
+        })
+    end
+
+    -- vim.api.nvim_create_autocmd('User', {
+    --     pattern = 'TransHoverReady',
+    --     callback = function(opts)
+    --         vim.print(opts)
+    --         ---@type TransHover
+    --         local hover = opts.data
+    --     end,
+    --     desc = 'Auto Close Hover Window',
+    -- })
+
+    -- vim.api.nvim_exec_autocmds('User', {
+    --     pattern = 'TransHoverReady',
+    --     data = self,
+    -- })
 end
 
 ---Check if hover window and buffer are valid

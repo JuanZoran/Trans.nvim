@@ -61,7 +61,7 @@ return {
             auto_resize       = true,
             padding           = 10, -- padding for hover window width
             keymaps           = {
-                play         = '_',
+                -- play         = '_', -- Deprecated
                 pageup       = '[[',
                 pagedown     = ']]',
                 pin          = '<leader>[',

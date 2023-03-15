@@ -189,12 +189,10 @@ local default_opts = {
 }
 
 
-
-
 ---@class TransWindow
 ---@field buffer TransBuffer attached buffer object
 ---@field win_opts table window config [**When open**]
----@field private winid integer window handle
+---@field winid integer window handle
 ---@field ns integer namespace for highlight
 ---@field enter boolean cursor should [enter] window when open
 ---@field animation
