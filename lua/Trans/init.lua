@@ -23,9 +23,16 @@ end
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
+---@field modes string[] @all modes name
+
 local M = metatable('core', {
     style = metatable("style"),
     cache = {},
+    modes = {
+        'normal',
+        'visual',
+        'input',
+    },
     augroup = vim.api.nvim_create_augroup('Trans', { clear = true })
 })
 
