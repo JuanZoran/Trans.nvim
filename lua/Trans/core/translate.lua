@@ -54,9 +54,11 @@ local function process(opts)
     local data = Trans.data.new(opts)
     if strategy[Trans.conf.query](data) then
         Trans.cache[data.str] = data
-    end
+        data.frontend:process(data)
 
-    data.frontend:process(data)
+    else
+        data.frontend:fallback()
+    end
 end
 
 

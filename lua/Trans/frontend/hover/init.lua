@@ -93,6 +93,14 @@ function M:init_window(opts)
     return self.window
 end
 
+---Get Formatted icon text
+---@param format string format string
+---@return string formatted text
+---@return integer _ replaced count
+function M:icon_format(format)
+    return format:gsub('{{(%w+)}}', self.opts.icon, 1)
+end
+
 ---Get Check function for waiting
 ---@return function
 function M:wait()
@@ -131,9 +139,10 @@ function M:fallback()
 
 
     local buffer = self.buffer
-    local opts = self.opts
     buffer:wipe()
-    local fallback_msg = opts.fallback_message:gsub('{{(%w+)}}', opts.icon)
+
+    local opts = self.opts
+    local fallback_msg = self:icon_format(opts.fallback_message)
 
     -- TODO :Center
     buffer[1] = Trans.util.center(fallback_msg, opts.width)

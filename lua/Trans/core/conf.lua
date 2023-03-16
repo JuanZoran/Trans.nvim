@@ -71,6 +71,11 @@ return {
             },
             ---@type table<string, string[]> order to display translate result
             order             = {
+                default = {
+                    'str',
+                    'translation',
+                    'definition',
+                },
                 offline = {
                     'title',
                     'tag',

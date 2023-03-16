@@ -75,7 +75,7 @@ function curl.get(uri, opts)
         }
     end
 
-    -- vim.pretty_print(table.concat(cmd, ' '))
+    -- vim.print(table.concat(cmd, ' '))
     vim.fn.jobstart(table.concat(cmd, ' '), {
         stdin = 'null',
         on_stdout = on_stdout,

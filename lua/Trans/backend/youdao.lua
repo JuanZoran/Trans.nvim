@@ -26,12 +26,17 @@ function M.get_content(data)
     local app_id  = M.app_id
     local salt    = M.salt
     local curtime = tostring(os.time())
-    local input   = #str > 20 and
-        str:sub(1, 10) .. #str .. str:sub(-10) or str
 
-    -- sign=sha256(应用ID+input+salt+curtime+应用密钥)；
-    local hash    = app_id .. input .. salt .. curtime .. M.app_passwd
-    local sign    = vim.fn.sha256(hash)
+
+    local chars = vim.str_utf_pos(str)
+    local count = #chars
+    local input = count <= 20 and str or
+        str:sub(1, chars[11] - 1) .. #chars .. str:sub(chars[count - 9])
+
+
+    -- sign=sha256(应用ID+input+salt+curtime+应用密钥)； 一二三四五六七八九十
+    local hash = app_id .. input .. salt .. curtime .. M.app_passwd
+    local sign = vim.fn.sha256(hash)
 
 
     return {
@@ -101,27 +106,78 @@ end
 --   }
 -- }
 
+-- {
+--   basic = {
+--     explains = { "normal profit" }
+--   },
+--   dict = {
+--     url = "yddict://m.youdao.com/dict?le=eng&q=%E6%AD%A3%E5%B8%B8%E5%88%A9%E6%B6%A6"
+--   },
+--   errorCode = "0",
+--   isWord = true,
+--   l = "zh-CHS2en",
+--   mTerminalDict = {
+--     url = "https://m.youdao.com/m/result?lang=zh-CHS&word=%E6%AD%A3%E5%B8%B8%E5%88%A9%E6%B6%A6"
+--   },
+--   query = "正常利润",
+--   requestId = "87a0b1bf-a5a2-46d1-8604-cd765cd06a90",
+--   returnPhrase = { "正常利润" },
+--   speakUrl = "https://openapi.youdao.com/ttsapi?q=%E6%AD%A3%E5%B8%B8%E5%88%A9%E6%B6%A6&langType=zh-CHS&sign=5DC3A57D7D4CB21892D0D77E6968F03D&salt=1678950274137&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   tSpeakUrl = "https://openapi.youdao.com/ttsapi?q=Normal+profit&langType=en-USA&sign=325FA5994D5D3B859DF21E3522577AFB&salt=1678950274137&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   translation = { "Normal profit" },
+--   web = { {
+--       key = "正常利润",
+--       value = { "normal profits" }
+--     }, {
+--       key = "非正常利润",
+--       value = { "abnormal profits" }
+--     }, {
+--       key = "正常利润率",
+--       value = { "normal profit rate" }
+--     } },
+--   webdict = {
+--     url = "http://mobile.youdao.com/dict?le=eng&q=%E6%AD%A3%E5%B8%B8%E5%88%A9%E6%B6%A6"
+--   }
+-- }
+
+
 
 ---@overload fun(TransData): TransResult
----Query Using Baidu API
+---Query Using Youdao API
 ---@param data TransData
 function M.query(data)
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
-        if not status or not body then
+        vim.print(body)
+        if not status or not body or body.errorCode ~= "0" then
             data.result.youdao = false
-            data.trace = res
+            data[#data + 1] = res
+            return
+        end
+
+        if not body.isWord then
+            data.result.youdao = {
+                str = body.query,
+                [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+            }
             return
         end
 
         if true then
-            vim.print(body)
+            data.result.youdao = false
             return
         end
 
-        -- TEST :whether multi result
         data.result.youdao = {
-            ['title'] = body.src,
+            title                                                 = {
+                phonetic = body.basic.phonetic,
+            },
+            web                                                   = body.web,
+            phrases                                               = body.phrases,
+            explains                                              = body.basic.explains,
+            synonyms                                              = body.synonyms,
+            translation                                           = body.translation,
+            sentenceSample                                        = body.sentenceSample,
             [data.from == 'en' and 'translation' or 'definition'] = body.translation,
         }
     end
@@ -135,76 +191,3 @@ end
 ---@class TransBackend
 ---@field youdao Youdao
 return M
--- local GET = require("Trans.util.curl").GET
--- return function(word)
---     local isEn = word:isEn()
---     local result = {}
-
---     local uri = ('https://v.api.aa1.cn/api/api-fanyi-yd/index.php?msg=%s&type=%d'):format(word, isEn and 2 or 1)
---     GET(uri, {
---         callback = function(str)
---             local ok, res = pcall(vim.json.decode, str)
---             if not ok or not res or not res.text or isEn and res.text:isEn() then
---                 result[1] = false
---                 return
---             end
-
---             result[1] = {
---                 title = { word = word },
---                 [isEn and 'translation' or 'definition'] = res.text,
---             }
-
---             if result.callback then
---                 result.callback(result[1])
---             end
---         end
---     })
-
---     return result
--- end
-
--- local youdao    = require("Trans").conf.engine.youdao
--- local uri       = 'https://openapi.youdao.com/api'
--- local salt      = tostring(math.random(bit.lshift(1, 15)))
--- local appid     = youdao.appid
--- local appPasswd = youdao.appPasswd
-
--- local post = require('Trans.util.curl').POST
-
--- local function get_field(word)
---     -- local to = isEn and 'zh-'
---     local len     = #word
---     local curtime = tostring(os.time())
---     local input   = len > 20 and
---         word:sub(1, 10) .. len .. word:sub(-10) or word
-
---     -- sign=sha256(应用ID+input+salt+curtime+应用密钥)；
---     local hash = appid .. input .. salt .. curtime .. appPasswd
---     local sign = vim.fn.sha256(hash)
-
---     return {
---         q        = word,
---         from     = 'auto',
---         to       = 'zh-CHS',
---         signType = 'v3',
---         appKey   = appid,
---         salt     = salt,
---         curtime  = curtime,
---         sign     = sign,
---     }
--- end
-
--- return function(word)
---     -- return result
---     -- local field  = get_field(word)
---     -- local output = post(uri, {
---     --     body = field,
---     -- })
-
---     -- if output.exit == 0 and output.status == 200 then
---     --     local result = vim.fn.json_decode(output.body)
---     --     if result and result.errorCode == 0 then
---     --         --- TODO :
---     --     end
---     -- end
--- end

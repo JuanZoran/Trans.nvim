@@ -13,7 +13,6 @@ end
 ---@type table<string, fun(hover:TransHover, result: TransResult)>
 local default = {
     str = function(hover, result)
-        -- TODO :
         hover.buffer:setline(it(result.str, 'TransWord'))
     end,
     translation = function(hover, result)
@@ -148,7 +147,7 @@ strategy.offline = {
 ---@class TransHover
 ---@field load fun(hover: TransHover, result: TransResult, name: string, order: string[])
 return function(hover, result, name, order)
-    order = order or { 'str', 'translation', 'definition' }
+    order = order or hover.opts.order.default
 
     local method = strategy[name]
 
