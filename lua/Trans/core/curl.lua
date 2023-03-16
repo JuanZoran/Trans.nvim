@@ -62,16 +62,11 @@ function curl.get(uri, opts)
         end
     end
 
-    local error = {}
-    local on_stderr = function(_, stderr)
-        error[#error + 1] = table.concat(stderr)
-    end
 
     local on_exit = function(_, exit)
         callback {
             exit = exit,
             body = table.concat(outputs),
-            error = table.concat(error, '\n')
         }
     end
 
@@ -79,7 +74,6 @@ function curl.get(uri, opts)
     vim.fn.jobstart(table.concat(cmd, ' '), {
         stdin = 'null',
         on_stdout = on_stdout,
-        on_stderr = on_stderr,
         on_exit = on_exit,
     })
 end
