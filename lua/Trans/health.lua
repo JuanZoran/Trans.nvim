@@ -1,9 +1,9 @@
-local health     = vim.health
+local health, fn = vim.health, vim.fn
 local ok         = health.report_ok
 local warn       = health.report_warn
 local error      = health.report_error
-local has        = vim.fn.has
-local executable = vim.fn.executable
+local has        = fn.has
+local executable = fn.executable
 
 
 local function check_neovim_version()
@@ -45,6 +45,7 @@ local function check_binary_dependencies()
         binary_dependencies[3] = 'node'
     end
 
+
     for _, dep in ipairs(binary_dependencies) do
         if executable(dep) == 1 then
             ok(string.format('Binary dependency [%s] is installed', dep))
@@ -56,7 +57,7 @@ end
 
 local function check_database()
     local db_path = require('Trans').conf.dir .. '/ultimate.db'
-    if vim.fn.filereadable(db_path) == 1 then
+    if fn.filereadable(db_path) == 1 then
         ok [[ultimate database found ]]
     else
         error [[Stardict database not found
@@ -67,15 +68,20 @@ local function check_database()
 end
 
 local function check_configure_file()
-    local path = vim.fn.expand(require('Trans').conf.dir .. '/Trans.json')
+    local path = fn.expand(require('Trans').conf.dir .. '/Trans.json')
+    if not fn.filereadable(path) then
+        warn 'Backend configuration file[%s] not found'
+    end
+
+
     local file = io.open(path, "r")
     local valid = file and pcall(vim.json.decode, file:read("*a"))
 
 
     if valid then
-        ok(string.format([[Engine configuration file[%s] found and valid ]], path))
+        ok(string.format([[Backend configuration file [%s] found and valid ]], path))
     else
-        error(string.format([[Engine configuration file not found[%s] or invalid
+        error(string.format([[Backend configuration file [%s] invalid
         Please check the doc in github: [https://github.com/JuanZoran/Trans.nvim]
         ]], path))
     end

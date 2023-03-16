@@ -7,8 +7,9 @@
 
 -   [x] Refactor query engine to 'Backend' and 'Frontend'
 -   [x] Use `Trans.install` instead of `install.sh`
--   [ ] Check if str is a word
 -   [x] waitting animation
 -   [x] init frontend window
--   [ ] build frontend window format logic
--   [ ] Add Query FallBack
+-   [x] build frontend window format logic
+-   [x] Add Query FallBack
+-   [ ] Check if str is a word
+-   [ ] Unlimit width for sentence

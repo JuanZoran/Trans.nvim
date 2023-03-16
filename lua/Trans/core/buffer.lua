@@ -159,7 +159,7 @@ buffer.__index = function(self, key)
     if res then
         return res
     elseif type(key) == 'number' then
-        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
+        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ?? -- INFO :v0.8.1 doesn't support getbufoneline
         return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
     else
         error('invalid key: ' .. key)

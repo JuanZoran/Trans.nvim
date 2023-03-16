@@ -19,39 +19,6 @@ local M = {
 ---@field sign string
 
 
--- local field = {
---     "phonetic",
---     'usPhonetic',
---     "ukPhonetic",
---     "text",           --	text	短语
---     "explain",        --	String Array	词义解释列表
---     "wordFormats",    --	Object Array	单词形式变化列表
---     "name",           --	String	形式名称，例如：复数
---     "web",            --	JSONArray	网络释义
---     "phrase",         --	String	词组
---     "meaning",        --	String	含义
---     "synonyms",       --	JSONObject	近义词
---     "pos",            --	String	词性
---     "words",          --	String Array	近义词列表
---     "trans",          --	String	释义
---     "antonyms",       --	ObjectArray	反义词
---     "relatedWords",   --	JSONArray	相关词
---     "wordNet",        --	JSONObject	汉语词典网络释义
---     "phonetic",       --	String	发音
---     "meanings",       --	ObjectArray	释义
---     "meaning",        --	String	释义
---     "example",        --	array	示例
---     "dict",           --	String	词典deeplink
---     "webDict",        --	String	词典网页deeplink
---     "sentenceSample", --	text	例句
---     "sentence",       --	text	例句
---     "sentenceBold",   --	text	将查询内容加粗的例句
---     "translation",    --	text	例句翻译
---     "wfs",            --	text	单词形式变化
---     "exam_type",      --	text	考试类型
--- }
-
-
 ---Get content for query
 ---@param data TransData
 ---@return YoudaoQuery
@@ -84,6 +51,92 @@ function M.get_content(data)
         sign     = sign,
     }
 end
+
+local field = {
+    "phonetic",
+    'usPhonetic',
+    "ukPhonetic",
+    "text",           --	text	短语
+    "explain",        --	String Array	词义解释列表
+    "wordFormats",    --	Object Array	单词形式变化列表
+    "name",           --	String	形式名称，例如：复数
+    "phrase",         --	String	词组
+    "meaning",        --	String	含义
+    "synonyms",       --	JSONObject	近义词
+    "pos",            --	String	词性
+    "words",          --	String Array	近义词列表
+    "trans",          --	String	释义
+    "antonyms",       --	ObjectArray	反义词
+    "relatedWords",   --	JSONArray	相关词
+    "wordNet",        --	JSONObject	汉语词典网络释义
+    "phonetic",       --	String	发音
+    "meanings",       --	ObjectArray	释义
+    "meaning",        --	String	释义
+    "example",        --	array	示例
+    "sentenceSample", --	text	例句
+    "sentence",       --	text	例句
+    "sentenceBold",   --	text	将查询内容加粗的例句
+    "wfs",            --	text	单词形式变化
+    "exam_type",      --	text	考试类型
+}
+
+
+---@overload fun(TransData): TransResult
+---Query Using Youdao API
+---@param data TransData
+function M.query(data)
+    local handle = function(res)
+        local status, body = pcall(vim.json.decode, res.body)
+        -- vim.print(body)
+        if body then
+            for _, f in ipairs(field) do
+                if body[f] then
+                    print(('%s found : %s'):format(f, vim.inspect(body[f])))
+                end
+            end
+        end
+
+        if not status or not body or body.errorCode ~= "0" then
+            data.result.youdao = false
+            data[#data + 1] = res
+            return
+        end
+
+        if not body.isWord then
+            data.result.youdao = {
+                title = body.query,
+                [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+            }
+            return
+        end
+
+
+        local tmp = {
+            title                                                 = {
+                word     = body.query,
+                phonetic = body.basic.phonetic,
+            },
+            web                                                   = body.web,
+            phrases                                               = body.phrases,
+            explains                                              = body.basic.explains,
+            synonyms                                              = body.synonyms,
+            sentenceSample                                        = body.sentenceSample,
+            [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+        }
+
+
+        data.result.youdao = tmp
+    end
+
+    require('Trans').curl.get(M.uri, {
+        query = M.get_content(data),
+        callback = handle,
+    })
+end
+
+---@class TransBackend
+---@field youdao Youdao
+return M
 
 -- {
 --   basic = {
@@ -153,54 +206,3 @@ end
 --     url = "http://mobile.youdao.com/dict?le=eng&q=%E6%AD%A3%E5%B8%B8%E5%88%A9%E6%B6%A6"
 --   }
 -- }
-
-
-
----@overload fun(TransData): TransResult
----Query Using Youdao API
----@param data TransData
-function M.query(data)
-    local handle = function(res)
-        local status, body = pcall(vim.json.decode, res.body)
-        -- vim.print(body)
-        if not status or not body or body.errorCode ~= "0" then
-            data.result.youdao = false
-            data[#data + 1] = res
-            return
-        end
-
-        if not body.isWord then
-            data.result.youdao = {
-                title = body.query,
-                [data.from == 'en' and 'translation' or 'definition'] = body.translation,
-            }
-            return
-        end
-
-
-        local tmp = {
-            title                                                 = {
-                word     = body.query,
-                phonetic = body.basic.phonetic,
-            },
-            web                                                   = body.web,
-            phrases                                               = body.phrases,
-            explains                                              = body.basic.explains,
-            synonyms                                              = body.synonyms,
-            sentenceSample                                        = body.sentenceSample,
-            [data.from == 'en' and 'translation' or 'definition'] = body.translation,
-        }
-
-
-        data.result.youdao = tmp
-    end
-
-    require('Trans').curl.get(M.uri, {
-        query = M.get_content(data),
-        callback = handle,
-    })
-end
-
----@class TransBackend
----@field youdao Youdao
-return M
