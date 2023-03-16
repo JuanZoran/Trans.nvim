@@ -47,6 +47,10 @@ return {
         TransWaitting = {
             link = 'MoreMsg'
         },
+        TransWeb = {
+            -- TODO :
+            link = 'MoreMsg',
+        }
     },
 
     --- TODO :

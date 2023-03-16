@@ -6,10 +6,13 @@ local Trans = require('Trans')
 ---@field [number] string buffer[line] content
 local buffer = {}
 
+local main_loop = Trans.util.main_loop
+
+
 -- INFO : corountine can't invoke C function
 ---Clear all content in buffer
 function buffer:wipe()
-    Trans.util.main_loop(function()
+    main_loop(function()
         api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
     end)
 end
@@ -18,7 +21,7 @@ end
 ---@param _start? integer start line index
 ---@param _end? integer end line index
 function buffer:deleteline(_start, _end)
-    Trans.util.main_loop(function()
+    main_loop(function()
         ---@diagnostic disable-next-line: cast-local-type
         _start = _start and _start - 1 or self:line_count() - 1
         _end = _end and _end - 1 or _start + 1
@@ -102,9 +105,11 @@ end
 ---@param ns number? highlight namespace
 function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
     -- vim.print(linenr, hl_group, col_start, col_end, ns)
-    linenr = linenr - 1 or -1
-    col_start = col_start or 0
-    api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
+    main_loop(function()
+        linenr = linenr - 1 or -1
+        col_start = col_start or 0
+        api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
+    end)
 end
 
 ---Get buffer line count
@@ -154,8 +159,8 @@ buffer.__index = function(self, key)
     if res then
         return res
     elseif type(key) == 'number' then
-        return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
-        -- return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
+        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ??
+        return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
     else
         error('invalid key: ' .. key)
     end
@@ -165,6 +170,7 @@ end
 buffer.__newindex = function(self, key, nodes)
     if type(key) == 'number' then
         self:setline(nodes, key)
+
     else
         rawset(self, key, nodes)
     end

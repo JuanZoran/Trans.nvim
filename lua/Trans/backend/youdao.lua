@@ -18,6 +18,40 @@ local M = {
 ---@field salt string
 ---@field sign string
 
+
+-- local field = {
+--     "phonetic",
+--     'usPhonetic',
+--     "ukPhonetic",
+--     "text",           --	text	短语
+--     "explain",        --	String Array	词义解释列表
+--     "wordFormats",    --	Object Array	单词形式变化列表
+--     "name",           --	String	形式名称，例如：复数
+--     "web",            --	JSONArray	网络释义
+--     "phrase",         --	String	词组
+--     "meaning",        --	String	含义
+--     "synonyms",       --	JSONObject	近义词
+--     "pos",            --	String	词性
+--     "words",          --	String Array	近义词列表
+--     "trans",          --	String	释义
+--     "antonyms",       --	ObjectArray	反义词
+--     "relatedWords",   --	JSONArray	相关词
+--     "wordNet",        --	JSONObject	汉语词典网络释义
+--     "phonetic",       --	String	发音
+--     "meanings",       --	ObjectArray	释义
+--     "meaning",        --	String	释义
+--     "example",        --	array	示例
+--     "dict",           --	String	词典deeplink
+--     "webDict",        --	String	词典网页deeplink
+--     "sentenceSample", --	text	例句
+--     "sentence",       --	text	例句
+--     "sentenceBold",   --	text	将查询内容加粗的例句
+--     "translation",    --	text	例句翻译
+--     "wfs",            --	text	单词形式变化
+--     "exam_type",      --	text	考试类型
+-- }
+
+
 ---Get content for query
 ---@param data TransData
 ---@return YoudaoQuery
@@ -137,11 +171,12 @@ function M.query(data)
 
         if not body.isWord then
             data.result.youdao = {
-                str = body.query,
+                title = body.query,
                 [data.from == 'en' and 'translation' or 'definition'] = body.translation,
             }
             return
         end
+
 
         local tmp = {
             title                                                 = {
@@ -152,7 +187,6 @@ function M.query(data)
             phrases                                               = body.phrases,
             explains                                              = body.basic.explains,
             synonyms                                              = body.synonyms,
-            translation                                           = body.translation,
             sentenceSample                                        = body.sentenceSample,
             [data.from == 'en' and 'translation' or 'definition'] = body.translation,
         }

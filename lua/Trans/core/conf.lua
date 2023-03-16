@@ -84,6 +84,12 @@ return {
                     'translation',
                     'definition',
                 },
+                youdao = {
+                    'title',
+                    'translation',
+                    'definition',
+                    'web',
+                }
             },
             ---@type table<string, string>
             icon              = {

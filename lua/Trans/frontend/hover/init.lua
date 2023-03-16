@@ -179,6 +179,7 @@ function M:process(data)
         self:fallback()
         return
     end
+    -- vim.pretty_print(result)
     local opts = self.opts
     if opts.auto_play then
         (data.from == 'en' and data.str or result.definition[1]):play()

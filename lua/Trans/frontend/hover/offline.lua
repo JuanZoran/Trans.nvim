@@ -15,14 +15,12 @@ function M.tag(hover, result)
     local size = #tag
 
     for i = 1, size, 3 do
-        buffer:setline(
-            it(
-                interval .. tag[i] ..
-                (tag[i + 1] and interval .. tag[i + 1] ..
-                (tag[i + 2] and interval .. tag[i + 2] or '') or ''),
-                'TransTag'
-            )
-        )
+        buffer:setline(it(
+            interval .. tag[i] ..
+            (tag[i + 1] and interval .. tag[i + 1] ..
+            (tag[i + 2] and interval .. tag[i + 2] or '') or ''),
+            'TransTag'
+        ))
     end
 
     buffer:setline('')
@@ -63,6 +61,11 @@ end
 function M.title(hover, result)
     local title = result.title
     if not title then return end
+    if type(title) == 'string' then
+        hover.buffer:setline(it(title, 'TransWord'))
+        return
+    end
+
 
     local icon     = hover.opts.icon
 

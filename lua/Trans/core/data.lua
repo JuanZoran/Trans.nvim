@@ -59,6 +59,8 @@ end
 ---@field exchange table<string, string>? @table: {name, value}
 ---@field definition? string[]? @array of definitions
 ---@field translation? string[]? @array of translations
+---@field web? table<string, string[]>[]? @web definitions
+---@field explains? string[]? @basic explains
 
 
 ---Get the first available result [return nil if no result]

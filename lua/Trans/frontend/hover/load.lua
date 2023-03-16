@@ -2,10 +2,21 @@ local node = require('Trans').util.node
 local it, conjunction = node.item, node.conjunction
 local interval = (' '):rep(4)
 
+local M = setmetatable({}, {
+    __call = function(self, hover, result, name, order)
+        order = order or hover.opts.order.default
+
+        local method = self.renderer[name]
+
+        for _, field in ipairs(order) do
+            -- print(field)
+            method[field](hover, result)
+        end
+    end,
+})
 
 ---@alias TransHoverFormatter fun(hover:TransHover, result: TransResult)
 ---@alias TransHoverRenderer table<string, TransHoverFormatter>
-
 
 ---@type TransHoverRenderer
 local default = {
@@ -48,7 +59,7 @@ local default = {
 default.__index = default
 
 ---@type table<string, TransHoverRenderer>
-local renderer = setmetatable({}, {
+M.renderer = setmetatable({}, {
     __index = function(tbl, key)
         local status, method = pcall(require, 'Trans.frontend.hover.' .. key)
         if not status then
@@ -60,17 +71,7 @@ local renderer = setmetatable({}, {
     end,
 })
 
--- FIXME :
-
 
 ---@class TransHover
 ---@field load fun(hover: TransHover, result: TransResult, name: string, order: string[])
-return function(hover, result, name, order)
-    order = order or hover.opts.order.default
-
-    local method = renderer[name]
-
-    for _, field in ipairs(order) do
-        method[field](hover, result)
-    end
-end
+return M
