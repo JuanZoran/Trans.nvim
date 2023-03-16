@@ -58,14 +58,14 @@ function M.query(data)
             return
         end
 
-
         local result = body.trans_result
+
         if result then
             -- TEST :whether multi result
             assert(#result == 1)
             result = result[1]
             data.result.baidu = {
-                ['title'] = result.src,
+                ['str'] = result.src,
                 [data.from == 'en' and 'translation' or 'definition'] = { result.dst },
             }
         end

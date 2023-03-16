@@ -52,6 +52,7 @@ function M.new(opts)
 end
 
 ---@class TransResult
+---@field str? string? @The original string
 ---@field title table | string @table: {word, phonetic, oxford, collins}
 ---@field tag string[]? @array of tags
 ---@field pos table<string, string>? @table: {name, value}
@@ -61,14 +62,17 @@ end
 
 
 ---Get the first available result [return nil if no result]
----@return TransResult?
+---@return TransResult | false?
+---@return string? backend.name
 function M:get_available_result()
     local result = self.result
+
+    if result['offline'] then return result['offline'], 'offline' end
 
     for _, backend in ipairs(self.backends) do
         if result[backend.name] then
             ---@diagnostic disable-next-line: return-type-mismatch
-            return result[backend.name]
+            return result[backend.name], backend.name
         end
     end
 end

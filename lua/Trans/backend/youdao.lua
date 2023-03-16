@@ -46,6 +46,62 @@ function M.get_content(data)
     }
 end
 
+-- {
+--   dict = {
+--     url = "yddict://m.youdao.com/dict?le=eng&q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
+--   },
+--   errorCode = "0",
+--   isWord = false,
+--   l = "en2zh-CHS",
+--   mTerminalDict = {
+--     url = "https://m.youdao.com/m/result?lang=en&word=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
+--   },
+--   query = 'shows your registers on " in NORMAL or <C-r> in INSERT mode',
+--   requestId = "9dddf583-1233-48a5-a9ca-f1d0324a5349",
+--   speakUrl = "https://openapi.youdao.com/ttsapi?q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode&langType=en-USA&sign=8A0B3742F4E9FA92D4B65F028E1A6008&salt=1678931340864&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   tSpeakUrl = "https://openapi.youdao.com/ttsapi?q=%E5%9C%A8%E6%AD%A3%E5%B8%B8%E6%88%96%3CC-r%3E%E6%8F%92%E5%85%A5%E6%A8%A1%E5%BC%8F%E4%B8%8B%E6%98%BE%E7%A4%BA%E4%BD%A0%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8&langType=zh-CHS&sign=456E436DBEC35447D36157200FC5ACA7&salt=1678931340864&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   translation = { "在正常或<C-r>插入模式下显示你的寄存器" },
+--   webdict = {
+--     url = "http://mobile.youdao.com/dict?le=eng&q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
+--   }
+-- }
+
+-- {
+--   basic = {
+--     explains = { "normal", "regular", "normality" },
+--     phonetic = "zhèng cháng"
+--   },
+--   dict = {
+--     url = "yddict://m.youdao.com/dict?le=eng&q=%E6%AD%A3%E5%B8%B8"
+--   },
+--   errorCode = "0",
+--   isWord = true,
+--   l = "zh-CHS2en",
+--   mTerminalDict = {
+--     url = "https://m.youdao.com/m/result?lang=zh-CHS&word=%E6%AD%A3%E5%B8%B8"
+--   },
+--   query = "正常",
+--   requestId = "a8a40c0e-0d3b-49d5-a8fe-b1cd211ff5db",
+--   returnPhrase = { "正常" },
+--   speakUrl = "https://openapi.youdao.com/ttsapi?q=%E6%AD%A3%E5%B8%B8&langType=zh-CHS&sign=164F6EFF2EFFC7626FB70DBCF796AE70&salt=1678931501049&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   tSpeakUrl = "https://openapi.youdao.com/ttsapi?q=normal&langType=en-USA&sign=6A0CF2EF076EA8D82453956B33F69A51&salt=1678931501049&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
+--   translation = { "normal" },
+--   web = { {
+--       key = "正常",
+--       value = { "normal", "ordinary", "normo", "regular" }
+--     }, {
+--       key = "正常利润",
+--       value = { "normal profits" }
+--     }, {
+--       key = "邦交正常化",
+--       value = { "normalize relations", "normalization of diplomatic relations" }
+--     } },
+--   webdict = {
+--     url = "http://mobile.youdao.com/dict?le=eng&q=%E6%AD%A3%E5%B8%B8"
+--   }
+-- }
+
+
 ---@overload fun(TransData): TransResult
 ---Query Using Baidu API
 ---@param data TransData
@@ -63,16 +119,11 @@ function M.query(data)
             return
         end
 
-        local result = body.trans_result
-        if result then
-            -- TEST :whether multi result
-            assert(#result == 1)
-            result = result[1]
-            data.result.youdao = {
-                ['title'] = result.src,
-                [data.from == 'en' and 'translation' or 'definition'] = { result.dst },
-            }
-        end
+        -- TEST :whether multi result
+        data.result.youdao = {
+            ['title'] = body.src,
+            [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+        }
     end
 
     require('Trans').curl.get(M.uri, {

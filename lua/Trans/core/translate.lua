@@ -13,28 +13,27 @@ local function init_opts(opts)
 end
 
 
----@type table<string, fun(data: TransData, update: fun()): TransResult|false?>
+---@type table<string, fun(data: TransData): true | nil>
 local strategy = {
-    fallback = function(data, update)
+    fallback = function(data)
         local result = data.result
+        Trans.backend.offline.query(data)
+        if result.offline then return true end
 
+
+        local update = data.frontend:wait()
         for _, backend in ipairs(data.backends) do
             ---@cast backend TransBackend
-            local name = backend.name
             backend.query(data)
+            local name = backend.name
 
             while result[name] == nil do
-                if not update() then
-                    break
-                end
+                if not update() then return end
             end
 
-            if type(result[name]) == 'table' then
-                return result[name]
-            end
+            if result[name] then return true end
         end
     end,
-
     --- TODO :More Strategys
 }
 
@@ -48,28 +47,16 @@ local function process(opts)
     -- Find in cache
     if Trans.cache[str] then
         local data = Trans.cache[str]
-
-        local result = data:get_available_result()
-        if result then
-            data.frontend:process(data, result)
-            return
-        end
+        data.frontend:process(data)
+        return
     end
 
     local data = Trans.data.new(opts)
-    Trans.backend.offline.query(data)
-    local result = data.result['offline']
-    if not result then
-        result = strategy[Trans.conf.query](data, data.frontend:wait())
-        if not result then
-            data.frontend:fallback()
-            return
-        end
+    if strategy[Trans.conf.query](data) then
+        Trans.cache[data.str] = data
     end
 
-
-    Trans.cache[data.str] = data
-    data.frontend:process(data, result)
+    data.frontend:process(data)
 end
 
 

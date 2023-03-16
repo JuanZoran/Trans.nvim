@@ -69,14 +69,16 @@ return {
                 'CursorMoved',
                 'BufLeave',
             },
-            ---@type string[] order to display translate result
+            ---@type table<string, string[]> order to display translate result
             order             = {
-                'title',
-                'tag',
-                'pos',
-                'exchange',
-                'translation',
-                'definition',
+                offline = {
+                    'title',
+                    'tag',
+                    'pos',
+                    'exchange',
+                    'translation',
+                    'definition',
+                },
             },
             ---@type table<string, string>
             icon              = {

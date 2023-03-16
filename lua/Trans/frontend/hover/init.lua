@@ -116,12 +116,20 @@ function M:wait()
         buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)
         buffer:add_highlight(1, 'TransWaitting')
         pause(interval)
-        return cur == times
+        return cur < times
     end
 end
 
 ---FallBack window for no result
 function M:fallback()
+    if not self.window then
+        self:init_window {
+            height = 1,
+            width = self.opts.width,
+        }
+    end
+
+
     local buffer = self.buffer
     local opts = self.opts
     buffer:wipe()
@@ -153,34 +161,35 @@ end
 
 ---Display Result in hover window
 ---@param data TransData
----@param result TransResult
 ---@overload fun(result:TransResult)
-function M:process(data, result)
+function M:process(data)
+    if self.pin then return end
+
+    local result, name = data:get_available_result()
+    if not result then
+        self:fallback()
+        return
+    end
+    local opts = self.opts
+    if opts.auto_play then
+        (data.from == 'en' and data.str or result.definition[1]):play()
+    end
     -- local node = Trans.util.node
     -- local it, t, f = node.item, node.text, node.format
     -- self.buffer:setline(it('hello', 'MoreMsg'))
 
-    local opts = self.opts
-    if self.pin then return end
-
     local buffer = self.buffer
-    if not buffer:is_valid() then buffer:init() end
-    buffer:deleteline(1)
-
-
-    if opts.auto_play then
-        (data.from == 'en' and data.str or result.definition[1]):play()
+    if not buffer:is_valid() then
+        buffer:init()
+    else
+        buffer:wipe()
     end
 
-    for _, field in ipairs(opts.order) do
-        if result[field] then
-            self:load(result, field)
-        end
-    end
+    ---@cast name string
+    self:load(result, name, opts.order[name])
 
-    local window = self.window
     local display_size = Trans.util.display_size(buffer:lines(), opts.width)
-
+    local window = self.window
     if window and window:is_valid() then
         if opts.auto_resize then
             display_size.width = math.min(opts.width, display_size.width + opts.padding)
