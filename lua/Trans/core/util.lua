@@ -144,7 +144,6 @@ function M.main_loop(func)
 end
 
 
-
 ---@class Trans
 ---@field util TransUtil
 return M

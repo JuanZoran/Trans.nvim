@@ -52,26 +52,6 @@ function M.get_content(data)
 end
 
 -- {
---   dict = {
---     url = "yddict://m.youdao.com/dict?le=eng&q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
---   },
---   errorCode = "0",
---   isWord = false,
---   l = "en2zh-CHS",
---   mTerminalDict = {
---     url = "https://m.youdao.com/m/result?lang=en&word=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
---   },
---   query = 'shows your registers on " in NORMAL or <C-r> in INSERT mode',
---   requestId = "9dddf583-1233-48a5-a9ca-f1d0324a5349",
---   speakUrl = "https://openapi.youdao.com/ttsapi?q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode&langType=en-USA&sign=8A0B3742F4E9FA92D4B65F028E1A6008&salt=1678931340864&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
---   tSpeakUrl = "https://openapi.youdao.com/ttsapi?q=%E5%9C%A8%E6%AD%A3%E5%B8%B8%E6%88%96%3CC-r%3E%E6%8F%92%E5%85%A5%E6%A8%A1%E5%BC%8F%E4%B8%8B%E6%98%BE%E7%A4%BA%E4%BD%A0%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8&langType=zh-CHS&sign=456E436DBEC35447D36157200FC5ACA7&salt=1678931340864&voice=4&format=mp3&appKey=1858465a8708c121&ttsVoiceStrict=false",
---   translation = { "在正常或<C-r>插入模式下显示你的寄存器" },
---   webdict = {
---     url = "http://mobile.youdao.com/dict?le=eng&q=shows+your+registers+on+%22+in+NORMAL+or+%3CC-r%3E+in+INSERT+mode"
---   }
--- }
-
--- {
 --   basic = {
 --     explains = { "normal", "regular", "normality" },
 --     phonetic = "zhèng cháng"
@@ -148,7 +128,7 @@ end
 function M.query(data)
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
-        vim.print(body)
+        -- vim.print(body)
         if not status or not body or body.errorCode ~= "0" then
             data.result.youdao = false
             data[#data + 1] = res
@@ -163,13 +143,9 @@ function M.query(data)
             return
         end
 
-        if true then
-            data.result.youdao = false
-            return
-        end
-
-        data.result.youdao = {
+        local tmp = {
             title                                                 = {
+                word     = body.query,
                 phonetic = body.basic.phonetic,
             },
             web                                                   = body.web,
@@ -180,6 +156,9 @@ function M.query(data)
             sentenceSample                                        = body.sentenceSample,
             [data.from == 'en' and 'translation' or 'definition'] = body.translation,
         }
+
+
+        data.result.youdao = tmp
     end
 
     require('Trans').curl.get(M.uri, {
