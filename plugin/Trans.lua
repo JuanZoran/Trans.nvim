@@ -15,8 +15,8 @@ elseif fn.has('mac') == 1 then
     end
 else
     string.play = function(self)
-        local seperator = fn.has('unix') and '/' or '\\'
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
+        local separator = fn.has('unix') and '/' or '\\'
+        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. separator .. 'tts' .. separator .. 'say.js'
         fn.jobstart('node ' .. file .. ' ' .. self)
     end
 end
