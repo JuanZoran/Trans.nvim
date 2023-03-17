@@ -42,7 +42,7 @@ function M.tag(hover, result)
     if not tag then return end
 
     local buffer = hover.buffer
-    buffer:setline(co('标签'))
+    buffer:setline(co(hover.opts.icon.tag .. ' 标签'))
 
     local size = #tag
 
@@ -63,7 +63,7 @@ function M.exchange(hover, result)
     if not exchange then return end
 
     local buffer = hover.buffer
-    buffer:setline(co('词形变化'))
+    buffer:setline(co(hover.opts.icon.exchange .. ' 词形变化'))
 
     for description, value in pairs(exchange) do
         buffer:setline(
@@ -79,7 +79,7 @@ function M.pos(hover, result)
     if not pos then return end
 
     local buffer = hover.buffer
-    buffer:setline(co('词性'))
+    buffer:setline(co(hover.opts.icon.pos .. ' 词性'))
 
     for description, value in pairs(pos) do
         buffer:setline(

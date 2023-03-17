@@ -8,7 +8,7 @@ local interval = (' '):rep(4)
 function M.web(hover, result)
     if not result.web then return end
     local buffer = hover.buffer
-    buffer:setline(co('网络释义'))
+    buffer:setline(co(hover.opts.icon.web .. ' 网络释义'))
 
     local indent = interval .. interval .. hover.opts.icon.list .. ' '
     local function remove_duplicate(strs)
