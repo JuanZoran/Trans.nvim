@@ -5,6 +5,38 @@ local interval = (' '):rep(4)
 ---@type TransHoverRenderer
 local M = {}
 
+function M.title(hover, result)
+    local title = result.title
+    if not title then return end
+    if type(title) == 'string' then
+        hover.buffer:setline(it(title, 'TransWord'))
+        return
+    end
+
+
+    local icon     = hover.opts.icon
+
+    local word     = title.word
+    local oxford   = title.oxford
+    local collins  = title.collins
+    local phonetic = title.phonetic
+
+    hover.buffer:setline(f {
+        width = hover.opts.width,
+        text = t {
+            it(word, 'TransWord'),
+            t {
+                it('['),
+                it((phonetic and phonetic ~= '') and phonetic or icon.notfound, 'TransPhonetic'),
+                it(']')
+            },
+
+            it(collins and icon.star:rep(collins) or icon.notfound, 'TransCollins'),
+            it(oxford == 1 and icon.yes or icon.no)
+        },
+    })
+end
+
 function M.tag(hover, result)
     local tag = result.tag
     if not tag then return end
@@ -56,38 +88,6 @@ function M.pos(hover, result)
     end
 
     buffer:setline('')
-end
-
-function M.title(hover, result)
-    local title = result.title
-    if not title then return end
-    if type(title) == 'string' then
-        hover.buffer:setline(it(title, 'TransWord'))
-        return
-    end
-
-
-    local icon     = hover.opts.icon
-
-    local word     = title.word
-    local oxford   = title.oxford
-    local collins  = title.collins
-    local phonetic = title.phonetic
-
-    hover.buffer:setline(f {
-        width = hover.opts.width,
-        text = t {
-            it(word, 'TransWord'),
-            t {
-                it('['),
-                it((phonetic and phonetic ~= '') and phonetic or icon.notfound, 'TransPhonetic'),
-                it(']')
-            },
-
-            it(collins and icon.star:rep(collins) or icon.notfound, 'TransCollins'),
-            it(oxford == 1 and icon.yes or icon.no)
-        },
-    })
 end
 
 return M

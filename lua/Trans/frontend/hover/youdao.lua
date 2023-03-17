@@ -10,16 +10,22 @@ function M.web(hover, result)
     local buffer = hover.buffer
     buffer:setline(co('网络释义'))
 
+    local indent = interval .. interval .. hover.opts.icon.list .. ' '
     for _, w in ipairs(result.web) do
         buffer:setline(it(
-            --- TODO :Better format style
-            interval .. w.key .. interval .. table.concat(w.value, ' | '),
+            interval .. w.key,
             'TransWeb'
         ))
+
+        for _, v in ipairs(w.value) do
+            buffer:setline(it(
+                indent .. v,
+                'TransWeb'
+            ))
+        end
     end
     buffer:setline('')
 end
-
 
 function M.explains(hover, result)
     local explains = result.explains
