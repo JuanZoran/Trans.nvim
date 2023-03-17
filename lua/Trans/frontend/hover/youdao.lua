@@ -11,13 +11,31 @@ function M.web(hover, result)
     buffer:setline(co('网络释义'))
 
     local indent = interval .. interval .. hover.opts.icon.list .. ' '
+    local function remove_duplicate(strs)
+        local uniq_strs = {}
+        local str_map = {}
+        local opts = { plain = true, trim_empty = true }
+
+        for i = 1, #strs do
+            local fields = vim.split(strs[i], '; ', opts)
+            for j = 1, #fields do
+                local field = fields[j]
+                if not str_map[field] then
+                    uniq_strs[#uniq_strs + 1] = field
+                    str_map[field] = true
+                end
+            end
+        end
+        return uniq_strs
+    end
+
     for _, w in ipairs(result.web) do
         buffer:setline(it(
             interval .. w.key,
             'TransWeb'
         ))
 
-        for _, v in ipairs(w.value) do
+        for _, v in ipairs(remove_duplicate(w.value)) do
             buffer:setline(it(
                 indent .. v,
                 'TransWeb'
