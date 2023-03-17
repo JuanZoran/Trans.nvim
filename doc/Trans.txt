@@ -34,6 +34,9 @@ Table of Contents                                    *Trans-table-of-contents*
     - |Trans-待办-(画大饼)|
 
 
+注意: 当前分支目前没有发布, README.MD的描述并不准确, 遇到问题请切换到 MAIN分支或者联系我 ~
+
+
 特点                                               *Trans-trans.nvim-特点*
 
 
