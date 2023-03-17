@@ -17,8 +17,7 @@
     -   [待办 (画大饼)](#待办-画大饼)
     <!--toc:end-->
 
-### 注意: 当前分支目前没有发布, README.md的描述并不准确, 遇到问题请切换到 `main`分支或者联系我
-
+### 注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我
 
 ## 特点
 
@@ -90,7 +89,7 @@ _安装之前, 首先需要明确本插件的依赖:_
 use {
     'JuanZoran/Trans.nvim'
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
-    requires = { 'kkharji/sqlite.lua', },
+    requires =  'kkharji/sqlite.lua', ,
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
     config = function ()
         require'Trans'.setup{
@@ -116,7 +115,6 @@ use {
         require("Trans").setup {} -- 启动Trans
         vim.keymap.set({"n", 'x'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
         vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>', {desc = ' 自动发音'}) -- 自动发音选中或者光标下的单词
-        vim.keymap.set("n", "mi", "<Cmd>TranslateInput<CR>", { desc = ' Translate' })
     end
 }
 ```
@@ -168,7 +166,7 @@ use {
         > `sudo pacman -S sqlite # Arch`  
         > `sudo apt-get install sqlite3 libsqlite3-dev # Ubuntu`
 
-    > 后续会增加 `healthcheck` 进行检查
+    > **尝试运行 `checkhealth Trans`**
 
 -   **`auto_play`** 使用步骤:
 
@@ -236,23 +234,18 @@ use {
 ## 配置
 
 ```lua
-require'Trans'.setup{
+require'Trans'.setup {
     ---@type string the directory for database file and password file
     dir      = os.getenv('HOME') .. '/.vim/dict',
-    ---@type table modeStrategy default strategy for mode
+    query    = 'fallback',
+    -- backend_order = {},
+    ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
+    theme    = 'default', -- default | tokyonight | dracula
     strategy = {
-        ---@type { frontend:string, backend:string } fallback strategy for mode
+        ---@type { frontend:string, backend:string | string[] } fallback strategy for mode
         default = {
             frontend = 'hover',
             backend = '*',
-        },
-    },
-    ---@type table<string, TransBackendOpts> fallback backend for mode
-    backend  = {
-        ---@class TransBackendOpts
-        default = {
-            ---@type integer timeout for backend send request
-            timeout = 2000,
         },
     },
     ---@type table frontend options
@@ -270,6 +263,7 @@ require'Trans'.setup{
                 close = 'slid',
                 interval = 12,
             },
+            timeout = 2000,
         },
         ---@class TransHoverOpts : TransFrontendOpts
         hover = {
@@ -280,16 +274,17 @@ require'Trans'.setup{
             ---@type string -- see: /lua/Trans/style/spinner
             spinner           = 'dots',
             ---@type string -- TODO :support replace with {{special word}}
-            fallback_message  = '翻译超时或没有找到相关的翻译',
+            fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
+            -- strict = false, -- TODO :No Width limit when str is a sentence
             padding           = 10, -- padding for hover window width
             keymaps           = {
-                -- play         = '_', -- Deprecated
                 pageup       = '[[',
                 pagedown     = ']]',
                 pin          = '<leader>[',
                 close        = '<leader>]',
                 toggle_entry = '<leader>;',
+                -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
             auto_close_events = {
@@ -297,31 +292,47 @@ require'Trans'.setup{
                 'CursorMoved',
                 'BufLeave',
             },
-            ---@type string[] order to display translate result
+            ---@type table<string, string[]> order to display translate result
             order             = {
-                'title',
-                'tag',
-                'pos',
-                'exchange',
-                'translation',
-                'definition',
+                default = {
+                    'str',
+                    'translation',
+                    'definition',
+                },
+                offline = {
+                    'title',
+                    'tag',
+                    'pos',
+                    'exchange',
+                    'translation',
+                    'definition',
+                },
+                youdao = {
+                    'title',
+                    'translation',
+                    'definition',
+                    'web',
+                }
             },
             ---@type table<string, string>
             icon              = {
                 -- or use emoji
-                star     = '', -- ⭐
-                notfound = ' ', -- ❔
-                yes      = '✔', -- ✔️
-                no       = '', -- ❌
-                cell     = '■', -- ■ | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+                list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠
+                star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
+                notfound    = ' ', --❔ | ❓ | ❗ | ❕|
+                yes         = '✔', -- ✅ | ✔️ | ☑
+                no          = '', -- ❌ | ❎ | ✖ | ✘ | ✗ |
+                cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+                web         = '󰖟', --🌍 | 🌎 | 🌏 | 🌐 |
+                tag         = ' ',
+                pos         = '',
+                translation = '󰊿',
+                definition  = '󰗊',
+                exchange    = '✳',
             },
         },
     },
-    style    = {
-        ---@type string global Trans theme [see lua/Trans/style/theme.lua]
-        theme = 'default', -- default | tokyonight | dracula
-    },
-}
+}p
 
 ```
 
@@ -334,8 +345,6 @@ require'Trans'.setup{
 ```lua
 vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
 vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
-vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
-
 ```
 
 ## 高亮组
@@ -344,50 +353,58 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 
 ```lua
 {
-    TransWord = {
-        fg = '#7ee787',
-        bold = true,
-    },
-    TransPhonetic = {
-        link = 'Linenr'
-    },
-    TransTitle = {
-        fg = '#0f0f15',
-        bg = '#75beff',
-        bold = true,
-    },
-    TransTitleRound = {
-        fg = '#75beff',
-    },
-    TransTag = {
-        fg = '#e5c07b',
-    },
-    TransExchange = {
-        link = 'TransTag',
-    },
-    TransPos = {
-        link = 'TransTag',
-    },
-    TransTranslation = {
-        link = 'TransWord',
-    },
-    TransDefinition = {
-        link = 'Moremsg',
-    },
-    TransWin = {
-        link = 'Normal',
-    },
-    TransBorder = {
-        link = 'FloatBorder',
-    },
-    TransCollins = {
-        fg = '#faf743',
-        bold = true,
-    },
-    TransFailed = {
-        fg = '#7aa89f',
-    },
-}
+        TransWord = {
+            fg = '#7ee787',
+            bold = true,
+        },
+        TransPhonetic = {
+            link = 'Linenr'
+        },
+        TransTitle = {
+            fg = '#0f0f15',
+            bg = '#75beff',
+            bold = true,
+        },
+        TransTitleRound = {
+            fg = '#75beff',
+        },
+        TransTag = {
+            -- fg = '#e5c07b',
+            link = '@tag'
+        },
+        TransExchange = {
+            link = 'TransTag',
+        },
+        TransPos = {
+            link = 'TransTag',
+        },
+        TransTranslation = {
+            link = 'TransWord',
+        },
+        TransDefinition = {
+            link = 'Moremsg',
+        },
+        TransWin = {
+            link = 'Normal',
+        },
+        TransBorder = {
+            fg = '#89B4FA',
+        },
+        TransCollins = {
+            fg = '#faf743',
+            bold = true,
+        },
+        TransFailed = {
+            fg = '#7aa89f',
+        },
+        TransWaitting = {
+            link = 'MoreMsg'
+        },
+        TransWeb = {
+            -- TODO :
+            link = 'MoreMsg',
+        }
+    }
 ```
 
 ## 声明
@@ -407,11 +424,11 @@ vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 
 ## 待办 (画大饼)
 
--   [x] 多风格样式查询
--   [x] 重新录制屏幕截图示例
 -   [x] 快捷键定义
 -   [x] 自动读音
+-   [x] 在线多引擎异步查询
+-   [x] `句子翻译` | `中翻英` 的支持
+-   [ ] 多风格样式查询
+-   [ ] 重新录制屏幕截图示例
 -   [ ] 变量命名的支持
 -   [ ] 历史查询结果保存
--   [ ] 在线多引擎异步查询
--   [ ] `句子翻译` | `中翻英` 的支持
