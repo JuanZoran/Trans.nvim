@@ -106,7 +106,7 @@ end
 function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
     -- vim.print(linenr, hl_group, col_start, col_end, ns)
     main_loop(function()
-        linenr = linenr - 1 or -1
+        linenr = linenr - 1
         col_start = col_start or 0
         api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
     end)
@@ -159,7 +159,7 @@ buffer.__index = function(self, key)
     if res then
         return res
     elseif type(key) == 'number' then
-        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ?? -- INFO :v0.8.1 doesn't support getbufoneline
+        -- return fn.getbufoneline(self.bufnr, key) -- Vimscript Function Or Lua API ?? -- INFO :only work on neovim-nightly
         return api.nvim_buf_get_lines(self.bufnr, key - 1, key, true)[1]
     else
         error('invalid key: ' .. key)

@@ -1,4 +1,5 @@
 local api = vim.api
+---@class Trans
 local Trans = require("Trans")
 
 ---@class TransWindow
@@ -109,6 +110,7 @@ function window:resize(opts)
         }
     end
 end
+
 
 ---Try to close window with animation?
 function window:try_close()

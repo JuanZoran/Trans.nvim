@@ -143,6 +143,43 @@ function M.main_loop(func)
     coroutine.yield()
 end
 
+---Split text into paragraphs
+---@param lines string[] text to be split
+---@return string[][] paragraphs
+function M.split_to_paragraphs(lines, opts)
+    --- TODO :More options and better algorithm to detect paragraphs
+    opts = opts or {}
+    local paragraphs = {}
+    local paragraph = {}
+    for _, line in ipairs(lines) do
+        if line == '' then
+            paragraphs[#paragraphs + 1] = paragraph
+            paragraph = {}
+        else
+            paragraph[#paragraph + 1] = line
+        end
+    end
+    return paragraphs
+end
+
+---Get visible lines in the window or current window
+---@param opts { winid: integer, height: integer }?
+---@return string[]
+function M.visible_lines(opts)
+    opts = opts or {}
+
+    -- INFO : don't calculate the height of statusline and cmdheight or winbar?
+    local winid                 = opts.winid or 0
+    local win_height            = opts.height or api.nvim_win_get_height(winid)
+    local current_line          = api.nvim_win_get_cursor(winid)[1]
+    local current_relative_line = vim.fn.winline()
+
+
+    local _start = current_line - current_relative_line
+    local _end   = _start + win_height - vim.o.cmdheight --[[ - 1 -- maybe 1 for statusline?? ]]
+
+    return api.nvim_buf_get_lines(0, _start, _end, false)
+end
 
 ---@class Trans
 ---@field util TransUtil

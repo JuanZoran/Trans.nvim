@@ -10,7 +10,6 @@ function M.web(hover, result)
     local buffer = hover.buffer
     buffer:setline(co(hover.opts.icon.web .. ' 网络释义'))
 
-    local indent = interval .. interval .. hover.opts.icon.list .. ' '
     local function remove_duplicate(strs)
         local uniq_strs = {}
         local str_map = {}
@@ -29,6 +28,7 @@ function M.web(hover, result)
         return uniq_strs
     end
 
+    local indent = interval .. '  ' .. hover.opts.icon.list .. ' '
     for _, w in ipairs(result.web) do
         buffer:setline(it(
             interval .. w.key,
