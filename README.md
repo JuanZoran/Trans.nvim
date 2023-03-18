@@ -2,7 +2,7 @@
 
 <!--toc:start-->
 
--   [Trans.nvim](#transnvim)
+-   [Trans.nvim](#transnvim) - [注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我](#注意-当前分支目前没有发布-readmemd-的描述并不准确-遇到问题请切换到-main分支或者联系我)
     -   [特点](#特点)
     -   [屏幕截图](#屏幕截图)
         -   [演示](#演示)
@@ -15,6 +15,7 @@
     -   [感谢](#感谢)
     -   [贡献](#贡献)
     -   [待办 (画大饼)](#待办-画大饼)
+    -   [项目情况](#项目情况)
     <!--toc:end-->
 
 ### 注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我
@@ -432,3 +433,7 @@ vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或�
 -   [ ] 重新录制屏幕截图示例
 -   [ ] 变量命名的支持
 -   [ ] 历史查询结果保存
+
+## 项目情况
+
+[![Star History Chart](https://api.star-history.com/svg?repos=JuanZoran/Trans.nvim&type=Date)](https://star-history.com/#JuanZoran/Trans.nvim&Date)
