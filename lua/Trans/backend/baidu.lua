@@ -6,12 +6,12 @@
 ---@field disable boolean
 
 local M = {
-    uri  = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+    uri = "https://fanyi-api.baidu.com/api/trans/vip/translate",
     salt = tostring(math.random(bit.lshift(1, 15))),
-    name = 'baidu',
+    name = "baidu",
 }
 
-local Trans = require('Trans')
+local Trans = require("Trans")
 
 ---@class BaiduQuery
 ---@field q string
@@ -20,7 +20,6 @@ local Trans = require('Trans')
 ---@field appid string
 ---@field salt string
 ---@field sign string
-
 
 ---Get content for query
 ---@param data TransData
@@ -53,8 +52,8 @@ function M.query(data)
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
         if not status or not body then
+            data.trace        = res
             data.result.baidu = false
-            data.trace = res
             return
         end
 
@@ -65,12 +64,11 @@ function M.query(data)
             assert(#result == 1)
             result = result[1]
             data.result.baidu = {
-                ['str'] = result.src,
-                [data.from == 'en' and 'translation' or 'definition'] = { result.dst },
+                ["str"] = result.src,
+                [data.from == "en" and "translation" or "definition"] = { result.dst },
             }
         end
     end
-
 
     Trans.curl.get(M.uri, {
         query = M.get_content(data),
