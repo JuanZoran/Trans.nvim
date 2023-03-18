@@ -52,33 +52,41 @@ function M.get_content(data)
     }
 end
 
-local field = {
-    "phonetic",
-    'usPhonetic',
-    "ukPhonetic",
-    "text",           --	text	短语
-    "explain",        --	String Array	词义解释列表
-    "wordFormats",    --	Object Array	单词形式变化列表
-    "name",           --	String	形式名称，例如：复数
-    "phrase",         --	String	词组
-    "meaning",        --	String	含义
-    "synonyms",       --	JSONObject	近义词
-    "pos",            --	String	词性
-    "words",          --	String Array	近义词列表
-    "trans",          --	String	释义
-    "antonyms",       --	ObjectArray	反义词
-    "relatedWords",   --	JSONArray	相关词
-    "wordNet",        --	JSONObject	汉语词典网络释义
-    "phonetic",       --	String	发音
-    "meanings",       --	ObjectArray	释义
-    "meaning",        --	String	释义
-    "example",        --	array	示例
-    "sentenceSample", --	text	例句
-    "sentence",       --	text	例句
-    "sentenceBold",   --	text	将查询内容加粗的例句
-    "wfs",            --	text	单词形式变化
-    "exam_type",      --	text	考试类型
-}
+local function check_untracked_field(body)
+    local field = {
+        "phonetic",
+        'usPhonetic',
+        "ukPhonetic",
+        "text",       --	text	短语
+        "explain",    --	String Array	词义解释列表
+        "wordFormats", --	Object Array	单词形式变化列表
+        "name",       --	String	形式名称，例如：复数
+        "phrase",     --	String	词组
+        "meaning",    --	String	含义
+        "synonyms",   --	JSONObject	近义词
+        "pos",        --	String	词性
+        "words",      --	String Array	近义词列表
+        "trans",      --	String	释义
+        "antonyms",   --	ObjectArray	反义词
+        "relatedWords", --	JSONArray	相关词
+        "wordNet",    --	JSONObject	汉语词典网络释义
+        "phonetic",   --	String	发音
+        "meanings",   --	ObjectArray	释义
+        "meaning",    --	String	释义
+        "example",    --	array	示例
+        "sentenceSample", --	text	例句
+        "sentence",   --	text	例句
+        "sentenceBold", --	text	将查询内容加粗的例句
+        "wfs",        --	text	单词形式变化
+        "exam_type",  --	text	考试类型
+    }
+    for _, f in ipairs(field) do
+        if body[f] then
+            print(('%s found : %s'):format(f, vim.inspect(body[f])))
+        end
+    end
+end
+
 
 
 
@@ -126,20 +134,14 @@ function M.query(data)
     local handle = function(res)
         local status, body = pcall(vim.json.decode, res.body)
         -- vim.print(body)
-        if body then
-            for _, f in ipairs(field) do
-                if body[f] then
-                    print(('%s found : %s'):format(f, vim.inspect(body[f])))
-                end
-            end
-        end
-
         if not status or not body or body.errorCode ~= "0" then
             if not require('Trans').conf.debug then M.debug(body) end
             data.result.youdao = false
             data[#data + 1] = res
             return
         end
+
+        check_untracked_field(body)
 
         if not body.isWord then
             data.result.youdao = {

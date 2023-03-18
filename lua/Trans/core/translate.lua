@@ -13,6 +13,64 @@ local function init_opts(opts)
 end
 
 
+local function do_query(data, backend)
+    -- TODO : template method for online query
+    local name      = backend.name
+    local uri       = backend.uti
+    local method    = backend.method
+    local formatter = backend.formatter
+    local query     = backend.get_query(data)
+
+    local header
+    if backend.header then
+        if type(backend.header) == "function" then
+            header = backend.header(data)
+        else
+            header = backend.header
+        end
+    end
+
+    local function handle(output)
+        local status, body = pcall(vim.json.decode, output.body)
+        -- -- vim.print(body)
+        if not status or not body or body.errorCode ~= "0" then
+            if not Trans.conf.debug then backend.debug(body) end
+            data.result[name] = false
+            data[#data + 1] = output
+            return
+        end
+        -- check_untracked_field(body)
+        -- if not body.isWord then
+        --     data.result.youdao = {
+        --         title = body.query,
+        --         [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+        --     }
+        --     return
+        -- end
+        -- local tmp = {
+        --     title    = {
+        --         word     = body.query,
+        --         phonetic = body.basic.phonetic,
+        --     },
+        --     web      = body.web,
+        --     explains = body.basic.explains,
+        --     -- phrases                                               = body.phrases,
+        --     -- synonyms                                              = body.synonyms,
+        --     -- sentenceSample                                        = body.sentenceSample,
+        --     [data.from == 'en' and 'translation' or 'definition'] = body.translation,
+        -- }
+        data.result[name] = formatter and formatter(output) or output
+    end
+
+    Trans.curl[method](uri, {
+        query = query,
+        callback = handle,
+        header = header,
+    })
+    -- Hook ?
+end
+
+
 ---@type table<string, fun(data: TransData): true | nil>
 local strategy = {
     fallback = function(data)
@@ -38,6 +96,7 @@ local strategy = {
 }
 
 
+
 -- HACK : Core process logic
 local function process(opts)
     opts = init_opts(opts)
@@ -55,7 +114,6 @@ local function process(opts)
     if strategy[Trans.conf.query](data) then
         Trans.cache[data.str] = data
         data.frontend:process(data)
-
     else
         data.frontend:fallback()
     end
