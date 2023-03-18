@@ -4,6 +4,7 @@ local function set_strategy_opts(conf)
     local all_modes    = Trans.modes
     local all_backends = Trans.backend.all_name
 
+
     local function parse_backend(backend)
         if type(backend) == 'string' then
             return backend == '*' and all_backends or { backend }

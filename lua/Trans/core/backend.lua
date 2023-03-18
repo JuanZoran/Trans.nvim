@@ -27,12 +27,11 @@ if file then
     file:close()
 end
 
+
 local all_name = {}
 local backend_order = conf.backend_order or vim.tbl_keys(result)
-for name, opts in pairs(backend_order) do
-    if opts.disable then
-        result[name] = nil
-    else
+for _, name in ipairs(backend_order) do
+    if not result[name].disable then
         all_name[#all_name + 1] = name
     end
 end
@@ -54,8 +53,8 @@ return setmetatable({
 
         local private_opts = result[name]
         if private_opts then
-            for k, v in pairs(private_opts) do
-                backend[k] = v
+            for field, value in pairs(private_opts) do
+                backend[field] = value
             end
         end
 

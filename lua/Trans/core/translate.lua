@@ -49,24 +49,27 @@ local function do_query(data, backend)
     -- Hook ?
 end
 
----@type table<string, fun(data: TransData): true | nil>
+---@type table<string, fun(data: TransData):boolean>
 local strategy = {
     fallback = function(data)
         local result = data.result
         Trans.backend.offline.query(data)
-        if result.offline then return true end
 
+        if result.offline then return true end
 
         local update = data.frontend:wait()
         for _, backend in ipairs(data.backends) do
             do_query(data, backend)
+            local name = backend.name
             ---@cast backend TransBackend
-            while result[backend.name] == nil do
+            while result[name] == nil do
                 if not update() then break end
             end
 
-            if result[backend.name] then return true end
+            if result[name] then return true end
         end
+
+        return false
     end,
     --- TODO :More Strategys
 }
