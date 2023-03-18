@@ -9,7 +9,6 @@ local M = setmetatable({}, {
         local method = self.renderer[name]
 
         for _, field in ipairs(order) do
-            -- print(field)
             method[field](hover, result)
         end
     end,
@@ -62,12 +61,8 @@ default.__index = default
 M.renderer = setmetatable({}, {
     __index = function(tbl, key)
         local status, method = pcall(require, 'Trans.frontend.hover.' .. key)
-        if not status then
-            print(key)
-            return
-        end
-        tbl[key] = setmetatable(method, default)
-        return method
+        tbl[key] = setmetatable(status and method or {}, default)
+        return tbl[key]
     end,
 })
 

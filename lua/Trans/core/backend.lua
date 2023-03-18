@@ -2,10 +2,17 @@ local Trans = require('Trans')
 
 
 ---@class TransBackend
----@field query fun(data: TransData)---@async
 ---@field no_wait? boolean whether need to wait for the result
 ---@field all_name string[] @all backend name
 ---@field name string @backend name
+
+---@class TransOnlineBackend: TransBackend
+---@field uri string @request uri
+---@field method 'get' | 'post' @request method
+---@field formatter fun(body: table, data: TransData): TransResult|false|nil @formatter
+---@field get_query fun(data: TransData): table<string, string> @get query
+---@field header? table<string, string> | fun(data: TransData): table<string, string> @request header
+---@field debug? fun(body: table?) @debug
 
 
 local conf = Trans.conf
@@ -21,7 +28,8 @@ if file then
 end
 
 local all_name = {}
-for name, opts in pairs(result) do
+local backend_order = conf.backend_order or vim.tbl_keys(result)
+for name, opts in pairs(backend_order) do
     if opts.disable then
         result[name] = nil
     else
@@ -33,7 +41,7 @@ end
 ---@class Trans
 ---@field backend table<string, TransBackend>
 return setmetatable({
-    all_name = Trans.conf.backend_order or all_name,
+    all_name = all_name,
 }, {
     __index = function(self, name)
         ---@type TransBackend

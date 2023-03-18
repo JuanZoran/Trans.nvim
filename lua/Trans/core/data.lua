@@ -9,6 +9,7 @@ local Trans = require('Trans')
 ---@field mode string @The mode of the str
 ---@field result table<string, TransResult|nil|false> @The result of the translation
 ---@field frontend TransFrontend
+---@field trace table<string, string> debug message
 ---@field backends table<string, TransBackend>
 local M = {}
 M.__index = M
@@ -28,6 +29,7 @@ function M.new(opts)
         str    = str,
         mode   = mode,
         result = {},
+        trace  = {},
     }, M)
 
 

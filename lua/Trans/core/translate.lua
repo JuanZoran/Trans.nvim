@@ -13,53 +13,32 @@ local function init_opts(opts)
 end
 
 
+---To Do Online Query
+---@param data TransData @data
+---@param backend TransOnlineBackend @backend
 local function do_query(data, backend)
     -- TODO : template method for online query
     local name      = backend.name
-    local uri       = backend.uti
+    local uri       = backend.uri
     local method    = backend.method
     local formatter = backend.formatter
     local query     = backend.get_query(data)
-
-    local header
-    if backend.header then
-        if type(backend.header) == "function" then
-            header = backend.header(data)
-        else
-            header = backend.header
-        end
-    end
+    local header    = type(backend.header) == "function" and backend.header(data) or backend.header
 
     local function handle(output)
         local status, body = pcall(vim.json.decode, output.body)
-        -- -- vim.print(body)
-        if not status or not body or body.errorCode ~= "0" then
-            if not Trans.conf.debug then backend.debug(body) end
+        if not status or not body then
+            if not Trans.conf.debug then
+                backend.debug(body)
+                data.trace[name] = output
+            end
+
             data.result[name] = false
-            data[#data + 1] = output
             return
         end
-        -- check_untracked_field(body)
-        -- if not body.isWord then
-        --     data.result.youdao = {
-        --         title = body.query,
-        --         [data.from == 'en' and 'translation' or 'definition'] = body.translation,
-        --     }
-        --     return
-        -- end
-        -- local tmp = {
-        --     title    = {
-        --         word     = body.query,
-        --         phonetic = body.basic.phonetic,
-        --     },
-        --     web      = body.web,
-        --     explains = body.basic.explains,
-        --     -- phrases                                               = body.phrases,
-        --     -- synonyms                                              = body.synonyms,
-        --     -- sentenceSample                                        = body.sentenceSample,
-        --     [data.from == 'en' and 'translation' or 'definition'] = body.translation,
-        -- }
-        data.result[name] = formatter and formatter(output) or output
+
+        -- vim.print(data.result[name])
+        data.result[name] = formatter(body, data)
     end
 
     Trans.curl[method](uri, {
@@ -69,7 +48,6 @@ local function do_query(data, backend)
     })
     -- Hook ?
 end
-
 
 ---@type table<string, fun(data: TransData): true | nil>
 local strategy = {
@@ -81,15 +59,13 @@ local strategy = {
 
         local update = data.frontend:wait()
         for _, backend in ipairs(data.backends) do
+            do_query(data, backend)
             ---@cast backend TransBackend
-            backend.query(data)
-            local name = backend.name
-
-            while result[name] == nil do
-                if not update() then return end
+            while result[backend.name] == nil do
+                if not update() then break end
             end
 
-            if result[name] then return true end
+            if result[backend.name] then return true end
         end
     end,
     --- TODO :More Strategys
