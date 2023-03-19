@@ -60,6 +60,7 @@ local strategy = {
         local update = data.frontend:wait()
         for _, backend in ipairs(data.backends) do
             do_query(data, backend)
+
             local name = backend.name
             ---@cast backend TransBackend
             while result[name] == nil do

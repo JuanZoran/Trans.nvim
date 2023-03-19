@@ -1,3 +1,4 @@
+---@type Trans
 local Trans = require("Trans")
 
 -- FIXME :Adjust Window Size
@@ -103,7 +104,7 @@ end
 ---@return string formatted text
 ---@return integer _ replaced count
 function M:icon_format(format)
-    return format:gsub("{{(%w+)}}", self.opts.icon, 1)
+    return format:gsub("{{(%w+)}}", self.opts.icon)
 end
 
 ---Get Check function for waiting
@@ -162,12 +163,13 @@ function M:defer()
     local auto_close_events = self.opts.auto_close_events
     if auto_close_events then
         vim.api.nvim_create_autocmd(auto_close_events, {
-            once = true,
-            callback = function()
-                if self.pin then
-                    return
-                end
-                self:destroy()
+            callback = function(opts)
+                vim.defer_fn(function()
+                    if not self.pin and vim.api.nvim_get_current_win() ~= self.window.winid then
+                        pcall(vim.api.nvim_del_autocmd, opts.id)
+                        self:destroy()
+                    end
+                end, 0)
             end,
         })
     end
@@ -213,6 +215,7 @@ function M:process(data)
         else
             display_size.width = nil
         end
+
         window:resize(display_size)
     else
         window = self:init_window {

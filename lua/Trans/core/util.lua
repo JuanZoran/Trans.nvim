@@ -181,6 +181,14 @@ function M.visible_lines(opts)
     return api.nvim_buf_get_lines(0, _start, _end, false)
 end
 
+---Detect whether the string is a word
+---@param str string
+---@return boolean
+function M.is_word(str)
+    return str:match('%w+') == str
+end
+
+
 ---@class Trans
 ---@field util TransUtil
 return M

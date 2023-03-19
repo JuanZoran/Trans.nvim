@@ -47,8 +47,7 @@ function M.new(opts)
         data.to = 'en'
     end
 
-    -- FIXME : Check if the str is a word
-    data.is_word = true
+    data.is_word = Trans.util.is_word(str)
 
     return data
 end

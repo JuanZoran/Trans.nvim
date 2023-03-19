@@ -22,7 +22,6 @@ end
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
 ---@field modes string[] @all modes name
-
 local M = metatable("core", {
     cache = {},
     style = metatable("style"),

@@ -14,13 +14,13 @@ end
 ---@class TransConf
 return {
     ---@type string the directory for database file and password file
-    dir      = os.getenv('HOME') .. '/.vim/dict',
-    query    = 'fallback',
-    debug    = true,
-    -- backend_order = {},
+    dir           = os.getenv('HOME') .. '/.vim/dict',
+    query         = 'fallback',
+    debug         = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
-    theme    = 'default', -- default | tokyonight | dracula
-    strategy = {
+    theme         = 'default', -- default | tokyonight | dracula
+    backend_order = nil,
+    strategy      = {
         ---@type { frontend:string, backend:string | string[] } fallback strategy for mode
         default = {
             frontend = 'hover',
@@ -28,14 +28,13 @@ return {
         },
     },
     ---@type table frontend options
-    frontend = {
+    frontend      = {
         ---@class TransFrontendOpts
         ---@field keymaps table<string, string>
         default = {
-            ---@type boolean Whether to auto play the audio
-            auto_play = true,
             border = 'rounded',
-            title = title, -- need nvim-0.9
+            title = title, -- need nvim-0.9+
+            auto_play = true,
             ---@type {open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
             animation = {
                 open = 'slid', -- 'fold', 'slid'
@@ -55,6 +54,7 @@ return {
             ---@type string -- TODO :support replace with {{special word}}
             fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
+            -- strict_sentence_width = false,
             -- strict = false, -- TODO :No Width limit when str is a sentence
             padding           = 10, -- padding for hover window width
             keymaps           = {
@@ -96,18 +96,18 @@ return {
             ---@type table<string, string>
             icon              = {
                 -- or use emoji
-                list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠
+                list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
                 star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
                 notfound    = ' ', --❔ | ❓ | ❗ | ❕|
                 yes         = '✔', -- ✅ | ✔️ | ☑
                 no          = '', -- ❌ | ❎ | ✖ | ✘ | ✗ |
-                cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+                cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉
                 web         = '󰖟', --🌍 | 🌎 | 🌏 | 🌐 |
                 tag         = '',
                 pos         = '',
-                translation = '󰊿',
-                definition  = '󰗊',
                 exchange    = '',
+                definition  = '󰗊',
+                translation = '󰊿',
             },
         },
     },

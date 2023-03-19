@@ -152,9 +152,6 @@ function M.formatter(body, data)
         },
         web      = body.web,
         explains = body.basic.explains,
-        -- phrases                                               = body.phrases,
-        -- synonyms                                              = body.synonyms,
-        -- sentenceSample                                        = body.sentenceSample,
         [data.from == 'en' and 'translation' or 'definition'] = body.translation,
     }
 
