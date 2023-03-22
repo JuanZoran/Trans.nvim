@@ -111,7 +111,6 @@ function window:resize(opts)
     end
 end
 
-
 ---Try to close window with animation?
 function window:try_close()
     local close_animation = self.animation.close
@@ -133,8 +132,9 @@ end
 ---Set window local highlight group
 ---@param name string
 ---@param opts table highlight config
-function window:set_hl(name, opts)
-    api.nvim_set_hl(self.ns, name, opts)
+---@param ns integer namespace
+function window:set_hl(name, opts, ns)
+    api.nvim_set_hl(ns, name, opts)
 end
 
 ---Open window with animation?
@@ -184,11 +184,20 @@ local default_opts = {
 ---@field buffer TransBuffer attached buffer object
 ---@field win_opts table window config [**When open**]
 ---@field winid integer window handle
----@field ns integer namespace for highlight
 ---@field enter boolean cursor should [enter] window when open
 ---@field animation
 ---|{open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
 
+-- local win_opt   = {
+--     zindex    = zindex,
+--     width     = width,
+--     height    = height,
+--     col       = col,
+--     row       = row,
+--     border    = border,
+--     title     = title,
+--     relative  = relative,
+-- }
 
 ---Create new window
 ---@param opts TransWindowOpts window config
@@ -206,13 +215,3 @@ end
 ---@class Trans
 ---@field window TransWindow
 return window
--- local win_opt   = {
---     zindex    = zindex,
---     width     = width,
---     height    = height,
---     col       = col,
---     row       = row,
---     border    = border,
---     title     = title,
---     relative  = relative,
--- }

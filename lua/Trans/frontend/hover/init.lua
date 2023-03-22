@@ -74,7 +74,6 @@ function M:init_window(opts)
     opts = opts or {}
     local m_opts = self.opts
     local option = {
-        ns = self.ns,
         buffer = self.buffer,
         animation = m_opts.animation,
     }
@@ -179,9 +178,7 @@ end
 ---@param data TransData
 ---@overload fun(result:TransResult)
 function M:process(data)
-    if self.pin then
-        return
-    end
+    if self.pin then return end
 
     local result, name = data:get_available_result()
     if not result then

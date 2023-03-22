@@ -55,7 +55,6 @@ return {
             fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
             -- strict_sentence_width = false,
-            -- strict = false, -- TODO :No Width limit when str is a sentence
             padding           = 10, -- padding for hover window width
             keymaps           = {
                 pageup       = '[[',

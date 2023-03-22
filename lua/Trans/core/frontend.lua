@@ -10,6 +10,7 @@ local function set_frontend_keymap(frontend)
     local keymap_opts = {
         silent = true,
         -- expr = true,
+        -- nowait = true,
     }
 
     for action, key in pairs(frontend.opts.keymaps) do
