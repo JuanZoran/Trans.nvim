@@ -1,4 +1,4 @@
----@class Offline: TransBackend
+---@class TransOfflineBackend
 local M = {
     name    = "offline",
     no_wait = true,
@@ -175,4 +175,6 @@ function M.formatter(res)
     return res
 end
 
+---@class TransBackends
+---@field offline TransOfflineBackend
 return M

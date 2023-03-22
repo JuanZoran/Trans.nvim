@@ -1,12 +1,3 @@
-local title
-if vim.fn.has('nvim-0.9') == 1 then
-    title = {
-        { '',       'TransTitleRound' },
-        { ' Trans', 'TransTitle' },
-        { '',       'TransTitleRound' },
-    }
-end
-
 ---@class Trans
 ---@field conf TransConf
 
@@ -33,7 +24,11 @@ return {
         ---@field keymaps table<string, string>
         default = {
             border = 'rounded',
-            title = title, -- need nvim-0.9+
+            title = vim.fn.has('nvim-0.9') == 1 and {
+                    { '',       'TransTitleRound' },
+                    { ' Trans', 'TransTitle' },
+                    { '',       'TransTitleRound' },
+                } or nil, -- need nvim-0.9+
             auto_play = true,
             ---@type {open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
             animation = {

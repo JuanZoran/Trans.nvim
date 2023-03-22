@@ -20,44 +20,41 @@ local conf = Trans.conf
 local path = conf.dir .. '/Trans.json'
 local file = io.open(path, "r")
 
-local result = {}
+
+local user_conf = {}
 if file then
     local content = file:read("*a")
-    result = vim.json.decode(content) or result
+    user_conf = vim.json.decode(content) or user_conf
     file:close()
 end
 
 
 local all_name = {}
-local backend_order = conf.backend_order or vim.tbl_keys(result)
+local backend_order = conf.backend_order or vim.tbl_keys(user_conf)
 for _, name in ipairs(backend_order) do
-    if not result[name].disable then
+    if not user_conf[name].disable and user_conf[name] then
         all_name[#all_name + 1] = name
     end
 end
 
 
+---@class TransBackends
+---@field all_name string[] all backend names
+
 ---@class Trans
----@field backend table<string, TransBackend>
+---@field backend TransBackends
 return setmetatable({
     all_name = all_name,
 }, {
     __index = function(self, name)
         ---@type TransBackend
         local backend = require('Trans.backend.' .. name)
-        if backend then
-            self[name] = backend
-        else
-            backend = self[name]
+
+        for key, value in pairs(user_conf[name] or {}) do
+            backend[key] = value
         end
 
-        local private_opts = result[name]
-        if private_opts then
-            for field, value in pairs(private_opts) do
-                backend[field] = value
-            end
-        end
-
+        self[name] = backend
         return backend
     end
 })

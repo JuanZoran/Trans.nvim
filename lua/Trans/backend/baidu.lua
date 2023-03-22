@@ -39,7 +39,7 @@ function M.get_query(data)
     }
 end
 
----@overload fun(TransData): TransResult
+---@overload fun(body: table, data:TransData): TransResult
 ---Query Using Baidu API
 ---@param body table BaiduQuery Response
 ---@return table|false
