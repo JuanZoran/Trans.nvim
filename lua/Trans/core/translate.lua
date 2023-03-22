@@ -8,6 +8,7 @@ local function init_opts(opts)
         v = 'visual',
     })[vim.api.nvim_get_mode().mode]
 
+
     opts.str = util.get_str(opts.mode)
     return opts
 end

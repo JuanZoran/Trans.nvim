@@ -1,5 +1,3 @@
-local Trans = require('Trans')
-
 local fn, api = vim.fn, vim.api
 
 ---@class TransUtil
@@ -42,16 +40,18 @@ end
 ---@param mode TransMode
 ---@return string
 function M.get_str(mode)
-    if mode == 'n' or mode == 'normal' then
-        return fn.expand('<cword>')
-    elseif mode == 'v' or mode == 'visual' then
-        api.nvim_input('<ESC>')
-        return M.get_select()
-    elseif mode == 'input' then
-        return fn.expand('<cword>')
-    else
-        error('Unsupported mode' .. mode)
-    end
+    return ({
+        normal = function()
+            return fn.expand('<cword>')
+        end,
+        visual = function()
+            api.nvim_input('<Esc>')
+            return M.get_select()
+        end,
+        input = function()
+            return fn.input('需要翻译的字符串: ')
+        end,
+    })[mode]():match('^%s*(.-)%s*$')
 end
 
 ---Puase coroutine for {ms} milliseconds
@@ -166,7 +166,7 @@ end
 ---@param opts { winid: integer, height: integer }?
 ---@return string[]
 function M.visible_lines(opts)
-    opts = opts or {}
+    opts                        = opts or {}
 
     -- INFO : don't calculate the height of statusline and cmdheight or winbar?
     local winid                 = opts.winid or 0
@@ -187,7 +187,6 @@ end
 function M.is_word(str)
     return str:match('%w+') == str
 end
-
 
 ---@class Trans
 ---@field util TransUtil

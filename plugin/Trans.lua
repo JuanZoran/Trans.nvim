@@ -26,11 +26,16 @@ local command = api.nvim_create_user_command
 
 command("Translate", function()
     Trans.translate()
-end, { desc = "  单词翻译" })
+end, { desc = "  Translate cursor word" })
+
+
+command("TranslateInput", function()
+    Trans.translate({ mode = 'input' })
+end, { desc = "  Translate input word" })
 
 command("TransPlay", function()
     local str = Trans.util.get_str(api.nvim_get_mode().mode)
     if str and str ~= "" and Trans.util.is_English(str) then
         str:play()
     end
-end, { desc = " 自动发音" })
+end, { desc = " auto play" })
