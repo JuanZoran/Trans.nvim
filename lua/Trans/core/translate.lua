@@ -3,12 +3,7 @@ local util = Trans.util
 
 local function init_opts(opts)
     opts = opts or {}
-    opts.mode = opts.mode or ({
-        n = 'normal',
-        v = 'visual',
-    })[vim.api.nvim_get_mode().mode]
-
-
+    opts.mode = opts.mode or vim.fn.mode()
     opts.str = util.get_str(opts.mode)
     return opts
 end

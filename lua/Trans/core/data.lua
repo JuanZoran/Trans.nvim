@@ -21,9 +21,7 @@ function M.new(opts)
     local mode = opts.mode
     local str  = opts.str
 
-
     local strategy = Trans.conf.strategy[mode]
-
 
     local data = setmetatable({
         str    = str,

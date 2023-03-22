@@ -30,13 +30,13 @@ end, { desc = "  Translate cursor word" })
 
 
 command("TranslateInput", function()
-    Trans.translate({ mode = 'input' })
+    Trans.translate({ mode = 'i' })
 end, { desc = "  Translate input word" })
 
 command("TransPlay", function()
-    --- FIXME :
-    local str = Trans.util.get_str(api.nvim_get_mode().mode)
-    if str and str ~= "" and Trans.util.is_English(str) then
+    local util = Trans.util
+    local str = util.get_str(vim.fn.mode())
+    if str and str ~= "" and util.is_English(str) then
         str:play()
     end
-end, { desc = " auto play" })
+end, { desc = " Auto play" })

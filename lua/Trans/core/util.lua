@@ -37,20 +37,23 @@ function M.get_select()
 end
 
 ---Get Text which need to be translated
----@param mode TransMode
+---@param mode string
 ---@return string
 function M.get_str(mode)
     return ({
-        normal = function()
+        n = function()
             return fn.expand('<cword>')
         end,
-        visual = function()
+        v = function()
             api.nvim_input('<Esc>')
             return M.get_select()
         end,
-        input = function()
+        i = function()
             return fn.input('需要翻译的字符串: ')
         end,
+        V = function()
+            print('TODO')
+        end
     })[mode]():match('^%s*(.-)%s*$')
 end
 
@@ -166,9 +169,9 @@ end
 ---@param opts { winid: integer, height: integer }?
 ---@return string[]
 function M.visible_lines(opts)
-    opts                        = opts or {}
+    opts = opts or {}
 
-
+    -- TODO : Use getpos('w0') and getpos('w$') to get the visible lines
     -- INFO : don't calculate the height of statusline and cmdheight or winbar?
     local winid                 = opts.winid or 0
     local win_height            = opts.height or api.nvim_win_get_height(winid)

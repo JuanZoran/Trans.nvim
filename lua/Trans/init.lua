@@ -18,6 +18,7 @@ end
 ---@field width function @Get string display width
 ---@field play function @Use tts to play string
 
+
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
@@ -25,11 +26,6 @@ end
 local M = metatable("core", {
     cache = {},
     style = metatable("style"),
-    modes = {
-        "normal",
-        "visual",
-        "input",
-    },
     augroup = vim.api.nvim_create_augroup("Trans", { clear = true }),
 })
 
