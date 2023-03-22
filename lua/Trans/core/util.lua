@@ -168,6 +168,7 @@ end
 function M.visible_lines(opts)
     opts                        = opts or {}
 
+
     -- INFO : don't calculate the height of statusline and cmdheight or winbar?
     local winid                 = opts.winid or 0
     local win_height            = opts.height or api.nvim_win_get_height(winid)

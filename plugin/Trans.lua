@@ -34,6 +34,7 @@ command("TranslateInput", function()
 end, { desc = "  Translate input word" })
 
 command("TransPlay", function()
+    --- FIXME :
     local str = Trans.util.get_str(api.nvim_get_mode().mode)
     if str and str ~= "" and Trans.util.is_English(str) then
         str:play()
