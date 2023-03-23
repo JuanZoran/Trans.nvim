@@ -29,7 +29,7 @@ local text_meta = {
     render = function(self, buffer, line, col)
         local nodes = self.nodes
         local step  = self.step
-        local len   = step and #step or 0
+        local len = step and #step or 0
 
         for _, node in ipairs(nodes) do
             node:render(buffer, line, col)
@@ -72,7 +72,6 @@ local function format(args)
     for i = 1, size do
         wid = wid + args[i][1]:width()
     end
-
 
     local space = math.max(math.floor((width - wid) / (size - 1)), 0)
     args.step   = spin:rep(space)
