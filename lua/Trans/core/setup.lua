@@ -1,4 +1,4 @@
-local Trans = require('Trans')
+local Trans = require 'Trans'
 
 local function set_strategy_opts(conf)
     local all_backends = Trans.backend.all_name
@@ -21,7 +21,7 @@ local function set_strategy_opts(conf)
     setmetatable(conf.strategy, {
         __index = function()
             return default_strategy
-        end
+        end,
     })
 
     for _, strategy in pairs(conf.strategy) do

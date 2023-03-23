@@ -1,4 +1,4 @@
-local node = require('Trans').util.node
+local node = require 'Trans'.util.node
 local it, conjunction = node.item, node.conjunction
 local interval = (' '):rep(4)
 
@@ -35,7 +35,7 @@ local default = {
             )
         end
 
-        buffer:setline('')
+        buffer:setline ''
     end,
     definition = function(hover, result)
         local definition = result.definition
@@ -50,7 +50,7 @@ local default = {
             )
         end
 
-        buffer:setline('')
+        buffer:setline ''
     end,
 }
 

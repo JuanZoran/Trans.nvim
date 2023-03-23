@@ -5,14 +5,14 @@
 ---@field app_passwd string
 ---@field disable boolean
 local M = {
-    uri    = "https://fanyi-api.baidu.com/api/trans/vip/translate",
+    uri    = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
     salt   = tostring(math.random(bit.lshift(1, 15))),
-    name   = "baidu",
+    name   = 'baidu',
     method = 'get',
 }
 
 
-local Trans = require("Trans")
+local Trans = require 'Trans'
 
 ---@class BaiduQuery
 ---@field q string
@@ -52,7 +52,7 @@ function M.formatter(body, data)
     result = result[1]
     return {
         str = result.src,
-        [data.from == "en" and "translation" or "definition"] = { result.dst },
+        [data.from == 'en' and 'translation' or 'definition'] = { result.dst },
     }
 end
 

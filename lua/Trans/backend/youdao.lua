@@ -55,31 +55,31 @@ end
 
 local function check_untracked_field(body)
     local field = {
-        "phonetic",
+        'phonetic',
         'usPhonetic',
-        "ukPhonetic",
-        "text",           --	text	短语
-        "explain",        --	String Array	词义解释列表
-        "wordFormats",    --	Object Array	单词形式变化列表
-        "name",           --	String	形式名称，例如：复数
-        "phrase",         --	String	词组
-        "meaning",        --	String	含义
-        "synonyms",       --	JSONObject	近义词
-        "pos",            --	String	词性
-        "words",          --	String Array	近义词列表
-        "trans",          --	String	释义
-        "antonyms",       --	ObjectArray	反义词
-        "relatedWords",   --	JSONArray	相关词
-        "wordNet",        --	JSONObject	汉语词典网络释义
-        "phonetic",       --	String	发音
-        "meanings",       --	ObjectArray	释义
-        "meaning",        --	String	释义
-        "example",        --	array	示例
-        "sentenceSample", --	text	例句
-        "sentence",       --	text	例句
-        "sentenceBold",   --	text	将查询内容加粗的例句
-        "wfs",            --	text	单词形式变化
-        "exam_type",      --	text	考试类型
+        'ukPhonetic',
+        'text',           --	text	短语
+        'explain',        --	String Array	词义解释列表
+        'wordFormats',    --	Object Array	单词形式变化列表
+        'name',           --	String	形式名称，例如：复数
+        'phrase',         --	String	词组
+        'meaning',        --	String	含义
+        'synonyms',       --	JSONObject	近义词
+        'pos',            --	String	词性
+        'words',          --	String Array	近义词列表
+        'trans',          --	String	释义
+        'antonyms',       --	ObjectArray	反义词
+        'relatedWords',   --	JSONArray	相关词
+        'wordNet',        --	JSONObject	汉语词典网络释义
+        'phonetic',       --	String	发音
+        'meanings',       --	ObjectArray	释义
+        'meaning',        --	String	释义
+        'example',        --	array	示例
+        'sentenceSample', --	text	例句
+        'sentence',       --	text	例句
+        'sentenceBold',   --	text	将查询内容加粗的例句
+        'wfs',            --	text	单词形式变化
+        'exam_type',      --	text	考试类型
     }
     for _, f in ipairs(field) do
         if body[f] then
@@ -96,33 +96,33 @@ function M.debug(body)
         vim.notify('Unknown errors, nil body', vim.log.levels.ERROR)
     end
     local debug_msg = ({
-        [101] = "缺少必填的参数,首先确保必填参数齐全，然后确认参数书写是否正确。",
-        [102] = "不支持的语言类型",
-        [103] = "翻译文本过长",
-        [104] = "不支持的API类型",
-        [105] = "不支持的签名类型",
-        [106] = "不支持的响应类型",
-        [107] = "不支持的传输加密类型",
-        [108] = "应用ID无效，注册账号，登录后台创建应用和实例并完成绑定，可获得应用ID和应用密钥等信息",
-        [109] = "batchLog格式不正确",
-        [110] = "无相关服务的有效实例,应用没有绑定服务实例，可以新建服务实例，绑定服务实例。注：某些服务的翻译结果发音需要tts实例，需要在控制台创建语音合成实例绑定应用后方能使用。",
-        [111] = "开发者账号无效",
-        [113] = "q不能为空",
-        [120] = "不是词，或未收录",
-        [201] = "解密失败，可能为DES,BASE64,URLDecode的错误",
-        [202] = "签名检验失败",
-        [203] = "访问IP地址不在可访问IP列表",
-        [205] = "请求的接口与应用的平台类型不一致，确保接入方式（Android SDK、IOS SDK、API）与创建的应用平台类型一致。如有疑问请参考入门指南",
-        [206] = "因为时间戳无效导致签名校验失败",
-        [207] = "重放请求",
-        [301] = "辞典查询失败",
-        [302] = "翻译查询失败",
-        [303] = "服务端的其它异常",
-        [305] = "批量翻译部分成功",
-        [401] = "账户已经欠费，请进行账户充值",
-        [411] = "访问频率受限,请稍后访问",
-        [412] = "长请求过于频繁，请稍后访问",
-        [390001] = "词典名称不正确",
+        [101] = '缺少必填的参数,首先确保必填参数齐全，然后确认参数书写是否正确。',
+        [102] = '不支持的语言类型',
+        [103] = '翻译文本过长',
+        [104] = '不支持的API类型',
+        [105] = '不支持的签名类型',
+        [106] = '不支持的响应类型',
+        [107] = '不支持的传输加密类型',
+        [108] = '应用ID无效，注册账号，登录后台创建应用和实例并完成绑定，可获得应用ID和应用密钥等信息',
+        [109] = 'batchLog格式不正确',
+        [110] = '无相关服务的有效实例,应用没有绑定服务实例，可以新建服务实例，绑定服务实例。注：某些服务的翻译结果发音需要tts实例，需要在控制台创建语音合成实例绑定应用后方能使用。',
+        [111] = '开发者账号无效',
+        [113] = 'q不能为空',
+        [120] = '不是词，或未收录',
+        [201] = '解密失败，可能为DES,BASE64,URLDecode的错误',
+        [202] = '签名检验失败',
+        [203] = '访问IP地址不在可访问IP列表',
+        [205] = '请求的接口与应用的平台类型不一致，确保接入方式（Android SDK、IOS SDK、API）与创建的应用平台类型一致。如有疑问请参考入门指南',
+        [206] = '因为时间戳无效导致签名校验失败',
+        [207] = '重放请求',
+        [301] = '辞典查询失败',
+        [302] = '翻译查询失败',
+        [303] = '服务端的其它异常',
+        [305] = '批量翻译部分成功',
+        [401] = '账户已经欠费，请进行账户充值',
+        [411] = '访问频率受限,请稍后访问',
+        [412] = '长请求过于频繁，请稍后访问',
+        [390001] = '词典名称不正确',
     })[tonumber(body.errorCode)]
 
     vim.notify('Youdao API Error: ' .. (debug_msg or vim.inspect(body)), vim.log.levels.ERROR)
@@ -134,7 +134,7 @@ end
 ---@param data TransData Data obj
 ---@return table|false?
 function M.formatter(body, data)
-    if body.errorCode ~= "0" then return false end
+    if body.errorCode ~= '0' then return false end
     check_untracked_field(body)
 
     if not body.isWord then
@@ -146,15 +146,14 @@ function M.formatter(body, data)
 
 
     return {
-        title    = {
+        title                                                 = {
             word     = body.query,
             phonetic = body.basic.phonetic,
         },
-        web      = body.web,
-        explains = body.basic.explains,
+        web                                                   = body.web,
+        explains                                              = body.basic.explains,
         [data.from == 'en' and 'translation' or 'definition'] = body.translation,
     }
-
 end
 
 ---@class TransBackend

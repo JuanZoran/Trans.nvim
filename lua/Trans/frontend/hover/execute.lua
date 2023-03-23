@@ -3,10 +3,10 @@ local api = vim.api
 ---@type table<string, fun(hover: TransHover)>
 local strategy = {
     pageup = function(hover)
-        hover.buffer:normal("gg")
+        hover.buffer:normal 'gg'
     end,
     pagedown = function(hover)
-        hover.buffer:normal("G")
+        hover.buffer:normal 'G'
     end,
     pin = function(hover)
         if hover.pin then
@@ -22,10 +22,10 @@ local strategy = {
             col      = col,
             width    = width,
             height   = height,
-            relative = "editor",
+            relative = 'editor',
         }
 
-        window:set("wrap", true)
+        window:set('wrap', true)
     end,
     close = function(hover)
         hover:destroy()

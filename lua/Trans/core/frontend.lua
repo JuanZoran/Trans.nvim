@@ -1,4 +1,4 @@
-local Trans = require('Trans')
+local Trans = require 'Trans'
 local conf = Trans.conf
 local frontend_opts = conf.frontend
 
@@ -50,5 +50,5 @@ return setmetatable({}, {
         set_frontend_keymap(frontend)
 
         return frontend
-    end
+    end,
 })

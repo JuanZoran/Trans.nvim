@@ -5,7 +5,7 @@
 local function metatable(folder_name, origin)
     return setmetatable(origin or {}, {
         __index = function(tbl, key)
-            local status, result = pcall(require, ("Trans.%s.%s"):format(folder_name, key))
+            local status, result = pcall(require, ('Trans.%s.%s'):format(folder_name, key))
             if status then
                 tbl[key] = result
                 return result
@@ -19,16 +19,16 @@ end
 ---@field play function @Use tts to play string
 
 
-local separator = vim.loop.os_uname().sysname == "Windows" and "\\" or "/"
+local separator = vim.loop.os_uname().sysname == 'Windows' and '\\' or '/'
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
 ---@field plugin_dir string @Plugin directory
 ---@field separator string @Path separator
-local M = metatable("core", {
+local M = metatable('core', {
     cache      = {},
-    style      = metatable("style"),
-    plugin_dir = debug.getinfo(1, "S").source:sub(2):match("(.-)lua" .. separator .. "Trans"),
+    style      = metatable 'style',
+    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. separator .. 'Trans'),
     separator  = separator,
 })
 
@@ -39,7 +39,7 @@ M.metatable = metatable
 ---@param is_dir boolean?
 ---@return string
 function M.relative_path(path, is_dir)
-    return M.plugin_dir .. table.concat(path, separator) .. (is_dir and separator or "")
+    return M.plugin_dir .. table.concat(path, separator) .. (is_dir and separator or '')
 end
 
 return M

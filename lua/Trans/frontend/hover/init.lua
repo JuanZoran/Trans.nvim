@@ -1,5 +1,5 @@
 ---@type Trans
-local Trans = require("Trans")
+local Trans = require 'Trans'
 
 -- FIXME :Adjust Window Size
 
@@ -11,8 +11,8 @@ local Trans = require("Trans")
 ---@field destroy_funcs fun(hover:TransHover)[] @functions to be executed when hover window is closed
 ---@field opts TransHoverOpts @options for hover window
 ---@field pin boolean @whether hover window is pinned
-local M = Trans.metatable("frontend.hover", {
-    ns = vim.api.nvim_create_namespace("TransHoverWin"),
+local M = Trans.metatable('frontend.hover', {
+    ns = vim.api.nvim_create_namespace 'TransHoverWin',
     queue = {},
 })
 M.__index = M
@@ -85,12 +85,12 @@ function M:init_window(opts)
         title    = m_opts.title,
         width    = opts.width or m_opts.width,
         height   = opts.height or m_opts.height,
-        relative = opts.relative or "cursor",
+        relative = opts.relative or 'cursor',
     }
     -- stylua: ignore end
 
     if win_opts.title then
-        win_opts.title_pos = "center"
+        win_opts.title_pos = 'center'
     end
 
     option.win_opts = win_opts
@@ -103,7 +103,7 @@ end
 ---@return string formatted text
 ---@return integer _ replaced count
 function M:icon_format(format)
-    return format:gsub("{{(%w+)}}", self.opts.icon)
+    return format:gsub('{{(%w+)}}', self.opts.icon)
 end
 
 ---Get Check function for waiting
@@ -127,7 +127,7 @@ function M:wait()
     return function()
         cur = cur + 1
         buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)
-        buffer:add_highlight(1, "TransWaitting")
+        buffer:add_highlight(1, 'TransWaitting')
         pause(interval)
         return cur < times
     end
@@ -150,14 +150,14 @@ function M:fallback()
 
     -- TODO :Center
     buffer[1] = Trans.util.center(fallback_msg, opts.width)
-    buffer:add_highlight(1, "TransFailed")
+    buffer:add_highlight(1, 'TransFailed')
     self:defer()
 end
 
 ---Defer function when process done
 function M:defer()
-    self.window:set("wrap", true)
-    self.buffer:set("modifiable", false)
+    self.window:set('wrap', true)
+    self.buffer:set('modifiable', false)
 
     local auto_close_events = self.opts.auto_close_events
     if not auto_close_events then return end
@@ -191,7 +191,7 @@ function M:process(data)
     local buffer = self.buffer
 
     if opts.auto_play then
-        (data.from == "en" and data.str or result.definition[1]):play()
+        (data.from == 'en' and data.str or result.definition[1]):play()
     end
 
     -- vim.pretty_print(result)

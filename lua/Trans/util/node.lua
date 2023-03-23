@@ -1,4 +1,4 @@
-local util = require('Trans').util
+local util = require 'Trans'.util
 
 ---@class TransNode
 ---@field [1] string text to be rendered
@@ -29,7 +29,7 @@ local text_meta = {
     render = function(self, buffer, line, col)
         local nodes = self.nodes
         local step  = self.step
-        local len = step and #step or 0
+        local len   = step and #step or 0
 
         for _, node in ipairs(nodes) do
             node:render(buffer, line, col)
@@ -66,7 +66,7 @@ end
 ---@return TransText
 local function format(args)
     local width = args.width
-    local spin  = args.spin or " "
+    local spin  = args.spin or ' '
     local size  = #args
     local wid   = 0
     for i = 1, size do
@@ -93,9 +93,9 @@ return {
     format = format,
     conjunction = function(str)
         return {
-            item { "", "TransTitleRound" },
-            item { str, "TransTitle" },
-            item { "", "TransTitleRound" },
+            item { '', 'TransTitleRound' },
+            item { str, 'TransTitle' },
+            item { '', 'TransTitleRound' },
         }
     end,
 }

@@ -1,6 +1,6 @@
 local api = vim.api
 ---@class Trans
-local Trans = require("Trans")
+local Trans = require 'Trans'
 
 ---@class TransWindow
 local window = {}
@@ -61,10 +61,10 @@ function window:adjust_height(height)
     local display_height = Trans.util.display_height(self.buffer:lines(), self:width())
     height = height and math.min(display_height, height) or display_height
 
-    self:smooth_expand({
+    self:smooth_expand {
         field = 'height',
-        to = height
-    })
+        to = height,
+    }
 end
 
 ---Expand window [width | height] value
@@ -82,7 +82,7 @@ function window:smooth_expand(opts)
     local method = api['nvim_win_set_' .. field]
 
 
-    local wrap = self:option('wrap')
+    local wrap = self:option 'wrap'
     local interval = self.animation.interval
     for i = from + 1, to, (from < to and 1 or -1) do
         self:set('wrap', false)
@@ -99,14 +99,14 @@ function window:resize(opts)
     if opts.height and self:height() ~= opts.height then
         self:smooth_expand {
             field = 'height',
-            to = opts.height
+            to = opts.height,
         }
     end
 
     if opts.width and self:width() ~= opts.width then
         self:smooth_expand {
             field = 'width',
-            to = opts.width
+            to = opts.width,
         }
     end
 end
@@ -120,10 +120,10 @@ function window:try_close()
             fold = 'height',
         })[close_animation]
 
-        self:smooth_expand({
+        self:smooth_expand {
             field = field,
             to = 1,
-        })
+        }
     end
 
     api.nvim_win_close(self.winid, true)
@@ -150,10 +150,10 @@ function window:open()
         local to = win_opts[field]
         win_opts[field] = 1
         self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
-        self:smooth_expand({
+        self:smooth_expand {
             field = field,
             to = to,
-        })
+        }
     else
         self.winid = api.nvim_open_win(self.buffer.bufnr, self.enter, win_opts)
     end

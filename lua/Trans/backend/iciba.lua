@@ -20,9 +20,8 @@ function M.get_query(data)
     }
 end
 
-
 function M.formatter(body, data)
-    print('TODO')
+    print 'TODO'
     -- if true and not status or not body or body.errorCode ~= "0" then
     --     data.result.iciba = false
     --     data[#data + 1] = res

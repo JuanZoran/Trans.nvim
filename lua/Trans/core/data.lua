@@ -1,4 +1,4 @@
-local Trans = require('Trans')
+local Trans = require 'Trans'
 
 
 ---@class TransData
@@ -21,8 +21,8 @@ function M.new(opts)
     local mode = opts.mode
     local str  = opts.str
 
-    local strategy = Trans.conf.strategy[mode]
 
+    local strategy = Trans.conf.strategy[mode]
     local data = setmetatable({
         str    = str,
         mode   = mode,

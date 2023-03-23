@@ -1,14 +1,14 @@
 local fn, api = vim.fn, vim.api
 
 ---@class TransUtil
-local M = require('Trans').metatable('util')
+local M = require 'Trans'.metatable 'util'
 
 
 ---Get selected text
 ---@return string
 function M.get_select()
-    local _start = fn.getpos("v")
-    local _end = fn.getpos('.')
+    local _start = fn.getpos 'v'
+    local _end = fn.getpos '.'
 
     if _start[2] > _end[2] or (_start[3] > _end[3] and _start[2] == _end[2]) then
         _start, _end = _end, _start
@@ -42,19 +42,19 @@ end
 function M.get_str(mode)
     return ({
         n = function()
-            return fn.expand('<cword>')
+            return fn.expand '<cword>'
         end,
         v = function()
-            api.nvim_input('<Esc>')
+            api.nvim_input '<Esc>'
             return M.get_select()
         end,
         i = function()
-            return fn.input('需要翻译的字符串: ')
+            return fn.input '需要翻译的字符串: '
         end,
         V = function()
-            print('TODO')
-        end
-    })[mode]():match('^%s*(.-)%s*$')
+            print 'TODO'
+        end,
+    })[mode]():match '^%s*(.-)%s*$'
 end
 
 ---Puase coroutine for {ms} milliseconds
@@ -102,7 +102,6 @@ function M.display_width(lines)
     end
     return width
 end
-
 
 ---Center node utility function
 ---@param node string -- TODO :Node
@@ -175,7 +174,7 @@ end
 ---@param str string
 ---@return boolean
 function M.is_word(str)
-    return str:match('%w+') == str
+    return str:match '%w+' == str
 end
 
 ---@param list any[]

@@ -5,7 +5,7 @@
 ---@class TransConf
 return {
     ---@type string the directory for database file and password file
-    dir      = require('Trans').relative_path({ 'extra' }, true),
+    dir      = require 'Trans'.relative_path({ 'extra' }, true),
     debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
@@ -23,7 +23,7 @@ return {
         default = {
             query     = 'fallback',
             border    = 'rounded',
-            title     = vim.fn.has('nvim-0.9') == 1 and {
+            title     = vim.fn.has 'nvim-0.9' == 1 and {
                     { '',       'TransTitleRound' },
                     { ' Trans', 'TransTitle' },
                     { '',       'TransTitleRound' },
@@ -49,7 +49,7 @@ return {
             fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
             split_width       = 60,
-            padding           = 10,      -- padding for hover window width
+            padding           = 10, -- padding for hover window width
             keymaps           = {
                 pageup       = '[[',
                 pagedown     = ']]',
@@ -84,9 +84,8 @@ return {
                     'translation',
                     'definition',
                     'web',
-                }
+                },
             },
-            ---@type table<string, string>
             icon              = {
                 -- or use emoji
                 list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦

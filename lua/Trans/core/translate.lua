@@ -1,4 +1,4 @@
-local Trans = require('Trans')
+local Trans = require 'Trans'
 local util = Trans.util
 
 local function init_opts(opts)
@@ -19,7 +19,7 @@ local function do_query(data, backend)
     local method    = backend.method
     local formatter = backend.formatter
     local query     = backend.get_query(data)
-    local header    = type(backend.header) == "function" and backend.header(data) or backend.header
+    local header    = type(backend.header) == 'function' and backend.header(data) or backend.header
 
     local function handle(output)
         local status, body = pcall(vim.json.decode, output.body)

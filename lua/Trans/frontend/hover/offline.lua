@@ -1,4 +1,4 @@
-local node = require('Trans').util.node
+local node = require 'Trans'.util.node
 local it, t, f, co = node.item, node.text, node.format, node.conjunction
 local interval = (' '):rep(4)
 
@@ -26,7 +26,7 @@ function M.title(hover, result)
         t {
             it { '[' },
             it { (phonetic and phonetic ~= '') and phonetic or icon.notfound, 'TransPhonetic' },
-            it { ']' }
+            it { ']' },
         },
 
         it { collins and icon.star:rep(collins) or icon.notfound, 'TransCollins' },
@@ -54,7 +54,7 @@ function M.tag(hover, result)
         })
     end
 
-    buffer:setline('')
+    buffer:setline ''
 end
 
 function M.exchange(hover, result)
@@ -70,7 +70,7 @@ function M.exchange(hover, result)
         )
     end
 
-    buffer:setline('')
+    buffer:setline ''
 end
 
 function M.pos(hover, result)
@@ -86,7 +86,7 @@ function M.pos(hover, result)
         )
     end
 
-    buffer:setline('')
+    buffer:setline ''
 end
 
 return M

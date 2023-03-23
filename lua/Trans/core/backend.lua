@@ -1,4 +1,4 @@
-local Trans = require('Trans')
+local Trans = require 'Trans'
 
 
 ---@class TransBackend
@@ -18,12 +18,12 @@ local Trans = require('Trans')
 local conf = Trans.conf
 --- INFO :Parse online engine keys config file
 local path = conf.dir .. '/Trans.json'
-local file = io.open(path, "r")
+local file = io.open(path, 'r')
 
 
 local user_conf = {}
 if file then
-    local content = file:read("*a")
+    local content = file:read '*a'
     user_conf = vim.json.decode(content) or user_conf
     file:close()
 end
@@ -56,5 +56,5 @@ return setmetatable({
 
         self[name] = backend
         return backend
-    end
+    end,
 })

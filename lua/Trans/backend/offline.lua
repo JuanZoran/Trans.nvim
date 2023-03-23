@@ -1,10 +1,10 @@
-local Trans   = require("Trans")
+local Trans   = require 'Trans'
 
-local db      = require("sqlite.db")
-local path    = Trans.conf.dir .. Trans.separator .. "ultimate.db"
+local db      = require 'sqlite.db'
+local path    = Trans.conf.dir .. Trans.separator .. 'ultimate.db'
 local dict    = db:open(path)
-local db_name = "stardict"
-vim.api.nvim_create_autocmd("VimLeavePre", {
+local db_name = 'stardict'
+vim.api.nvim_create_autocmd('VimLeavePre', {
     callback = function()
         if db:isopen() then db:close() end
     end,
@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 
 ---@class TransOfflineBackend
 local M = {
-    name    = "offline",
+    name    = 'offline',
     no_wait = true,
 }
 
@@ -20,7 +20,7 @@ local M = {
 ---@return any
 ---@overload fun(TransData): TransResult
 function M.query(data)
-    if data.is_word == false or data.from == "zh" then
+    if data.is_word == false or data.from == 'zh' then
         return
     end
 
@@ -35,19 +35,19 @@ end
 
 -- this is a awesome plugin
 M.query_field = {
-    "word",
-    "phonetic",
-    "definition",
-    "translation",
-    "pos",
-    "collins",
-    "oxford",
-    "tag",
-    "exchange",
+    'word',
+    'phonetic',
+    'definition',
+    'translation',
+    'pos',
+    'collins',
+    'oxford',
+    'tag',
+    'exchange',
 }
 
 local function exist(str)
-    return str and str ~= ""
+    return str and str ~= ''
 end
 
 ---@type (fun(res):any)[]
@@ -71,18 +71,18 @@ local formatter = {
             return
         end
         local tag_map = {
-            zk    = "中考",
-            gk    = "高考",
-            ky    = "考研",
-            gre   = "gre ",
-            cet4  = "四级",
-            cet6  = "六级",
-            ielts = "雅思",
-            toefl = "托福",
+            zk    = '中考',
+            gk    = '高考',
+            ky    = '考研',
+            gre   = 'gre ',
+            cet4  = '四级',
+            cet6  = '六级',
+            ielts = '雅思',
+            toefl = '托福',
         }
 
         local tag = {}
-        for i, _tag in ipairs(vim.split(res.tag, " ", { plain = true })) do
+        for i, _tag in ipairs(vim.split(res.tag, ' ', { plain = true })) do
             tag[i] = tag_map[_tag]
         end
 
@@ -93,20 +93,20 @@ local formatter = {
             return
         end
         local exchange_map = {
-            ["0"] = "原型        ",
-            ["1"] = "类别        ",
-            ["p"] = "过去式      ",
-            ["r"] = "比较级      ",
-            ["t"] = "最高级      ",
-            ["s"] = "复数        ",
-            ["d"] = "过去分词    ",
-            ["i"] = "现在分词    ",
-            ["3"] = "第三人称单数",
-            ["f"] = "第三人称单数",
+            ['0'] = '原型        ',
+            ['1'] = '类别        ',
+            ['p'] = '过去式      ',
+            ['r'] = '比较级      ',
+            ['t'] = '最高级      ',
+            ['s'] = '复数        ',
+            ['d'] = '过去分词    ',
+            ['i'] = '现在分词    ',
+            ['3'] = '第三人称单数',
+            ['f'] = '第三人称单数',
         }
 
         local exchange = {}
-        for _, _exchange in ipairs(vim.split(res.exchange, "/", { plain = true })) do
+        for _, _exchange in ipairs(vim.split(res.exchange, '/', { plain = true })) do
             exchange[exchange_map[_exchange:sub(1, 1)]] = _exchange:sub(3)
         end
 
@@ -117,24 +117,24 @@ local formatter = {
             return
         end
         local pos_map = {
-            a = "代词pron         ",
-            c = "连接词conj       ",
-            i = "介词prep         ",
-            j = "形容词adj        ",
-            m = "数词num          ",
-            n = "名词n            ",
-            p = "代词pron         ",
-            r = "副词adv          ",
-            u = "感叹词int        ",
-            v = "动词v            ",
-            x = "否定标记not      ",
-            t = "不定式标记infm   ",
-            d = "限定词determiner ",
+            a = '代词pron         ',
+            c = '连接词conj       ',
+            i = '介词prep         ',
+            j = '形容词adj        ',
+            m = '数词num          ',
+            n = '名词n            ',
+            p = '代词pron         ',
+            r = '副词adv          ',
+            u = '感叹词int        ',
+            v = '动词v            ',
+            x = '否定标记not      ',
+            t = '不定式标记infm   ',
+            d = '限定词determiner ',
         }
 
         local pos = {}
-        for _, _pos in ipairs(vim.split(res.pos, "/", { plain = true })) do
-            pos[pos_map[_pos:sub(1, 1)]] = ("%2s%%"):format(_pos:sub(3))
+        for _, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
+            pos[pos_map[_pos:sub(1, 1)]] = ('%2s%%'):format(_pos:sub(3))
         end
 
         return pos
@@ -144,7 +144,7 @@ local formatter = {
             return
         end
         local translation = {}
-        for i, _translation in ipairs(vim.split(res.translation, "\n", { plain = true })) do
+        for i, _translation in ipairs(vim.split(res.translation, '\n', { plain = true })) do
             translation[i] = _translation
         end
 
@@ -155,9 +155,9 @@ local formatter = {
             return
         end
         local definition = {}
-        for i, _definition in ipairs(vim.split(res.definition, "\n", { plain = true })) do
+        for i, _definition in ipairs(vim.split(res.definition, '\n', { plain = true })) do
             --     -- TODO :判断是否需要分割空格
-            definition[i] = _definition:gsub("^%s+", "", 1)
+            definition[i] = _definition:gsub('^%s+', '', 1)
         end
 
         return definition

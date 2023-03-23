@@ -1,7 +1,7 @@
 ---@class Trans
 ---@field install fun() Download database and tts dependencies
 return function()
-    local Trans = require('Trans')
+    local Trans = require 'Trans'
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
     local path = dir .. 'ultimate.db'
@@ -26,7 +26,7 @@ return function()
 
     local handle = function(output)
         if output.exit == 0 and fn.filereadable(zip) then
-            if fn.executable('unzip') == 0 then
+            if fn.executable 'unzip' == 0 then
                 vim.notify('unzip not found, Please unzip ' .. zip .. 'manually', vim.log.ERROR)
                 return
             end
@@ -50,7 +50,7 @@ return function()
     })
 
     -- INFO : Install tts dependencies
-    if fn.has('linux') == 0 and fn.has('mac') == 0 then
-        os.execute('cd ./tts && npm install')
+    if fn.has 'linux' == 0 and fn.has 'mac' == 0 then
+        os.execute 'cd ./tts && npm install'
     end
 end
