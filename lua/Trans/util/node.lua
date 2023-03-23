@@ -83,7 +83,6 @@ local function format(args)
     return text(args)
 end
 
-
 ---@class TransUtil
 ---@field node TransNodes
 

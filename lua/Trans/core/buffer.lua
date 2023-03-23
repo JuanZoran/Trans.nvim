@@ -74,21 +74,6 @@ function buffer:lines(i, j)
     return api.nvim_buf_get_lines(self.bufnr, i, j, false)
 end
 
--- ---Add Extmark to buffer
--- ---@param linenr number line number should be set[one index]
--- ---@param col_start number column start
--- ---@param col_end number column end
--- ---@param hl_group string highlight group
--- ---@param ns number? highlight namespace
--- function buffer:add_extmark(linenr, col_start, col_end, hl_group, ns)
---     linenr = linenr and linenr - 1 or -1
---     api.nvim_buf_set_extmark(self.bufnr, ns or -1, linenr, col_start, {
---         end_line = linenr,
---         end_col = col_end,
---         hl_group = hl_group,
---     })
--- end
-
 ---Add highlight to buffer
 ---@param linenr number line number should be set[one index]
 ---@param hl_group string highlight group
@@ -180,6 +165,40 @@ function buffer.new()
     local new_buf = setmetatable({}, buffer)
     new_buf:init()
     return new_buf
+end
+
+--- HACK :available options:
+--- - id
+--- - end_row
+--- - end_col
+--- - hl_eol
+--- - virt_text
+--- - virt_text_pos
+--- - virt_text_win_col
+--- - hl_mode
+--- - virt_lines
+--- - virt_lines_above
+--- - virt_lines_leftcol
+--- - ephemeral
+--- - right_gravity
+--- - end_right_gravity
+--- - priority
+--- - strict
+--- - sign_text
+--- - sign_hl_group
+--- - number_hl_group
+--- - line_hl_group
+--- - cursorline_hl_group
+--- - conceal
+--- - ui_watched
+
+---Add Extmark to buffer
+---@param ns number highlight namespace
+---@param linenr number line number should be set[one index]
+---@param col_start number column start
+function buffer:set_extmark(ns, linenr, col_start, opts)
+    linenr = linenr and linenr - 1 or -1
+    return api.nvim_buf_set_extmark(self.bufnr, ns, linenr, col_start, opts)
 end
 
 ---@class Trans

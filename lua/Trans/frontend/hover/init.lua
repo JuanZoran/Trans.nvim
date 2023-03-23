@@ -209,7 +209,11 @@ function M:process(data)
     local window = self.window
     if window and window:is_valid() then
         if opts.auto_resize then
-            display_size.width = math.min(opts.width, display_size.width + opts.padding)
+            display_size.width = math.max(
+                math.min(opts.width, display_size.width + opts.padding),
+                math.min(data.str:width(), opts.split_width)
+            )
+
         else
             display_size.width = nil
         end
