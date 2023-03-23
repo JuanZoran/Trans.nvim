@@ -20,7 +20,7 @@ local M = setmetatable({}, {
 ---@type TransHoverRenderer
 local default = {
     str = function(hover, result)
-        hover.buffer:setline(it(result.str, 'TransWord'))
+        hover.buffer:setline(it { result.str, 'TransWord' })
     end,
     translation = function(hover, result)
         local translation = result.translation
@@ -31,7 +31,7 @@ local default = {
 
         for _, value in ipairs(translation) do
             buffer:setline(
-                it(interval .. value, 'TransTranslation')
+                it { interval .. value, 'TransTranslation' }
             )
         end
 
@@ -46,7 +46,7 @@ local default = {
 
         for _, value in ipairs(definition) do
             buffer:setline(
-                it(interval .. value, 'TransDefinition')
+                it { interval .. value, 'TransDefinition' }
             )
         end
 

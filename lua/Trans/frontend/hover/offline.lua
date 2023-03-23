@@ -9,7 +9,7 @@ function M.title(hover, result)
     local title = result.title
     if not title then return end
     if type(title) == 'string' then
-        hover.buffer:setline(it(title, 'TransWord'))
+        hover.buffer:setline(it { title, 'TransWord' })
         return
     end
 
@@ -22,18 +22,17 @@ function M.title(hover, result)
     local phonetic = title.phonetic
 
     hover.buffer:setline(f {
-        width = hover.opts.width,
-        text = t {
-            it(word, 'TransWord'),
-            t {
-                it('['),
-                it((phonetic and phonetic ~= '') and phonetic or icon.notfound, 'TransPhonetic'),
-                it(']')
-            },
-
-            it(collins and icon.star:rep(collins) or icon.notfound, 'TransCollins'),
-            it(oxford == 1 and icon.yes or icon.no)
+        it { word, 'TransWord' },
+        t {
+            it { '[' },
+            it { (phonetic and phonetic ~= '') and phonetic or icon.notfound, 'TransPhonetic' },
+            it { ']' }
         },
+
+        it { collins and icon.star:rep(collins) or icon.notfound, 'TransCollins' },
+        it { oxford == 1 and icon.yes or icon.no },
+
+        width = hover.opts.width,
     })
 end
 
@@ -47,12 +46,12 @@ function M.tag(hover, result)
     local size = #tag
 
     for i = 1, size, 3 do
-        buffer:setline(it(
+        buffer:setline(it {
             interval .. tag[i] ..
             (tag[i + 1] and interval .. tag[i + 1] ..
             (tag[i + 2] and interval .. tag[i + 2] or '') or ''),
             'TransTag'
-        ))
+        })
     end
 
     buffer:setline('')
@@ -67,7 +66,7 @@ function M.exchange(hover, result)
 
     for description, value in pairs(exchange) do
         buffer:setline(
-            it(interval .. description .. interval .. value, 'TransExchange')
+            it { interval .. description .. interval .. value, 'TransExchange' }
         )
     end
 
@@ -83,7 +82,7 @@ function M.pos(hover, result)
 
     for description, value in pairs(pos) do
         buffer:setline(
-            it(interval .. description .. interval .. value, 'TransPos')
+            it { interval .. description .. interval .. value, 'TransPos' }
         )
     end
 

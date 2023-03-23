@@ -169,7 +169,7 @@ end
 ---@param opts { winid: integer, height: integer }?
 ---@return string[]
 function M.visible_lines(opts)
-    opts = opts or {}
+    opts                        = opts or {}
 
     -- TODO : Use getpos('w0') and getpos('w$') to get the visible lines
     -- INFO : don't calculate the height of statusline and cmdheight or winbar?
@@ -190,6 +190,34 @@ end
 ---@return boolean
 function M.is_word(str)
     return str:match('%w+') == str
+end
+
+---@param list any[]
+---@param step table
+---@return any[]
+function M.list_concat(list, step)
+    local size = #list
+    local ret = { list[1] }
+    if size <= 1 then return ret end
+    for i = 2, size do
+        ret[i * 2 - 2] = step
+        ret[i * 2 - 1] = list[i]
+    end
+    -- FIXME : Use deepcopy step?
+    return ret
+end
+
+
+---Get the field of the list
+---@param list any[]
+---@param field any
+---@return any[]
+function M.list_fields(list, field)
+    local ret = {}
+    for i, v in ipairs(list) do
+        ret[i] = v[field]
+    end
+    return ret
 end
 
 ---@class Trans

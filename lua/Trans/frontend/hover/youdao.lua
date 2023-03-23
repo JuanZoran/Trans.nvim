@@ -30,16 +30,16 @@ function M.web(hover, result)
 
     local indent = interval .. '  ' .. hover.opts.icon.list .. ' '
     for _, w in ipairs(result.web) do
-        buffer:setline(it(
+        buffer:setline(it {
             interval .. w.key,
             'TransWeb'
-        ))
+        })
 
         for _, v in ipairs(remove_duplicate(w.value)) do
-            buffer:setline(it(
+            buffer:setline(it {
                 indent .. v,
                 'TransWeb'
-            ))
+            })
         end
     end
     buffer:setline('')
@@ -53,11 +53,11 @@ function M.explains(hover, result)
 
 
     for i = 1, #explains, 2 do
-        buffer:setline(it(
+        buffer:setline(it {
             interval .. explains[i] ..
             (explains[i + 1] and interval .. explains[i + 1] or ''),
             'TransExplains'
-        ))
+        })
     end
     buffer:setline('')
 end

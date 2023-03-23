@@ -185,24 +185,25 @@ function M:process(data)
         self:fallback()
         return
     end
-    -- vim.pretty_print(result)
+
     local opts = self.opts
+    local buffer = self.buffer
+
     if opts.auto_play then
         (data.from == "en" and data.str or result.definition[1]):play()
     end
-    -- local node = Trans.util.node
-    -- local it, t, f = node.item, node.text, node.format
-    -- self.buffer:setline(it('hello', 'MoreMsg'))
 
-    local buffer = self.buffer
-    if not buffer:is_valid() then
-        buffer:init()
-    else
-        buffer:wipe()
-    end
+    -- vim.pretty_print(result)
+    Trans.util.main_loop(function()
+        if not buffer:is_valid() then
+            buffer:init()
+        else
+            buffer:wipe()
+        end
 
-    ---@cast name string
-    self:load(result, name, opts.order[name])
+        ---@cast name string
+        self:load(result, name, opts.order[name])
+    end)
 
     local display_size = Trans.util.display_size(buffer:lines(), opts.width)
     local window = self.window

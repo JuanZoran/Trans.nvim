@@ -1,32 +1,24 @@
 local api, fn = vim.api, vim.fn
-local Trans = require('Trans')
 
 ---@class TransBuffer
 ---@field bufnr integer buffer handle
 ---@field [number] string buffer[line] content
 local buffer = {}
 
-local main_loop = Trans.util.main_loop
-
-
 -- INFO : corountine can't invoke C function
 ---Clear all content in buffer
 function buffer:wipe()
-    main_loop(function()
-        api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
-    end)
+    api.nvim_buf_set_lines(self.bufnr, 0, -1, false, {})
 end
 
 ---Delete buffer [_start, _end] line content [one index]
 ---@param _start? integer start line index
 ---@param _end? integer end line index
 function buffer:deleteline(_start, _end)
-    main_loop(function()
-        ---@diagnostic disable-next-line: cast-local-type
-        _start = _start and _start - 1 or self:line_count() - 1
-        _end = _end and _end - 1 or _start + 1
-        api.nvim_buf_set_lines(self.bufnr, _start, _end, false, {})
-    end)
+    ---@diagnostic disable-next-line: cast-local-type
+    _start = _start and _start - 1 or self:line_count() - 1
+    _end = _end and _end - 1 or _start + 1
+    api.nvim_buf_set_lines(self.bufnr, _start, _end, false, {})
 end
 
 ---Set buffer option
@@ -105,11 +97,9 @@ end
 ---@param ns number? highlight namespace
 function buffer:add_highlight(linenr, hl_group, col_start, col_end, ns)
     -- vim.print(linenr, hl_group, col_start, col_end, ns)
-    main_loop(function()
-        linenr = linenr - 1
-        col_start = col_start or 0
-        api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
-    end)
+    linenr = linenr - 1
+    col_start = col_start or 0
+    api.nvim_buf_add_highlight(self.bufnr, ns or -1, hl_group, linenr, col_start, col_end or -1)
 end
 
 ---Get buffer line count
@@ -170,7 +160,6 @@ end
 buffer.__newindex = function(self, key, nodes)
     if type(key) == 'number' then
         self:setline(nodes, key)
-
     else
         rawset(self, key, nodes)
     end
