@@ -19,7 +19,6 @@ end
 ---@field play function @Use tts to play string
 
 
-
 local separator = vim.loop.os_uname().sysname == "Windows" and "\\" or "/"
 ---@class Trans
 ---@field style table @Style module

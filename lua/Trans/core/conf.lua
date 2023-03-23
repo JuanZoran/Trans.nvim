@@ -6,7 +6,6 @@
 return {
     ---@type string the directory for database file and password file
     dir      = require('Trans').relative_path({ 'extra' }, true),
-    query    = 'fallback',
     debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
@@ -22,8 +21,9 @@ return {
         ---@class TransFrontendOpts
         ---@field keymaps table<string, string>
         default = {
-            border = 'rounded',
-            title = vim.fn.has('nvim-0.9') == 1 and {
+            query     = 'fallback',
+            border    = 'rounded',
+            title     = vim.fn.has('nvim-0.9') == 1 and {
                     { '',       'TransTitleRound' },
                     { ' Trans', 'TransTitle' },
                     { '',       'TransTitleRound' },
@@ -35,22 +35,22 @@ return {
                 close = 'slid',
                 interval = 12,
             },
-            timeout = 2000,
+            timeout   = 2000,
         },
         ---@class TransHoverOpts : TransFrontendOpts
         hover = {
             ---@type integer Max Width of Hover Window
-            width             = 37,
+            width                  = 37,
             ---@type integer Max Height of Hover Window
-            height            = 27,
+            height                 = 27,
             ---@type string -- see: /lua/Trans/style/spinner
-            spinner           = 'dots',
-            ---@type string -- TODO :support replace with {{special word}}
-            fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
-            auto_resize       = true,
-            -- strict_sentence_width = false,
-            padding           = 10, -- padding for hover window width
-            keymaps           = {
+            spinner                = 'dots',
+            ---@type string
+            fallback_message       = '{{notfound}} 翻译超时或没有找到相关的翻译',
+            auto_resize            = true,
+            unlimit_sentence_width = true,
+            padding                = 10, -- padding for hover window width
+            keymaps                = {
                 pageup       = '[[',
                 pagedown     = ']]',
                 pin          = '<leader>[',
@@ -59,13 +59,13 @@ return {
                 -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
-            auto_close_events = {
+            auto_close_events      = {
                 'InsertEnter',
                 'CursorMoved',
                 'BufLeave',
             },
             ---@type table<string, string[]> order to display translate result
-            order             = {
+            order                  = {
                 default = {
                     'str',
                     'translation',
@@ -87,7 +87,7 @@ return {
                 }
             },
             ---@type table<string, string>
-            icon              = {
+            icon                   = {
                 -- or use emoji
                 list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
                 star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |

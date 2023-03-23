@@ -79,6 +79,7 @@ local function process(opts)
     local str = opts.str
     if not str or str == '' then return end
 
+
     -- Find in cache
     if Trans.cache[str] then
         local data = Trans.cache[str]
@@ -87,7 +88,7 @@ local function process(opts)
     end
 
     local data = Trans.data.new(opts)
-    if strategy[Trans.conf.query](data) then
+    if strategy[data.frontend.opts.query](data) then
         Trans.cache[data.str] = data
         data.frontend:process(data)
     else
