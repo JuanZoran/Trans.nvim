@@ -160,18 +160,18 @@ function M:defer()
     self.buffer:set("modifiable", false)
 
     local auto_close_events = self.opts.auto_close_events
-    if auto_close_events then
-        vim.api.nvim_create_autocmd(auto_close_events, {
-            callback = function(opts)
-                vim.defer_fn(function()
-                    if not self.pin and vim.api.nvim_get_current_win() ~= self.window.winid then
-                        pcall(vim.api.nvim_del_autocmd, opts.id)
-                        self:destroy()
-                    end
-                end, 0)
-            end,
-        })
-    end
+    if not auto_close_events then return end
+
+    vim.api.nvim_create_autocmd(auto_close_events, {
+        callback = function(opts)
+            vim.defer_fn(function()
+                if not self.pin and vim.api.nvim_get_current_win() ~= self.window.winid then
+                    pcall(vim.api.nvim_del_autocmd, opts.id)
+                    self:destroy()
+                end
+            end, 0)
+        end,
+    })
 end
 
 ---Display Result in hover window
@@ -186,7 +186,8 @@ function M:process(data)
         return
     end
 
-    local opts = self.opts
+    local opts   = self.opts
+    local util   = Trans.util
     local buffer = self.buffer
 
     if opts.auto_play then
@@ -194,7 +195,7 @@ function M:process(data)
     end
 
     -- vim.pretty_print(result)
-    Trans.util.main_loop(function()
+    util.main_loop(function()
         if not buffer:is_valid() then
             buffer:init()
         else
@@ -205,24 +206,28 @@ function M:process(data)
         self:load(result, name, opts.order[name])
     end)
 
-    local display_size = Trans.util.display_size(buffer:lines(), opts.width)
     local window = self.window
+    local lines = buffer:lines()
+
+
+    local width =
+        window and window:is_valid() and
+            (opts.auto_resize and
+                math.max(
+                    math.min(opts.width, util.display_width(lines) + opts.padding),
+                    math.min(data.str:width(), opts.split_width)
+                )
+            or opts.width)
+        or math.min(opts.width, util.display_width(lines) + opts.padding)
+
+    local height = math.min(opts.height, util.display_height(lines, width))
+
     if window and window:is_valid() then
-        if opts.auto_resize then
-            display_size.width = math.max(
-                math.min(opts.width, display_size.width + opts.padding),
-                math.min(data.str:width(), opts.split_width)
-            )
-
-        else
-            display_size.width = nil
-        end
-
-        window:resize(display_size)
+        window:resize { width = width, height = height }
     else
         window = self:init_window {
-            height = math.min(opts.height, display_size.height),
-            width = math.min(opts.width, display_size.width + opts.padding),
+            height = height,
+            width = width,
         }
     end
 

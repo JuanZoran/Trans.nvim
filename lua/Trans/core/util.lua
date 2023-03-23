@@ -103,20 +103,6 @@ function M.display_width(lines)
     return width
 end
 
----Calculates the height and width of the text to be displayed
----@param lines string[] text to be displayed
----@param width integer width of the window
----@return { height: integer, width: integer } _ display height and width
-function M.display_size(lines, width)
-    local ds_height, ds_width = 0, 0
-    for _, line in ipairs(lines) do
-        local wid = line:width()
-        ds_height = ds_height + math.max(1, (math.ceil(wid / width)))
-        ds_width = math.max(wid, ds_width)
-    end
-
-    return { height = ds_height, width = ds_width }
-end
 
 ---Center node utility function
 ---@param node string -- TODO :Node
