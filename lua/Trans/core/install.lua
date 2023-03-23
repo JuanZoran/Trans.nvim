@@ -4,7 +4,7 @@ return function()
     local Trans = require('Trans')
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
-    local path = dir .. '/ultimate.db'
+    local path = dir .. 'ultimate.db'
 
     local fn = vim.fn
     if fn.isdirectory(dir) == 0 then
@@ -20,7 +20,8 @@ return function()
 
     -- INFO :Download ultimate.db
     local uri = 'https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdict-ultimate-sqlite.zip'
-    local zip = dir .. '/ultimate.zip'
+    local zip = dir .. 'ultimate.zip'
+
     if fn.filereadable(zip) then os.remove(zip) end
 
     local handle = function(output)
@@ -43,7 +44,6 @@ return function()
         vim.notify(debug_message, vim.log.ERROR)
     end
 
-
     Trans.curl.get(uri, {
         output = zip,
         callback = handle,
@@ -51,6 +51,6 @@ return function()
 
     -- INFO : Install tts dependencies
     if fn.has('linux') == 0 and fn.has('mac') == 0 then
-        os.execute('cd ./tts/ && npm install')
+        os.execute('cd ./tts && npm install')
     end
 end

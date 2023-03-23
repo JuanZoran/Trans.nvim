@@ -30,10 +30,10 @@ end
 
 
 local all_name = {}
-local backend_order = conf.backend_order or vim.tbl_keys(user_conf)
-for _, name in ipairs(backend_order) do
-    if not user_conf[name].disable and user_conf[name] then
-        all_name[#all_name + 1] = name
+for _, config in ipairs(user_conf) do
+    if not config.disable then
+        all_name[#all_name + 1] = config.name
+        user_conf[config.name] = config
     end
 end
 

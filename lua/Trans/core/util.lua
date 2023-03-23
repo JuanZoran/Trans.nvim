@@ -207,7 +207,6 @@ function M.list_concat(list, step)
     return ret
 end
 
-
 ---Get the field of the list
 ---@param list any[]
 ---@param field any
@@ -219,6 +218,7 @@ function M.list_fields(list, field)
     end
     return ret
 end
+
 
 ---@class Trans
 ---@field util TransUtil

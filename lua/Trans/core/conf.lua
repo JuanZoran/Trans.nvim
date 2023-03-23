@@ -5,13 +5,12 @@
 ---@class TransConf
 return {
     ---@type string the directory for database file and password file
-    dir           = os.getenv('HOME') .. '/.vim/dict',
-    query         = 'fallback',
-    debug         = true,
+    dir      = require('Trans').relative_path({ 'extra' }, true),
+    query    = 'fallback',
+    debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
-    theme         = 'default', -- default | tokyonight | dracula
-    backend_order = nil,
-    strategy      = {
+    theme    = 'default', -- default | tokyonight | dracula
+    strategy = {
         ---@type { frontend:string, backend:string | string[] } fallback strategy for mode
         default = {
             frontend = 'hover',
@@ -19,7 +18,7 @@ return {
         },
     },
     ---@type table frontend options
-    frontend      = {
+    frontend = {
         ---@class TransFrontendOpts
         ---@field keymaps table<string, string>
         default = {
@@ -127,6 +126,7 @@ return {
 --         success = '#10b981',
 --     },
 -- },
+
 
 -- local title = {
 --     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",

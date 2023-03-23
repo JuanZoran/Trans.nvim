@@ -2,5 +2,4 @@
 ./util/md5.lua
 ./util/base64.lua
 ./test
-./util/bing_node.lua
 ./style

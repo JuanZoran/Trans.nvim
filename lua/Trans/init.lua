@@ -19,16 +19,28 @@ end
 ---@field play function @Use tts to play string
 
 
+
+local separator = vim.loop.os_uname().sysname == "Windows" and "\\" or "/"
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
----@field modes string[] @all modes name
+---@field plugin_dir string @Plugin directory
+---@field separator string @Path separator
 local M = metatable("core", {
-    cache = {},
-    style = metatable("style"),
-    augroup = vim.api.nvim_create_augroup("Trans", { clear = true }),
+    cache      = {},
+    style      = metatable("style"),
+    plugin_dir = debug.getinfo(1, "S").source:sub(2):match("(.-)lua" .. separator .. "Trans"),
+    separator  = separator,
 })
 
 M.metatable = metatable
+
+---Get abs_path of file
+---@param path string[]
+---@param is_dir boolean?
+---@return string
+function M.relative_path(path, is_dir)
+    return M.plugin_dir .. table.concat(path, separator) .. (is_dir and separator or "")
+end
 
 return M

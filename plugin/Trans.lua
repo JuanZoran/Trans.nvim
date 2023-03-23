@@ -1,24 +1,5 @@
 local api, fn = vim.api, vim.fn
 
-string.width = api.nvim_strwidth
---- INFO :Define string play method
-if fn.has("linux") == 1 then
-    string.play = function(self)
-        local cmd = ([[echo %q | festival --tts]]):format(self)
-        fn.jobstart(cmd)
-    end
-elseif fn.has("mac") == 1 then
-    string.play = function(self)
-        local cmd = ([[say %q]]):format(self)
-        fn.jobstart(cmd)
-    end
-else
-    string.play = function(self)
-        local separator = fn.has("unix") and "/" or "\\"
-        local file = debug.getinfo(1, "S").source:sub(2):match("(.*)lua") .. separator .. "tts" .. separator .. "say.js"
-        fn.jobstart("node " .. file .. " " .. self)
-    end
-end
 
 --- INFO :Define plugin command
 local Trans = require("Trans")
@@ -40,3 +21,14 @@ command("TransPlay", function()
         str:play()
     end
 end, { desc = " Auto play" })
+
+
+string.width = api.nvim_strwidth
+
+local f =
+    fn.has('linux') == 1 and ([[echo %q | festival --tts]])
+    or fn.has('mac') == 1 and ([[say %q]])
+    or 'node' .. Trans.relative_path { 'tts', 'say.js' } .. ' %q'
+string.play = function(self)
+    fn.jobstart(f:format(self))
+end

@@ -1,16 +1,20 @@
+local Trans   = require("Trans")
+
+local db      = require("sqlite.db")
+local path    = Trans.conf.dir .. Trans.separator .. "ultimate.db"
+local dict    = db:open(path)
+local db_name = "stardict"
+vim.api.nvim_create_autocmd("VimLeavePre", {
+    callback = function()
+        if db:isopen() then db:close() end
+    end,
+})
+
 ---@class TransOfflineBackend
 local M = {
     name    = "offline",
     no_wait = true,
 }
-
-local db = require("sqlite.db")
-vim.api.nvim_create_autocmd("VimLeavePre", {
-    once = true,
-    callback = function()
-        if db:isopen() then db:close() end
-    end,
-})
 
 ---@param data any
 ---@return any
@@ -20,10 +24,6 @@ function M.query(data)
         return
     end
 
-    local path = require("Trans").conf.dir .. "/ultimate.db"
-
-    local dict = db:open(path)
-    local db_name = data.db_name or "stardict"
     local res = dict:select(db_name, {
         where = { word = data.str },
         keys  = M.query_field,
