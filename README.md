@@ -7,11 +7,10 @@
     -   [屏幕截图](#屏幕截图)
         -   [演示](#演示)
         -   [离线查询](#离线查询)
-        -   [**在线查询** (有道)](#在线查询-有道)
+        -   [\*在线查询\*\* (有道)](#在线查询-有道)
         -   [主题](#主题)
     -   [安装](#安装)
     -   [配置](#配置)
-    -   [快捷键绑定](#快捷键绑定)
     -   [高亮组](#高亮组)
     -   [声明](#声明)
     -   [感谢](#感谢)
@@ -62,9 +61,13 @@
 
 https://user-images.githubusercontent.com/107862700/226175984-1a95bea7-8d66-450e-87e1-ba9c91c37ab8.mp4
 
-### \*在线查询\*\* (有道)
+### 在线查询 (有道)
 
 https://user-images.githubusercontent.com/107862700/226176106-c2962dd3-d66c-499c-b44a-1f471b79fe38.mp4
+
+**使用在线查询需要配置相应的 app_id 和 app_passwd**
+
+在线查询配置见: [wiki](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE#%E5%9C%A8%E7%BA%BF%E6%9F%A5%E8%AF%A2%E9%85%8D%E7%BD%AE)
 
 ### 主题
 
@@ -241,11 +244,12 @@ use {
 
 ## 配置
 
+详细见**wiki**: [配置说明](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE)
+
 ```lua
-require'Trans'.setup {
+require 'Trans'.setup {
     ---@type string the directory for database file and password file
     dir      = require 'Trans'.plugin_dir,
-    debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
     strategy = {
@@ -342,8 +346,7 @@ require'Trans'.setup {
             },
         },
     },
-}p
-
+}
 ```
 
 ## 快捷键绑定
@@ -353,8 +356,8 @@ require'Trans'.setup {
 > 示例中展示, 将`mm`映射成快捷键
 
 ```lua
-vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
 vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
+vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
 vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
 ```
 
