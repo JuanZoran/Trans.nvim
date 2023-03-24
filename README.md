@@ -1,24 +1,24 @@
 # Trans.nvim
 
 <!--toc:start-->
-- [Trans.nvim](#transnvim)
-    - [注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我](#注意-当前分支目前没有发布-readmemd-的描述并不准确-遇到问题请切换到-main分支或者联系我)
-  - [特点](#特点)
-  - [屏幕截图](#屏幕截图)
-    - [演示](#演示)
-    - [离线查询](#离线查询)
-    - [**在线查询** (有道)](#在线查询-有道)
-    - [主题](#主题)
-  - [安装](#安装)
-  - [配置](#配置)
-  - [快捷键绑定](#快捷键绑定)
-  - [高亮组](#高亮组)
-  - [声明](#声明)
-  - [感谢](#感谢)
-  - [贡献](#贡献)
-  - [待办 (画大饼)](#待办-画大饼)
-  - [项目情况](#项目情况)
-<!--toc:end-->
+
+-   [Trans.nvim](#transnvim) - [注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我](#注意-当前分支目前没有发布-readmemd-的描述并不准确-遇到问题请切换到-main分支或者联系我)
+    -   [特点](#特点)
+    -   [屏幕截图](#屏幕截图)
+        -   [演示](#演示)
+        -   [离线查询](#离线查询)
+        -   [**在线查询** (有道)](#在线查询-有道)
+        -   [主题](#主题)
+    -   [安装](#安装)
+    -   [配置](#配置)
+    -   [快捷键绑定](#快捷键绑定)
+    -   [高亮组](#高亮组)
+    -   [声明](#声明)
+    -   [感谢](#感谢)
+    -   [贡献](#贡献)
+    -   [待办 (画大饼)](#待办-画大饼)
+    -   [项目情况](#项目情况)
+    <!--toc:end-->
 
 ### 注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我
 
@@ -54,13 +54,16 @@
 
 ## 屏幕截图
 
-### 演示  
+### 演示
+
 > 可以点开声音查看离线自动发音
 
 ### 离线查询
+
 https://user-images.githubusercontent.com/107862700/226175984-1a95bea7-8d66-450e-87e1-ba9c91c37ab8.mp4
 
-### *在线查询** (有道)  
+### \*在线查询\*\* (有道)
+
 https://user-images.githubusercontent.com/107862700/226176106-c2962dd3-d66c-499c-b44a-1f471b79fe38.mp4
 
 ### 主题
@@ -115,9 +118,12 @@ use {
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
     requires = { 'kkharji/sqlite.lua',  },
     config = function()
-        require("Trans").setup {} -- 启动Trans
-        vim.keymap.set({"n", 'x'}, "mm", '<Cmd>Translate<CR>', { desc = ' Translate' }) -- 自动判断virtual 还是 normal 模式
-        vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>', {desc = ' 自动发音'}) -- 自动发音选中或者光标下的单词
+        require("Trans").setup {
+            -- your configuration here
+        }
+        vim.keymap.set({"n", 'x'}, "mm", '<Cmd>Translate<CR>') -- 自动判断visual 还是 normal 模式
+        vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
+        vim.keymap.set('n', 'mi', '<Cmd>TransInput<CR>')
     end
 }
 ```
@@ -133,8 +139,7 @@ use {
         keys = {
         -- 可以换成其他你想映射的键
             { 'mm', mode = { 'n', 'x' }, '<Cmd>Translate<CR>', desc = ' Translate' },
-            { 'mk', mode = { 'n', 'x' }, '<Cmd>TransPlay<CR>', desc = ' 自动发音' },
-
+            { 'mk', mode = { 'n', 'x' }, '<Cmd>TransPlay<CR>', desc = ' Auto Play' },
             -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
             { 'mi', '<Cmd>TranslateInput<CR>', desc = ' Translate From Input' },
         },
@@ -239,9 +244,8 @@ use {
 ```lua
 require'Trans'.setup {
     ---@type string the directory for database file and password file
-    dir      = os.getenv('HOME') .. '/.vim/dict',
-    query    = 'fallback',
-    -- backend_order = {},
+    dir      = require 'Trans'.plugin_dir,
+    debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
     strategy = {
@@ -256,17 +260,21 @@ require'Trans'.setup {
         ---@class TransFrontendOpts
         ---@field keymaps table<string, string>
         default = {
-            ---@type boolean Whether to auto play the audio
+            query     = 'fallback',
+            border    = 'rounded',
+            title     = vim.fn.has 'nvim-0.9' == 1 and {
+                    { '',       'TransTitleRound' },
+                    { ' Trans', 'TransTitle' },
+                    { '',       'TransTitleRound' },
+                } or nil, -- need nvim-0.9+
             auto_play = true,
-            border = 'rounded',
-            title = title, -- need nvim-0.9
             ---@type {open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
             animation = {
                 open = 'slid', -- 'fold', 'slid'
                 close = 'slid',
                 interval = 12,
             },
-            timeout = 2000,
+            timeout   = 2000,
         },
         ---@class TransHoverOpts : TransFrontendOpts
         hover = {
@@ -276,10 +284,10 @@ require'Trans'.setup {
             height            = 27,
             ---@type string -- see: /lua/Trans/style/spinner
             spinner           = 'dots',
-            ---@type string -- TODO :support replace with {{special word}}
+            ---@type string
             fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
             auto_resize       = true,
-            -- strict = false, -- TODO :No Width limit when str is a sentence
+            split_width       = 60,
             padding           = 10, -- padding for hover window width
             keymaps           = {
                 pageup       = '[[',
@@ -315,23 +323,22 @@ require'Trans'.setup {
                     'translation',
                     'definition',
                     'web',
-                }
+                },
             },
-            ---@type table<string, string>
             icon              = {
                 -- or use emoji
-                list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠 | 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟠
+                list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
                 star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
                 notfound    = ' ', --❔ | ❓ | ❗ | ❕|
                 yes         = '✔', -- ✅ | ✔️ | ☑
                 no          = '', -- ❌ | ❎ | ✖ | ✘ | ✗ |
-                cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉ █
+                cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉
                 web         = '󰖟', --🌍 | 🌎 | 🌏 | 🌐 |
-                tag         = ' ',
+                tag         = '',
                 pos         = '',
-                translation = '󰊿',
+                exchange    = '',
                 definition  = '󰗊',
-                exchange    = '✳',
+                translation = '󰊿',
             },
         },
     },
@@ -347,6 +354,7 @@ require'Trans'.setup {
 
 ```lua
 vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
+vim.keymap.set('n', 'mi', '<Cmd>TranslateInput<CR>')
 vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
 ```
 
@@ -431,6 +439,7 @@ vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或�
 -   [x] 自动读音
 -   [x] 在线多引擎异步查询
 -   [x] `句子翻译` | `中翻英` 的支持
+-   [ ] 迁移文档
 -   [ ] 多风格样式查询
 -   [ ] 重新录制屏幕截图示例
 -   [ ] 变量命名的支持
