@@ -17,6 +17,22 @@ local M = Trans.metatable('frontend.hover', {
 })
 M.__index = M
 
+
+function M.setup()
+    local set = vim.keymap.set
+    for action, key in pairs(M.opts.keymaps) do
+        set('n', key, function()
+            local instance = M.get_active_instance()
+
+            if instance then
+                coroutine.wrap(instance.execute)(instance, action)
+            else
+                return key
+            end
+        end)
+    end
+end
+
 ---Create a new hover instance
 ---@return TransHover new_instance
 function M.new()
@@ -27,7 +43,6 @@ function M.new()
     }
     M.queue[#M.queue + 1] = new_instance
 
-    new_instance.buffer:deleteline(1)
     return setmetatable(new_instance, M)
 end
 
@@ -186,8 +201,8 @@ function M:process(data)
         return
     end
 
-    local opts   = self.opts
     local util   = Trans.util
+    local opts   = self.opts
     local buffer = self.buffer
 
     if opts.auto_play then
@@ -210,19 +225,20 @@ function M:process(data)
     local lines = buffer:lines()
 
 
+    local valid = window and window:is_valid()
     local width =
-        window and window:is_valid() and
-            (opts.auto_resize and
-                math.max(
-                    math.min(opts.width, util.display_width(lines) + opts.padding),
-                    math.min(data.str:width(), opts.split_width)
-                )
-            or opts.width)
+        valid and
+        (opts.auto_resize and
+        math.max(
+            math.min(opts.width, util.display_width(lines) + opts.padding),
+            math.min(data.str:width(), opts.split_width)
+        )
+        or opts.width)
         or math.min(opts.width, util.display_width(lines) + opts.padding)
 
     local height = math.min(opts.height, util.display_height(lines, width))
 
-    if window and window:is_valid() then
+    if valid then
         window:resize { width = width, height = height }
     else
         window = self:init_window {

@@ -160,10 +160,11 @@ end
 
 ---@nodiscard
 ---TransBuffer constructor
+---@param bufnr? integer buffer handle
 ---@return TransBuffer
-function buffer.new()
+function buffer.new(bufnr)
     local new_buf = setmetatable({}, buffer)
-    new_buf:init()
+    new_buf:init(bufnr)
     return new_buf
 end
 

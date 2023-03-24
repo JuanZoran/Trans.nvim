@@ -1,20 +1,16 @@
--- local api = vim.api
--- local conf = require('Trans').conf
--- local buffer = require('Trans.buffer')()
+local Trans = require 'Trans'
 
--- local node = require("Trans.node")
--- local t = node.text
--- local it = node.item
--- local f = node.format
+---@class TransFloat
+local M = {}
+
+function M.new()
+    -- TODO :
+
+end
 
 
--- local engine_map = {
---     baidu   = '百度',
---     youdao  = '有道',
---     iciba   = 'iciba',
---     offline = '本地',
--- }
 
+return M
 -- local function set_tag_hl(name, status)
 -- local hl = conf.float.tag[status]
 -- m_window:set_hl(name, {
@@ -118,3 +114,10 @@
 --     m_window:map(key, action[act])
 -- end
 -- end
+
+-- local engine_map = {
+--     baidu   = '百度',
+--     youdao  = '有道',
+--     iciba   = 'iciba',
+--     offline = '本地',
+-- }
