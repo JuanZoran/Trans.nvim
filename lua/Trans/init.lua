@@ -19,7 +19,7 @@ end
 ---@field play function @Use tts to play string
 
 
-local separator = vim.loop.os_uname().sysname == 'Windows' and '\\' or '/'
+local sep = vim.loop.os_uname().sysname == 'Windows' and '\\' or '/'
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
@@ -28,8 +28,8 @@ local separator = vim.loop.os_uname().sysname == 'Windows' and '\\' or '/'
 local M = metatable('core', {
     cache      = {},
     style      = metatable 'style',
-    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. separator .. 'Trans'),
-    separator  = separator,
+    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. sep .. 'Trans'),
+    separator  = sep,
 })
 
 M.metatable = metatable
@@ -39,7 +39,7 @@ M.metatable = metatable
 ---@param is_dir boolean?
 ---@return string
 function M.relative_path(path, is_dir)
-    return M.plugin_dir .. table.concat(path, separator) .. (is_dir and separator or '')
+    return M.plugin_dir .. table.concat(path, sep) .. (is_dir and sep or '')
 end
 
 return M

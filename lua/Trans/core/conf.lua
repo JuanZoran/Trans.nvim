@@ -5,7 +5,7 @@
 ---@class TransConf
 return {
     ---@type string the directory for database file and password file
-    dir      = require 'Trans'.relative_path({ 'extra' }, true),
+    dir      = require 'Trans'.plugin_dir,
     debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula

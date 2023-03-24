@@ -18,18 +18,19 @@ local curl = {}
 ---Send a GET request use curl
 ---@param uri string uri for request
 ---@param opts
----| { query?: table<string, string>, output?: string, headers?: table<string, string>, callback: fun(result: RequestResult) }
+---| { query?: table<string, string>, output?: string, headers?: table<string, string>, callback: fun(result: RequestResult), extra?: string[] }
 function curl.get(uri, opts)
     local query    = opts.query
     local output   = opts.output
     local headers  = opts.headers
     local callback = opts.callback
+    local extra    = opts.extra
 
 
     -- INFO :Init Curl command with {s}ilent and {G}et
-    local cmd  = { 'curl', '-GLs', uri }
+    local cmd  = vim.list_extend({ 'curl', '-GLs', uri }, extra or {})
     local size = #cmd
-    local function insert(value)
+    local function add(value)
         size = size + 1
         cmd[size] = value
     end
@@ -37,20 +38,20 @@ function curl.get(uri, opts)
     -- INFO :Add headers
     if headers then
         for k, v in pairs(headers) do
-            insert(('-H %q: %q'):format(k, v))
+            add(('-H %q: %q'):format(k, v))
         end
     end
 
     -- INFO :Add arguments
     if query then
         for k, v in pairs(query) do
-            insert(('--data-urlencode %q=%q'):format(k, v))
+            add(('--data-urlencode %q=%q'):format(k, v))
         end
     end
 
     -- INFO :Store output to file
     if output then
-        insert(('-o %q'):format(output))
+        add(('-o %q'):format(output))
     end
 
     -- INFO : Start a job
