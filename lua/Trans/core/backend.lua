@@ -5,6 +5,7 @@ local Trans = require 'Trans'
 ---@field no_wait? boolean whether need to wait for the result
 ---@field all_name string[] @all backend name
 ---@field name string @backend name
+---@field name_zh string @backend name in Chinese
 
 ---@class TransOnlineBackend: TransBackend
 ---@field uri string @request uri

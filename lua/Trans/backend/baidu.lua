@@ -5,10 +5,11 @@
 ---@field app_passwd string
 ---@field disable boolean
 local M = {
-    uri    = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
-    salt   = tostring(math.random(bit.lshift(1, 15))),
-    name   = 'baidu',
-    method = 'get',
+    uri     = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+    salt    = tostring(math.random(bit.lshift(1, 15))),
+    name    = 'baidu',
+    name_zh = '百度',
+    method  = 'get',
 }
 
 

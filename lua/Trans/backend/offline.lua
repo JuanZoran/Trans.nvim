@@ -13,6 +13,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 ---@class TransOfflineBackend
 local M = {
     name    = 'offline',
+    name_zh = '本地',
     no_wait = true,
 }
 

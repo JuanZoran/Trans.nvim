@@ -5,10 +5,11 @@
 ---@field app_passwd string
 ---@field disable boolean
 local M = {
-    uri    = 'https://openapi.youdao.com/api',
-    salt   = tostring(math.random(bit.lshift(1, 15))),
-    name   = 'youdao',
-    method = 'get',
+    uri     = 'https://openapi.youdao.com/api',
+    salt    = tostring(math.random(bit.lshift(1, 15))),
+    name    = 'youdao',
+    name_zh = '有道',
+    method  = 'get',
 }
 
 ---@class YoudaoQuery

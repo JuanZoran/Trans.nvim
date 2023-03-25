@@ -93,7 +93,6 @@ function M:init_window(opts)
         animation = m_opts.animation,
     }
 
-    -- stylua: ignore start
     local win_opts = {
         col      = opts.col or 1,
         row      = opts.row or 1,
@@ -102,7 +101,6 @@ function M:init_window(opts)
         height   = opts.height or m_opts.height,
         relative = opts.relative or 'cursor',
     }
-    -- stylua: ignore end
 
     if win_opts.title then
         win_opts.title_pos = 'center'
@@ -139,6 +137,8 @@ function M:wait()
         width = times,
     }
 
+
+    -- FIXME : add proper args
     return function()
         cur = cur + 1
         buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)

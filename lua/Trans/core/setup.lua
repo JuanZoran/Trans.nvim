@@ -2,7 +2,7 @@ local Trans = require 'Trans'
 
 local function set_strategy_opts(conf)
     local all_backends = Trans.backend.all_name
-
+    local g_strategy = conf.strategy
 
     local function parse_backend(backend)
         if type(backend) == 'string' then
@@ -12,19 +12,19 @@ local function set_strategy_opts(conf)
         return backend
     end
 
-    local default_strategy = conf.strategy.default
+    local default_strategy = g_strategy.default
     default_strategy.backend = parse_backend(default_strategy.backend)
     default_strategy.__index = default_strategy
 
-    conf.strategy.default = nil
+    g_strategy.default = nil
 
-    setmetatable(conf.strategy, {
+    setmetatable(g_strategy, {
         __index = function()
             return default_strategy
         end,
     })
 
-    for _, strategy in pairs(conf.strategy) do
+    for _, strategy in pairs(g_strategy) do
         strategy.backend = parse_backend(strategy.backend)
         setmetatable(strategy, default_strategy)
     end
