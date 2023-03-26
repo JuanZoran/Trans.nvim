@@ -91,7 +91,7 @@ return {
     item = item,
     text = text,
     format = format,
-    conjunction = function(str)
+    prompt = function(str)
         return {
             item { '', 'TransTitleRound' },
             item { str, 'TransTitle' },

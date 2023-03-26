@@ -1,5 +1,5 @@
-local node = require('Trans').util.node
-local it, t, f, co = node.item, node.text, node.format, node.conjunction
+local node = require 'Trans'.util.node
+local it, t, f, pr = node.item, node.text, node.format, node.prompt
 
 ---@type TransHoverRenderer
 local M = {}
@@ -8,7 +8,7 @@ local interval = (' '):rep(4)
 function M.web(hover, result)
     if not result.web then return end
     local buffer = hover.buffer
-    buffer:setline(co(hover.opts.icon.web .. ' 网络释义'))
+    buffer:setline(pr(hover.opts.icon.web .. ' 网络释义'))
 
     local function remove_duplicate(strs)
         local uniq_strs = {}
@@ -42,14 +42,14 @@ function M.web(hover, result)
             })
         end
     end
-    buffer:setline('')
+    buffer:setline ''
 end
 
 function M.explains(hover, result)
     local explains = result.explains
     if not explains then return end
     local buffer = hover.buffer
-    buffer:setline(co('基本释义'))
+    buffer:setline(pr '基本释义')
 
 
     for i = 1, #explains, 2 do
@@ -59,9 +59,9 @@ function M.explains(hover, result)
             'TransExplains'
         })
     end
-    buffer:setline('')
+    buffer:setline ''
 end
 
-M.title = require('Trans').frontend.hover.offline.title
+M.title = require 'Trans'.frontend.hover.offline.title
 
 return M

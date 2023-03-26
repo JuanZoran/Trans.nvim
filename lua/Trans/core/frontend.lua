@@ -7,7 +7,7 @@ local frontend_opts = conf.frontend
 ---@field opts TransFrontendOpts
 ---@field get_active_instance fun():TransFrontend?
 ---@field process fun(self: TransFrontend, data: TransData)
----@field wait fun(self: TransFrontend): fun() Update wait status
+---@field wait fun(self: TransFrontend): fun(backend: TransBackend): boolean Update wait status
 ---@field execute fun(action: string) @Execute action for frontend instance
 ---@field fallback fun() @Fallback method when no result
 ---@field setup? fun() @Setup method for frontend [optional] **NOTE: This method will be called when frontend is first used**

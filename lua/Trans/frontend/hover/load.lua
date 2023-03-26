@@ -1,5 +1,5 @@
 local node = require 'Trans'.util.node
-local it, conjunction = node.item, node.conjunction
+local it, pr = node.item, node.prompt
 local interval = (' '):rep(4)
 
 local M = setmetatable({}, {
@@ -27,7 +27,7 @@ local default = {
         if not translation then return end
 
         local buffer = hover.buffer
-        buffer:setline(conjunction(hover.opts.icon.translation .. ' 中文翻译'))
+        buffer:setline(pr(hover.opts.icon.translation .. ' 中文翻译'))
 
         for _, value in ipairs(translation) do
             buffer:setline(
@@ -42,7 +42,7 @@ local default = {
         if not definition then return end
 
         local buffer = hover.buffer
-        buffer:setline(conjunction(hover.opts.icon.definition .. ' 英文注释'))
+        buffer:setline(pr(hover.opts.icon.definition .. ' 英文注释'))
 
         for _, value in ipairs(definition) do
             buffer:setline(

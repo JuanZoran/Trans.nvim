@@ -91,22 +91,17 @@ function M:init_window(opts)
     local option = {
         buffer = self.buffer,
         animation = m_opts.animation,
+        win_opts = {
+            col       = opts.col or 1,
+            row       = opts.row or 1,
+            width     = opts.width or m_opts.width,
+            height    = opts.height or m_opts.height,
+            relative  = opts.relative or 'cursor',
+            title     = m_opts.title,
+            title_pos = m_opts.title and 'center' or nil,
+        },
     }
 
-    local win_opts = {
-        col      = opts.col or 1,
-        row      = opts.row or 1,
-        title    = m_opts.title,
-        width    = opts.width or m_opts.width,
-        height   = opts.height or m_opts.height,
-        relative = opts.relative or 'cursor',
-    }
-
-    if win_opts.title then
-        win_opts.title_pos = 'center'
-    end
-
-    option.win_opts = win_opts
     self.window = Trans.window.new(option)
     return self.window
 end
@@ -120,29 +115,30 @@ function M:icon_format(format)
 end
 
 ---Get Check function for waiting
----@return function
+---@return fun(backend: TransBackend): boolean
 function M:wait()
-    local cur      = 0
+    local util     = Trans.util
     local opts     = self.opts
     local buffer   = self.buffer
-    local times    = opts.width
-    local pause    = Trans.util.pause
+    local pause    = util.pause
     local cell     = opts.icon.cell
     local spinner  = Trans.style.spinner[opts.spinner]
+    local times    = opts.width - spinner[1]:width()
     local size     = #spinner
     local interval = math.floor(opts.timeout / opts.width)
 
     self:init_window {
-        height = 1,
-        width = times,
+        height = 2,
+        width = opts.width,
     }
 
-
-    -- FIXME : add proper args
-    return function()
+    local cur = 0
+    local pr  = util.node.prompt
+    local it  = util.node.item
+    return function(backend)
         cur = cur + 1
-        buffer[1] = spinner[cur % size + 1] .. (cell):rep(cur)
-        buffer:add_highlight(1, 'TransWaitting')
+        buffer[1] = pr(backend.name_zh)
+        buffer[2] = it { spinner[cur % size + 1] .. (cell):rep(cur), 'TransWaitting' }
         pause(interval)
         return cur < times
     end
@@ -150,22 +146,21 @@ end
 
 ---FallBack window for no result
 function M:fallback()
+    local opts = self.opts
+    local fallback_msg = self:icon_format(opts.fallback_message)
+
+
+    local buffer = self.buffer
+    buffer:wipe()
+    buffer[1] = Trans.util.center(fallback_msg, opts.width)
+    buffer:add_highlight(1, 'TransFailed')
     if not self.window then
         self:init_window {
-            height = 1,
+            height = buffer:line_count(),
             width = self.opts.width,
         }
     end
 
-    local buffer = self.buffer
-    buffer:wipe()
-
-    local opts = self.opts
-    local fallback_msg = self:icon_format(opts.fallback_message)
-
-    -- TODO :Center
-    buffer[1] = Trans.util.center(fallback_msg, opts.width)
-    buffer:add_highlight(1, 'TransFailed')
     self:defer()
 end
 
@@ -211,11 +206,7 @@ function M:process(data)
 
     -- vim.pretty_print(result)
     util.main_loop(function()
-        if not buffer:is_valid() then
-            buffer:init()
-        else
-            buffer:wipe()
-        end
+        buffer[buffer:is_valid() and 'wipe' or 'init'](buffer)
 
         ---@cast name string
         self:load(result, name, opts.order[name])

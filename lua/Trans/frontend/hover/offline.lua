@@ -1,6 +1,10 @@
 local node = require 'Trans'.util.node
-local it, t, f, co = node.item, node.text, node.format, node.conjunction
+local it, t, f, co = node.item, node.text, node.format, node.prompt
 local interval = (' '):rep(4)
+
+
+---@class TransHover
+---@field offline TransHoverRenderer
 
 ---@type TransHoverRenderer
 local M = {}

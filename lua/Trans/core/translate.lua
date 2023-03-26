@@ -60,7 +60,7 @@ local strategy = {
             local name = backend.name
             ---@cast backend TransBackend
             while result[name] == nil do
-                if not update() then break end
+                if not update(backend) then break end
             end
 
             if result[name] then return true end
