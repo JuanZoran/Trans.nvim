@@ -97,15 +97,21 @@ end
 ---@param nodes string|table|table[] string -> as line content | table -> as a node | table[] -> as node[]
 ---@param one_index number? line number should be set[one index] or let it be nil to append
 function buffer:setline(nodes, one_index)
-    one_index = one_index or self:line_count() + 1
-    if one_index == 2 and self[1] == '' then one_index = 1 end
+    local append_line_index = self:line_count() + 1
+    if append_line_index == 2 and self[1] == '' then append_line_index = 1 end
+    one_index = one_index or append_line_index
+    if one_index > append_line_index then
+        for i = append_line_index, one_index - 1 do
+            self:setline('', i)
+        end
+    end
+
 
     if type(nodes) == 'string' then
         fn.setbufline(self.bufnr, one_index, nodes)
         return
     end
 
-    -- FIXME :set [nodes] type as node
     if type(nodes[1]) == 'string' then
         ---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
         fn.setbufline(self.bufnr, one_index, nodes[1])

@@ -1,4 +1,4 @@
 .PHONE: test
 
 test:
-	nvim -headless -c 'TODO: '
+	@nvim --headless -c "lua require'plenary'" -c "PlenaryBustedDirectory lua/test/"
