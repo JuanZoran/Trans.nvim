@@ -1,34 +1,15 @@
-name: Test
-on:
-  push:
-    paths:
-      - "lua/**"
-  pull_request:
-    paths:
-      - "lua/**"
-
 jobs:
   run_tests:
     name: unit tests
     runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu22.04]
-        rev:
-          [
-            nightly/nvim-linux64.tar.gz,
-            v0.8.2/nvim-linux64.tar.gz,
-            v0.7.2/nvim-linux64.tar.gz,
-          ]
     steps:
       - uses: actions/checkout@v3
       - run: date +%F > todays-date
       - name: Restore cache for today's nightly.
         uses: actions/cache@v3
         with:
-          path: _neovim
           key: ${{ runner.os }}-${{ matrix.rev }}-${{ hashFiles('todays-date') }}
+          path: _neovim
       - name: Prepare
         run: |
           test -d _neovim || {
@@ -41,3 +22,21 @@ jobs:
           export VIM="${PWD}/_neovim/share/nvim/runtime"
           nvim --version
           make test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu22.04]
+        rev:
+          [
+            nightly/nvim-linux64.tar.gz,
+            v0.8.2/nvim-linux64.tar.gz,
+            v0.7.2/nvim-linux64.tar.gz,
+          ]
+name: Test
+on:
+  pull_request:
+    paths:
+      - "lua/**"
+  push:
+    paths:
+      - "lua/**"
