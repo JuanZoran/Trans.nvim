@@ -16,6 +16,9 @@ jobs:
             mkdir -p _neovim
             curl -sL "https://github.com/neovim/neovim/releases/download/${{ matrix.rev }}" | tar xzf - --strip-components=1 -C "${PWD}/_neovim"
           }
+          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
+          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
+          ln -s $(pwd) ~/.local/share/nvim/site/pack/vendor/start
       - name: Run tests
         run: |
           export PATH="${PWD}/_neovim/bin:${PATH}"
@@ -25,18 +28,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu22.04]
-        rev:
-          [
-            nightly/nvim-linux64.tar.gz,
-            v0.8.2/nvim-linux64.tar.gz,
-            v0.7.2/nvim-linux64.tar.gz,
-          ]
+        include:
+          - os: ubuntu-22.04
+            rev: nightly/nvim-linux64.tar.gz
+          - os: ubuntu-22.04
+            rev: v0.7.2/nvim-linux64.tar.gz
+          - os: ubuntu-22.04
+            rev: v0.8.2/nvim-linux64.tar.gz
 name: Test
 on:
   pull_request:
     paths:
       - "lua/**"
+      - "plugin/**"
+      - "script/*"
+      - "makefile"
   push:
     paths:
       - "lua/**"
+      - "plugin/**"
+      - "script/*"
+      - "makefile"

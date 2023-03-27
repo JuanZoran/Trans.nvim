@@ -1,4 +1,4 @@
 .PHONE: test
 
 test:
-	@nvim --headless -c "lua require'plenary'" -c "PlenaryBustedDirectory lua/test/"
+	nvim --headless --noplugin -u script/minimal_init.vim -c "PlenaryBustedDirectory lua/test/  { minimal_init = './scripts/minimal_init.vim' }" -c 'qa!'
