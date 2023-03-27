@@ -2,7 +2,7 @@ local api, fn = vim.api, vim.fn
 
 ---@class TransBuffer
 ---@field bufnr integer buffer handle
----@field [number] string|TransNode? buffer[line] content
+---@field [number] string|TransNode|TransNode[] buffer[line] content
 local buffer = {}
 
 -- INFO : corountine can't invoke C function
