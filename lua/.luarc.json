@@ -6,9 +6,7 @@
     ],
     "Lua.diagnostics.globals": [
         "vim",
-        "user_conf",
-        "describe",
-        "it"
+        "user_conf"
     ],
     "Lua.workspace.checkThirdParty": false
 }
