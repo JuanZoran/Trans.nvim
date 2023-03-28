@@ -14,45 +14,6 @@ end
 
 
 describe('buffer:setline()', function()
-    it('and buffer[i] can accept a string as first arg', with_buffer(function(buffer)
-        buffer:setline 'hello world'
-        buffer[2] = 'hello world'
-        assert.are.equal(buffer[1], 'hello world')
-        assert.are.equal(buffer[2], 'hello world')
-    end))
-
-    it('and buffer[i] can accept a node as first arg', with_buffer(function(buffer)
-        buffer:setline(i { 'hello world' })
-        buffer[2] = i { 'hello world' }
-        assert.are.equal(buffer[1], 'hello world')
-        assert.are.equal(buffer[2], 'hello world')
-    end))
-
-    it('and buffer[i] can accept a node list as first arg', with_buffer(function(buffer)
-        buffer:setline {
-            i { 'hello ' },
-            i { 'world' },
-        }
-
-        buffer[2] = {
-            i { 'hello ' },
-            i { 'world' },
-        }
-
-        assert.are.equal(buffer[1], 'hello world')
-        assert.are.equal(buffer[2], 'hello world')
-    end))
-
-    it('and buffer[i] accept linenr more than line_count will fill with empty line', with_buffer(function(buffer)
-        buffer:setline('hello world', 3)
-        buffer[4] = 'hello world'
-        assert.are.equal(buffer[1], '')
-        assert.are.equal(buffer[2], '')
-        assert.are.equal(buffer[3], 'hello world')
-        assert.are.equal(buffer[4], 'hello world')
-    end))
-
-
     it('can accept one index linenr as second arg', with_buffer(function(buffer)
         buffer:setline({
             i { 'hello ' },
@@ -67,6 +28,53 @@ describe('buffer:setline()', function()
 
         assert.are.equal(buffer[2], 'world')
     end))
-end)
 
+    describe('and buffer[i]', function()
+        it('can accept a string as first arg', with_buffer(function(buffer)
+            buffer:setline 'hello world'
+            buffer[2] = 'hello world'
+            assert.are.equal(buffer[1], 'hello world')
+            assert.are.equal(buffer[2], 'hello world')
+        end))
+
+        it('can accept a node as first arg', with_buffer(function(buffer)
+            buffer:setline(i { 'hello world' })
+            buffer[2] = i { 'hello world' }
+            assert.are.equal(buffer[1], 'hello world')
+            assert.are.equal(buffer[2], 'hello world')
+        end))
+
+        it('can accept a node list as first arg', with_buffer(function(buffer)
+            buffer:setline {
+                i { 'hello ' },
+                i { 'world' },
+            }
+
+            buffer[2] = {
+                i { 'hello ' },
+                i { 'world' },
+            }
+
+            assert.are.equal(buffer[1], 'hello world')
+            assert.are.equal(buffer[2], 'hello world')
+        end))
+
+        it(' will fill with empty line if accept linenr more than line_count', with_buffer(function(buffer)
+            buffer:setline('hello world', 3)
+            buffer[4] = 'hello world'
+            assert.are.equal(buffer[1], '')
+            assert.are.equal(buffer[2], '')
+            assert.are.equal(buffer[3], 'hello world')
+            assert.are.equal(buffer[4], 'hello world')
+
+            buffer:wipe()
+
+            buffer[1] = i { 'test' }
+            buffer[3] = 'hello world'
+            assert.are.equal(buffer[1], 'test')
+            assert.are.equal(buffer[2], '')
+            assert.are.equal(buffer[3], 'hello world')
+        end))
+    end)
+end)
 -- TODO :Add node test

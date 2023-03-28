@@ -99,6 +99,7 @@ function M:init_window(opts)
             relative  = opts.relative or 'cursor',
             title     = m_opts.title,
             title_pos = m_opts.title and 'center' or nil,
+            zindex    = 100,
         },
     }
 
