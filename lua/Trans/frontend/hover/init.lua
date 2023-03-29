@@ -194,6 +194,7 @@ function M:process(data)
         self:execute 'toggle_entry'
         return
     end
+    self.waitting = false
 
     local result, name = data:get_available_result()
     if not result then
