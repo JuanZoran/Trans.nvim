@@ -133,9 +133,10 @@ function M:wait()
         width = opts.width,
     }
 
-    local cur = 0
-    local pr  = util.node.prompt
-    local it  = util.node.item
+    self.waitting = true
+    local cur     = 0
+    local pr      = util.node.prompt
+    local it      = util.node.item
     return function(backend)
         cur = cur + 1
         buffer[1] = pr(backend.name_zh)
@@ -189,7 +190,7 @@ end
 ---@param data TransData
 ---@overload fun(result:TransResult)
 function M:process(data)
-    if self.window and self.window:is_valid() then
+    if not self.waitting and self.window and self.window:is_valid() then
         self:execute 'toggle_entry'
         return
     end
