@@ -13,3 +13,6 @@
 -   [x] Add Query FallBack
 -   [ ] Check if str is a word
 -   [ ] Unlimit width for sentence
+
+
+- default_strategy can't deal with table correctly

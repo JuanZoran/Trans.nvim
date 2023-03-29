@@ -168,22 +168,24 @@ end
 
 ---Defer function when process done
 function M:defer()
-    self.window:set('wrap', true)
-    self.buffer:set('modifiable', false)
+    Trans.util.main_loop(function()
+        self.window:set('wrap', true)
+        self.buffer:set('modifiable', false)
 
-    local auto_close_events = self.opts.auto_close_events
-    if not auto_close_events then return end
+        local auto_close_events = self.opts.auto_close_events
+        if not auto_close_events then return end
 
-    vim.api.nvim_create_autocmd(auto_close_events, {
-        callback = function(opts)
-            vim.defer_fn(function()
-                if not self.pin and vim.api.nvim_get_current_win() ~= self.window.winid then
-                    pcall(vim.api.nvim_del_autocmd, opts.id)
-                    self:destroy()
-                end
-            end, 0)
-        end,
-    })
+        vim.api.nvim_create_autocmd(auto_close_events, {
+            callback = function(opts)
+                vim.defer_fn(function()
+                    if not self.pin and vim.api.nvim_get_current_win() ~= self.window.winid then
+                        pcall(vim.api.nvim_del_autocmd, opts.id)
+                        self:destroy()
+                    end
+                end, 0)
+            end,
+        })
+    end)
 end
 
 ---Display Result in hover window
@@ -220,7 +222,6 @@ function M:process(data)
 
     local window = self.window
     local lines = buffer:lines()
-
 
     local valid = window and window:is_valid()
     local width =

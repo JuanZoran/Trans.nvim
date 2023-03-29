@@ -69,7 +69,7 @@ end
 
 ---Expand window [width | height] value
 ---@param opts
----|{ field: string, to: integer}
+---|{ field: 'width'|'height', to: integer}
 function window:smooth_expand(opts)
     local field = opts.field -- width | height
     local from  = api['nvim_win_get_' .. field](self.winid)
@@ -77,15 +77,13 @@ function window:smooth_expand(opts)
 
     if from == to then return end
 
-
     local pause  = Trans.util.pause
     local method = api['nvim_win_set_' .. field]
 
-
-    local wrap = self:option 'wrap'
-    local interval = self.animation.interval
+    local wrap   = self:option 'wrap'
+    self:set('wrap', false)
+    local interval = self.animation.interval or 12
     for i = from + 1, to, (from < to and 1 or -1) do
-        self:set('wrap', false)
         method(self.winid, i)
         pause(interval)
     end
