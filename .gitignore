@@ -6,3 +6,4 @@ tts/node_modules/
 tts/package-lock.json
 Trans.json
 ultimate.db
+lua/.luarc.json

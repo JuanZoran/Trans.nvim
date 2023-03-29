@@ -1,17 +1,4 @@
-local Trans = require 'Trans'
-local node = Trans.util.node
-local i, t, pr, f = node.item, node.text, node.prompt, node.format
-
----@param func fun(buffer: TransBuffer)
----@return fun()
-local function with_buffer(func)
-    return function()
-        local buffer = Trans.buffer.new()
-        func(buffer)
-        buffer:destroy()
-    end
-end
-
+require 'test.setup'
 
 describe('buffer:setline()', function()
     it('can accept one index linenr as second arg', with_buffer(function(buffer)
@@ -22,7 +9,7 @@ describe('buffer:setline()', function()
         assert.are.equal(buffer[1], 'hello world')
     end))
 
-    it('when no second arg, it will append line', with_buffer(function(buffer)
+    it('will append line when no second arg passed', with_buffer(function(buffer)
         buffer[1] = 'hello'
         buffer:setline 'world'
 
@@ -59,7 +46,7 @@ describe('buffer:setline()', function()
             assert.are.equal(buffer[2], 'hello world')
         end))
 
-        it(' will fill with empty line if accept linenr more than line_count', with_buffer(function(buffer)
+        it(' will fill with empty line if linenr is more than line_count', with_buffer(function(buffer)
             buffer:setline('hello world', 3)
             buffer[4] = 'hello world'
             assert.are.equal(buffer[1], '')
@@ -78,3 +65,80 @@ describe('buffer:setline()', function()
     end)
 end)
 -- TODO :Add node test
+
+describe('buffer:deleteline()', with_buffer(function(buffer)
+    before_each(function()
+        buffer:wipe()
+    end)
+
+    it('will delete the last line if no arg', function()
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        buffer:deleteline()
+        assert.are.equal(buffer:line_count(), 1)
+        assert.are.equal(buffer[1], 'line 1')
+
+        buffer:deleteline()
+        assert.are.equal(buffer:line_count(), 0)
+    end)
+
+    it('can accept a one indexed linenr to be deleted', function()
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        buffer:deleteline(1)
+        assert.are.equal(buffer[1], 'line 2')
+    end)
+
+    it('can accept a one indexed range to be deleted', function()
+        stub(api, 'nvim_buf_set_lines')
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        buffer[3] = 'line 3'
+        buffer:deleteline(1, 2)
+        ---@diagnostic disable-next-line: param-type-mismatch
+        assert.stub(api.nvim_buf_set_lines).called_with(buffer.bufnr, 0, 2, false, {})
+
+        api.nvim_buf_set_lines:revert()
+        buffer:deleteline(1, 2)
+        assert.are.equal(buffer[1], 'line 3')
+    end)
+end))
+
+
+describe('buffer:lines()', with_buffer(function(buffer)
+    before_each(function()
+        buffer:wipe()
+    end)
+
+    it('will return all lines if no arg', function()
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        local lines = buffer:lines()
+        assert.are.equal(lines[1], 'line 1')
+        assert.are.equal(lines[2], 'line 2')
+    end)
+
+    it('will return all lines after linenr accept a one indexed linenr', function()
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        buffer[3] = 'line 3'
+        buffer[4] = 'line 4'
+        local lines = buffer:lines(2)
+        assert.are.equal(lines[1], 'line 2')
+        assert.are.equal(lines[2], 'line 3')
+        assert.are.equal(lines[3], 'line 4')
+    end)
+
+    it('can accept a one indexed range', function()
+        buffer[1] = 'line 1'
+        buffer[2] = 'line 2'
+        buffer[3] = 'line 3'
+        local lines = buffer:lines(1, 2)
+        assert.are.equal(lines[1], 'line 1')
+        assert.are.equal(lines[2], 'line 2')
+
+        lines = buffer:lines(2, 3)
+        assert.are.equal(lines[1], 'line 2')
+        assert.are.equal(lines[2], 'line 3')
+    end)
+end))

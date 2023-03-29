@@ -17,7 +17,7 @@ end
 function buffer:deleteline(_start, _end)
     ---@diagnostic disable-next-line: cast-local-type
     _start = _start and _start - 1 or self:line_count() - 1
-    _end = _end and _end - 1 or _start + 1
+    _end = _end or _start + 1 -- because of end exclusive
     api.nvim_buf_set_lines(self.bufnr, _start, _end, false, {})
 end
 
@@ -70,7 +70,7 @@ end
 ---@return string[]
 function buffer:lines(i, j)
     i = i and i - 1 or 0
-    j = j and j - 1 or -1
+    j = j or -1 -- because of end exclusive
     return api.nvim_buf_get_lines(self.bufnr, i, j, false)
 end
 
@@ -90,7 +90,12 @@ end
 ---Get buffer line count
 ---@return integer
 function buffer:line_count()
-    return api.nvim_buf_line_count(self.bufnr)
+    local line_count = api.nvim_buf_line_count(self.bufnr)
+    if line_count == 1 and self[1] == '' then
+        return 0
+    end
+
+    return line_count
 end
 
 ---Set line content
@@ -98,7 +103,6 @@ end
 ---@param one_index number? line number should be set[one index] or let it be nil to append
 function buffer:setline(nodes, one_index)
     local append_line_index = self:line_count() + 1
-    if append_line_index == 2 and self[1] == '' then append_line_index = 1 end
     one_index = one_index or append_line_index
     if one_index > append_line_index then
         for i = append_line_index, one_index - 1 do
@@ -146,7 +150,6 @@ buffer.__index = function(self, key)
         error('invalid key: ' .. key)
     end
 end
-
 
 buffer.__newindex = function(self, key, nodes)
     if type(key) == 'number' then
