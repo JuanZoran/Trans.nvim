@@ -60,6 +60,7 @@ end
 ---Puase coroutine for {ms} milliseconds
 ---@param ms integer
 function M.pause(ms)
+    assert(ms)
     local co = coroutine.running()
     vim.defer_fn(function()
         coroutine.resume(co)
@@ -114,7 +115,6 @@ function M.center(node, win_width)
     end
 
     local str = node[1]
-    win_width = str:width()
     local space = math.max(0, math.floor((win_width - str:width()) / 2))
     node[1] = string.rep(' ', space) .. str
     return node

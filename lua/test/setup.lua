@@ -6,6 +6,7 @@ _G.api = vim.api
 _G.fn = vim.fn
 _G.mock = require 'luassert.mock'
 _G.stub = require 'luassert.stub'
+string.width = api.nvim_strwidth
 
 ---@param func fun(buffer: TransBuffer)
 ---@return fun()
