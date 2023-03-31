@@ -161,21 +161,9 @@ window.__index = window
 
 
 ---@alias WindowOpts
----|{style: string, border: string, focusable: boolean, noautocmd?: boolean, relative: string, width: integer, height: integer, col: integer, row: integer, zindex?: integer, title?: table | string}
+---|{style: string, border: string, focusable: boolean, noautocmd?: boolean, relative: 'mouse'|'cursor'|'editor'|'win', width: integer, height: integer, col: integer, row: integer, zindex?: integer, title?: table | string}
 
 
----@class TransWindowOpts
-local default_opts = {
-    enter    = false,
-    winid    = -1,
-    ---@type WindowOpts
-    win_opts = {
-        style     = 'minimal',
-        border    = 'rounded',
-        focusable = false,
-        noautocmd = true,
-    },
-}
 
 
 ---@class TransWindow
@@ -197,11 +185,37 @@ local default_opts = {
 --     relative  = relative,
 -- }
 
+local default_opts = {
+    enter    = false,
+    winid    = -1,
+    ---@type WindowOpts
+    win_opts = {
+        -- INFO : ensured options
+        -- col
+        -- row
+        -- width
+        -- height
+        -- relative
+        -- zindex
+        style     = 'minimal',
+        border    = 'rounded',
+        focusable = false,
+        noautocmd = true,
+    },
+}
+
+---@class TransWindowOpts
+---@field buffer TransBuffer attached buffer object
+---@field enter? boolean cursor should [enter] window when open,default: false
+---@field win_opts WindowOpts window config [**When open**]
+---@field animation? table? Hover Window Animation
+
 ---Create new window
 ---@param opts TransWindowOpts window config
 ---@return TransWindow
 function window.new(opts)
     opts = vim.tbl_deep_extend('keep', opts, default_opts)
+    opts.animation = opts.animation or { interval = 12 }
 
     local win = setmetatable(opts, window)
     ---@cast win TransWindow

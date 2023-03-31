@@ -23,10 +23,10 @@ describe('util.display_height', function()
 
         -- Unicode width test
         local u_lines = {
-            '12345678👍', -- 10
-            'あうえお', -- 8
-            '𠮷野い𠮷家野家家', -- 16
-            '👍👍👍お家', -- 10
+             '12345678👍', -- 10
+             'あうえお', -- 8
+             '𠮷野い𠮷家野家家', -- 16
+             '👍👍👍お家', -- 10
         }
 
         assert.are.equal(4, util.display_height(u_lines, 20))
@@ -74,5 +74,19 @@ describe('util.center', function()
     it('will auto padding space', function()
         local node = i { '1234567890' }
         assert.are.same(i { (' '):rep(2) .. '1234567890' }, util.center(node, 15))
+    end)
+end)
+
+describe('util.is_word', function()
+    it('can detect word', function()
+        for test, value in pairs {
+            ['あうえお'] = false,
+            ['hello']        = true,
+            ['hello world']  = false,
+            ['test_cool']    = false,
+            [' hello']       = false,
+        } do
+            assert.are.same(util.is_word(test), value)
+        end
     end)
 end)

@@ -92,13 +92,13 @@ function M:init_window(opts)
         buffer = self.buffer,
         animation = m_opts.animation,
         win_opts = {
+            relative  = opts.relative or 'cursor',
             col       = opts.col or 1,
             row       = opts.row or 1,
             width     = opts.width or m_opts.width,
             height    = opts.height or m_opts.height,
-            relative  = opts.relative or 'cursor',
             title     = m_opts.title,
-            title_pos = m_opts.title and 'center' or nil,
+            title_pos = m_opts.title and 'center',
             zindex    = 100,
         },
     }

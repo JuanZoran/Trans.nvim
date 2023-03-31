@@ -53,6 +53,7 @@ function M.get_str(mode)
         end,
         V = function()
             print 'TODO'
+            return ''
         end,
     })[mode]():match '^%s*(.-)%s*$'
 end
@@ -174,7 +175,7 @@ end
 ---@param str string
 ---@return boolean
 function M.is_word(str)
-    return str:match '%w+' == str
+    return str:find('%W') == nil
 end
 
 ---@param list any[]
