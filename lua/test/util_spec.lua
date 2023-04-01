@@ -23,10 +23,10 @@ describe('util.display_height', function()
 
         -- Unicode width test
         local u_lines = {
-             '12345678👍', -- 10
-             'あうえお', -- 8
-             '𠮷野い𠮷家野家家', -- 16
-             '👍👍👍お家', -- 10
+            '12345678👍', -- 10
+            'あうえお', -- 8
+            '𠮷野い𠮷家野家家', -- 16
+            '👍👍👍お家', -- 10
         }
 
         assert.are.equal(4, util.display_height(u_lines, 20))
@@ -82,9 +82,9 @@ describe('util.is_word', function()
         for test, value in pairs {
             ['あうえお'] = false,
             ['hello']        = true,
+            [' hello']       = false,
             ['hello world']  = false,
             ['test_cool']    = false,
-            [' hello']       = false,
         } do
             assert.are.same(util.is_word(test), value)
         end

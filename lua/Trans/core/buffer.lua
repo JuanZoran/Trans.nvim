@@ -91,11 +91,7 @@ end
 ---@return integer
 function buffer:line_count()
     local line_count = api.nvim_buf_line_count(self.bufnr)
-    if line_count == 1 and self[1] == '' then
-        return 0
-    end
-
-    return line_count
+    return line_count == 1 and self[1] == '' and 0 or line_count
 end
 
 ---Set line content
@@ -151,11 +147,11 @@ buffer.__index = function(self, key)
     end
 end
 
-buffer.__newindex = function(self, key, nodes)
+buffer.__newindex = function(self, key, values)
     if type(key) == 'number' then
-        self:setline(nodes, key)
+        self:setline(values, key)
     else
-        rawset(self, key, nodes)
+        rawset(self, key, values)
     end
 end
 

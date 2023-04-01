@@ -164,8 +164,6 @@ window.__index = window
 ---|{style: string, border: string, focusable: boolean, noautocmd?: boolean, relative: 'mouse'|'cursor'|'editor'|'win', width: integer, height: integer, col: integer, row: integer, zindex?: integer, title?: table | string}
 
 
-
-
 ---@class TransWindow
 ---@field buffer TransBuffer attached buffer object
 ---@field win_opts table window config [**When open**]
