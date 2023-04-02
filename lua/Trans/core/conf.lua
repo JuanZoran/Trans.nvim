@@ -51,11 +51,13 @@ return {
             split_width       = 60,
             padding           = 10, -- padding for hover window width
             keymaps           = {
-                pageup       = '[[',
-                pagedown     = ']]',
-                pin          = '<leader>[',
-                close        = '<leader>]',
-                toggle_entry = '<leader>;',
+                -- pageup       = '<C-u>',
+                -- pagedown     = '<C-d>',
+                -- pin          = '<leader>[',
+                -- close        = '<leader>]',
+                -- toggle_entry = '<leader>;',
+
+
                 -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events

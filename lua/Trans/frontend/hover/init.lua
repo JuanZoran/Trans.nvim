@@ -18,13 +18,18 @@ local M = Trans.metatable('frontend.hover', {
 M.__index = M
 
 
+---Set up function which will be invoked when this module is loaded
 function M.setup()
     local set = vim.keymap.set
     for action, key in pairs(M.opts.keymaps) do
         set('n', key, function()
             local instance = M.get_active_instance()
-            return instance and coroutine.wrap(instance.execute)(instance, action) or key
-            -- TODO : Fix remap
+            if instance then
+                coroutine.wrap(instance.execute)(instance, action)
+
+            else
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), 'n', false)
+            end
         end)
     end
 end
