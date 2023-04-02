@@ -38,13 +38,13 @@ local function check_binary_dependencies()
         'sqlite3',
     }
 
-    if has 'linux' == 1 then
-        binary_dependencies[3] = 'festival'
-    elseif has 'mac' == 1 then
-        binary_dependencies[3] = 'say'
-    else
-        binary_dependencies[3] = 'node'
-    end
+    binary_dependencies[3] = ({
+        win = 'node',
+        mac = 'say',
+        linux = 'festival',
+        termux = 'termux-api-speak',
+    })[Trans.system]
+
 
     for _, dep in ipairs(binary_dependencies) do
         if executable(dep) == 1 then

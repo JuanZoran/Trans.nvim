@@ -23,12 +23,8 @@ function M.setup()
     for action, key in pairs(M.opts.keymaps) do
         set('n', key, function()
             local instance = M.get_active_instance()
-
-            if instance then
-                coroutine.wrap(instance.execute)(instance, action)
-            else
-                return key
-            end
+            return instance and coroutine.wrap(instance.execute)(instance, action) or key
+            -- TODO : Fix remap
         end)
     end
 end

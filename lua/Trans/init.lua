@@ -18,18 +18,26 @@ end
 ---@field width function @Get string display width
 ---@field play function @Use tts to play string
 
+local uname = vim.loop.os_uname().sysname
+local system =
+    uname == 'Darwin' and 'mac' or
+    uname == 'Windows_NT' and 'win' or
+    uname == 'Linux' and (vim.fn.executable 'termux-api-start' == 1 and 'termux' or 'linux') or
+    error 'Unknown System, Please Report Issue'
 
-local sep = vim.loop.os_uname().sysname == 'Windows' and '\\' or '/'
+local sep = system == 'win' and '\\' or '/'
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
 ---@field plugin_dir string @Plugin directory
 ---@field separator string @Path separator
+---@field system 'mac'|'win'|'termux'|'linux' @Path separator
 local M = metatable('core', {
     cache      = {},
     style      = metatable 'style',
-    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. sep .. 'Trans'),
     separator  = sep,
+    system     = system,
+    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. sep .. 'Trans'),
 })
 
 M.metatable = metatable

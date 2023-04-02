@@ -40,7 +40,6 @@ return function()
         vim.notify(debug_message, vim.log.ERROR)
     end
 
-
     Trans.curl.get(uri, {
         output    = zip,
         callback  = handle,
@@ -51,7 +50,7 @@ return function()
     vim.notify(message, vim.log.levels.INFO)
 
     -- INFO : Install tts dependencies
-    if fn.has 'linux' == 0 and fn.has 'mac' == 0 then
+    if Trans.system == 'win' then
         os.execute 'cd ./tts && npm install'
     end
 end
