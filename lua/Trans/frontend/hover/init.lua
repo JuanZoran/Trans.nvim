@@ -1,5 +1,6 @@
 ---@type Trans
 local Trans = require 'Trans'
+local util = Trans.util
 
 -- FIXME :Adjust Window Size
 
@@ -26,7 +27,6 @@ function M.setup()
             local instance = M.get_active_instance()
             if instance then
                 coroutine.wrap(instance.execute)(instance, action)
-
             else
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), 'n', false)
             end
@@ -119,7 +119,6 @@ end
 ---Get Check function for waiting
 ---@return fun(backend: TransBackend): boolean
 function M:wait()
-    local util     = Trans.util
     local opts     = self.opts
     local buffer   = self.buffer
     local pause    = util.pause
@@ -155,7 +154,7 @@ function M:fallback()
 
     local buffer = self.buffer
     buffer:wipe()
-    buffer[1] = Trans.util.center(fallback_msg, opts.width)
+    buffer[1] = util.center(fallback_msg, opts.width)
     buffer:add_highlight(1, 'TransFailed')
     if not self.window then
         self:init_window {
@@ -169,7 +168,7 @@ end
 
 ---Defer function when process done
 function M:defer()
-    Trans.util.main_loop(function()
+    util.main_loop(function()
         self.window:set('wrap', true)
         self.buffer:set('modifiable', false)
 
@@ -205,7 +204,6 @@ function M:process(data)
         return
     end
 
-    local util   = Trans.util
     local opts   = self.opts
     local buffer = self.buffer
 
@@ -228,11 +226,11 @@ function M:process(data)
     local width =
         valid and
         (opts.auto_resize and
-        math.max(
-            math.min(opts.width, util.display_width(lines) + opts.padding),
-            math.min(data.str:width(), opts.split_width)
-        )
-        or opts.width)
+            math.max(
+                math.min(opts.width, util.display_width(lines) + opts.padding),
+                math.min(data.str:width(), opts.split_width)
+            )
+            or opts.width)
         or math.min(opts.width, util.display_width(lines) + opts.padding)
 
     local height = math.min(opts.height, util.display_height(lines, width))
