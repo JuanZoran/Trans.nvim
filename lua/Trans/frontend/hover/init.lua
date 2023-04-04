@@ -127,7 +127,7 @@ function M:wait()
     local spinner  = Trans.style.spinner[opts.spinner]
     local times    = opts.width - spinner[1]:width()
     local size     = #spinner
-    local interval = math.floor(opts.timeout / opts.width)
+    local interval = math.floor(opts.timeout / times)
 
     self:init_window {
         height = 2,
