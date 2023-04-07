@@ -1,15 +1,15 @@
 local M = {}
 local api, fn = vim.api, vim.fn
 
-if fn.executable('sqlite3') ~= 1 then
-    error('Please check out sqlite3')
+if fn.executable 'sqlite3' ~= 1 then
+    error 'Please check out sqlite3'
 end
 
-local win_title = fn.has('nvim-0.9') == 1 and {
-        { '',       'TransTitleRound' },
-        { ' Trans', 'TransTitle' },
-        { '',       'TransTitleRound' },
-    } or nil
+local win_title = fn.has 'nvim-0.9' == 1 and {
+    { '',       'TransTitleRound' },
+    { ' Trans', 'TransTitle' },
+    { '',       'TransTitleRound' },
+} or nil
 
 -- local title = {
 --     "████████╗██████╗  █████╗ ███╗   ██╗███████╗",
@@ -31,19 +31,20 @@ string.isEn = function(self)
     return true
 end
 
-string.play = fn.has('linux') == 1 and function(self)
-        local cmd = ([[echo "%s" | festival --tts]]):format(self)
-        fn.jobstart(cmd)
-    end or fn.has('mac') == 1 and function(self)
-        local cmd = ([[say "%s"]]):format(self)
-        fn.jobstart(cmd)
-    end or function(self)
-        local seperator = fn.has('unix') and '/' or '\\'
-        local file = debug.getinfo(1, "S").source:sub(2):match('(.*)lua') .. seperator .. 'tts' .. seperator .. 'say.js'
-        fn.jobstart('node ' .. file .. ' ' .. self)
-    end
+string.play = fn.has 'linux' == 1 and function(self)
+    local cmd = ([[echo "%s" | festival --tts]]):format(self)
+    fn.jobstart(cmd)
+end or fn.has 'mac' == 1 and function(self)
+    local cmd = ([[say "%s"]]):format(self)
+    fn.jobstart(cmd)
+end or function(self)
+    local seperator = fn.has 'unix' and '/' or '\\'
+    local file = debug.getinfo(1, 'S').source:sub(2):match '(.*)lua' .. seperator .. 'tts' .. seperator .. 'say.js'
+    fn.jobstart('node ' .. file .. ' ' .. self)
+end
 
 M.conf = {
+    warning = true,
     view = {
         i = 'float',
         n = 'hover',
@@ -160,15 +161,24 @@ M.setup = function(opts)
     conf.engines = engines
 
     local set_hl = api.nvim_set_hl
-    local hls    = require('Trans.ui.theme')[conf.theme]
+    local hls    = require 'Trans.ui.theme'[conf.theme]
     for hl, opt in pairs(hls) do
         set_hl(0, hl, opt)
+    end
+
+
+    if M.conf.warning then
+        vim.notify([[
+新版本v2已经发布, 见:
+    https://github.com/JuanZoran/Trans.nvim
+该分支已经不再维护, 请尝试迁移到新分支
+        ]], vim.log.levels.WARN)
     end
 end
 
 local function get_select()
-    local _start = fn.getpos("v")
-    local _end = fn.getpos('.')
+    local _start = fn.getpos 'v'
+    local _end = fn.getpos '.'
 
     if _start[2] > _end[2] or (_start[3] > _end[3] and _start[2] == _end[2]) then
         _start, _end = _end, _start
@@ -197,14 +207,14 @@ end
 M.get_word = function(mode)
     local word
     if mode == 'n' then
-        word = fn.expand('<cword>')
+        word = fn.expand '<cword>'
     elseif mode == 'v' then
-        api.nvim_input('<ESC>')
+        api.nvim_input '<ESC>'
         word = get_select()
     elseif mode == 'i' then
         -- TODO Use Telescope with fuzzy finder
         ---@diagnostic disable-next-line: param-type-mismatch
-        word = fn.input('请输入需要查询的单词:')
+        word = fn.input '请输入需要查询的单词:'
     else
         error('invalid mode: ' .. mode)
     end
@@ -213,9 +223,17 @@ end
 
 
 M.translate = function(mode, view)
+    if M.conf.warning then
+        vim.notify([[
+新版本已经发布, 见:
+    https://github.com/JuanZoran/Trans.nvim
+该分支已经不再维护, 请尝试迁移到新分支
+        ]], vim.log.levels.WARN)
+    end
+
     vim.validate {
         mode = { mode, 's', true },
-        view = { view, 's', true }
+        view = { view, 's', true },
     }
 
     mode = mode or api.nvim_get_mode().mode
@@ -229,6 +247,6 @@ M.translate = function(mode, view)
     end
 end
 
-M.ns = api.nvim_create_namespace('Trans')
+M.ns = api.nvim_create_namespace 'Trans'
 
 return M
