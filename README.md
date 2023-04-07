@@ -1,35 +1,34 @@
 # Trans.nvim
 
 <!--toc:start-->
+- [Trans.nvim](#transnvim)
+  - [特点](#特点)
+  - [屏幕截图](#屏幕截图)
+    - [演示](#演示)
+    - [离线查询](#离线查询)
+    - [在线查询演示 (有道)](#在线查询演示-有道)
+    - [主题](#主题)
+  - [安装](#安装)
+  - [配置](#配置)
+  - [快捷键绑定](#快捷键绑定)
+  - [高亮组](#高亮组)
+  - [声明](#声明)
+  - [感谢](#感谢)
+  - [贡献](#贡献)
+  - [从 v1 (main)分支迁移](#从-v1-main分支迁移)
+  - [待办 (画大饼)](#待办-画大饼)
+  - [项目情况](#项目情况)
+<!--toc:end-->
 
--   [Trans.nvim](#transnvim) - [注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我](#注意-当前分支目前没有发布-readmemd-的描述并不准确-遇到问题请切换到-main分支或者联系我)
-    -   [特点](#特点)
-    -   [屏幕截图](#屏幕截图)
-        -   [演示](#演示)
-        -   [离线查询](#离线查询)
-        -   [\*在线查询\*\* (有道)](#在线查询-有道)
-        -   [主题](#主题)
-    -   [安装](#安装)
-    -   [配置](#配置)
-    -   [高亮组](#高亮组)
-    -   [声明](#声明)
-    -   [感谢](#感谢)
-    -   [贡献](#贡献)
-    -   [待办 (画大饼)](#待办-画大饼)
-    -   [项目情况](#项目情况)
-    <!--toc:end-->
 
-### 注意: 当前分支目前没有发布, README.md 的描述并不准确, 遇到问题请切换到 `main`分支或者联系我
+> **插件默认词库的路径为插件目录**  
+    例如: `lazy` 用户应该在 `$HOME/.local/share/nvim/lazy/Trans.nvim`
 
 ## 特点
 
--   使用纯 lua 编写, 速度极快
-
-    > `Lazy.nvim`的记录: <font color="#0099FF">`➜   Trans.nvim 0.82ms`</font>
+-   `使用纯 lua 编写`
 
 -   **可以定义快捷键读英文单词**
-
-    > 见 wiki
 
 -   大部分功能可以自定义:
     -   高亮
@@ -37,8 +36,8 @@
     -   排版顺序
     -   弹窗大小
     -   `舒服窗口动画`
-    -   etc (更多可以查看[配置](#配置))
--   **完全离线** 的单词翻译体验 (可能后面会支持在线翻译)
+    -   更多可以查看[配置](#配置)
+-   `离线`和`在线`翻译的支持
 -   支持显示:
     -   柯林斯星级
     -   牛津 3000 词汇
@@ -46,7 +45,7 @@
     -   英文翻译 (不是英译中, 而是用英文解释)
     -   词根
     -   etc
--   舒服的排版和`动画`
+-   支持`平滑动画`
 -   支持 `normal`和 `visual`模式
     > <font color='#FF9900'>不支持 visual-block mode</font>
 -   本地词库单词量: `430w`
@@ -61,13 +60,13 @@
 
 https://user-images.githubusercontent.com/107862700/226175984-1a95bea7-8d66-450e-87e1-ba9c91c37ab8.mp4
 
-### 在线查询 (有道)
+### 在线查询演示 (有道)
 
 https://user-images.githubusercontent.com/107862700/226176106-c2962dd3-d66c-499c-b44a-1f471b79fe38.mp4
 
 **使用在线查询需要配置相应的 app_id 和 app_passwd**
 
-在线查询配置见: [wiki](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE#%E5%9C%A8%E7%BA%BF%E6%9F%A5%E8%AF%A2%E9%85%8D%E7%BD%AE)
+配置说明见: [wiki](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE#%E5%9C%A8%E7%BA%BF%E6%9F%A5%E8%AF%A2%E9%85%8D%E7%BD%AE)
 
 ### 主题
 
@@ -157,40 +156,32 @@ use {
 
 <font color="#FF9900">**注意事项**: </font>
 
--   `install.sh`
-
-    -   使用了 `wget`下载词库, 安装请确保你的环境变量中存在 wget
-    -   install.sh 下载后会自动将词库解压, 并移动到 `$HOME/.vim/dict`文件夹下
-    -   目前仅在 `Ubuntu22.04`的环境下测试通过
-        > 如果上述条件不符合, 请删掉 `run = 'install.sh'`部分, 考虑手动安装词库
-        > 如果上述条件满足, 仍出现问题, 欢迎在 issue 里向我反馈,我会及时尝试解决
-
 -   下载词典的过程中, 需要能够 `流畅的访问github下载`
 
-    > 词库文件压缩包大小为: **281M**
-    > 解压缩后的大小大概为: 1.2G
+    如果下载出现问题, 正常是会自动下载
 
--   安装后如果不能正常运行, 请尝试检查一下问题:
+    > 词库文件压缩包大小为: **281M**  
+    > 解压缩后的大小大概为: **1.2G**
 
-    -   本机是否已经安装了 `sqlite3`
-        > Linux 下安装:
-        > `sudo pacman -S sqlite # Arch`  
-        > `sudo apt-get install sqlite3 libsqlite3-dev # Ubuntu`
+-   安装后如果不能正常运行, 清尝试运行 `checkhealth Trans`
 
-    > **尝试运行 `checkhealth Trans`**
+-   **`auto_play`** 的使用:
 
--   **`auto_play`** 使用步骤:
+    -   `Linux` 需要安装`festival`
 
-    > linux 只需要安装`festival`  
-    > sudo apt-get install festival festvox-kallpc16k  
-    > **_如果你想要设置音色，发音可以访问:_** [Festival 官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
-    > 可以选择英音、美音、男声、女声
+        > `sudo apt-get install festival festvox-kallpc16k`
 
-    > 其他操作系统
+        **如果你想要设置音色，发音可以访问:** [Festival 官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
+        可以选择英音、美音、男声、女声
 
-    -   需要确保安装了`nodejs`
-    -   进入插件的`tts`目录运行`npm install`
-        > 如果`install`运行正常则自动安装，如果安装失败，请尝试手动安装
+    -   `Termux` 需要安装`termux-api`
+
+    -   `Mac` 使用系统的`say`命令
+
+    -   `Windows` 使用 `nodejs`的 say 模块, 如果你有更好的方案欢迎提供 PR
+        -   需要确保安装了`nodejs`
+        -   进入插件的`tts`目录运行`npm install`
+            > 如果`install`运行正常则自动安装，如果安装失败，请尝试手动安装
 
 -   `title`的配置，只对`neovim 0.9+`版本有效
 
@@ -244,12 +235,16 @@ use {
 
 ## 配置
 
-详细见**wiki**: [配置说明](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE)
+详细见**wiki**: [基本配置说明](https://github.com/JuanZoran/Trans.nvim/wiki/%E9%85%8D%E7%BD%AE)
+
+<details>
+    <summary>默认配置</summary>
 
 ```lua
-require 'Trans'.setup {
+default_conf = {
     ---@type string the directory for database file and password file
     dir      = require 'Trans'.plugin_dir,
+    debug    = true,
     ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
     strategy = {
@@ -294,11 +289,13 @@ require 'Trans'.setup {
             split_width       = 60,
             padding           = 10, -- padding for hover window width
             keymaps           = {
-                pageup       = '[[',
-                pagedown     = ']]',
-                pin          = '<leader>[',
-                close        = '<leader>]',
-                toggle_entry = '<leader>;',
+                -- INFO : No default keymaps anymore, please set it yourself
+                -- pageup       = '<C-u>',
+                -- pagedown     = '<C-d>',
+                -- pin          = '<leader>[',
+                -- close        = '<leader>]',
+                -- toggle_entry = '<leader>;',
+
                 -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
@@ -349,6 +346,8 @@ require 'Trans'.setup {
 }
 ```
 
+</details>
+
 ## 快捷键绑定
 
 **示例:**
@@ -361,65 +360,89 @@ vim.keymap.set({'n', 'x'}, 'mm', '<Cmd>Translate<CR>')
 vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或者光标下的单词
 ```
 
-## 高亮组
-
-> 默认定义
+**窗口快捷键**
 
 ```lua
-{
-        TransWord = {
-            fg = '#7ee787',
-            bold = true,
+require 'Trans'.setup {
+    frontend = {
+        hover = {
+            keymaps = {
+                -- pageup       = 'whatever you want',
+                -- pagedown     = 'whatever you want',
+                -- pin          = 'whatever you want',
+                -- close        = 'whatever you want',
+                -- toggle_entry = 'whatever you want',
+            },
         },
-        TransPhonetic = {
-            link = 'Linenr'
-        },
-        TransTitle = {
-            fg = '#0f0f15',
-            bg = '#75beff',
-            bold = true,
-        },
-        TransTitleRound = {
-            fg = '#75beff',
-        },
-        TransTag = {
-            -- fg = '#e5c07b',
-            link = '@tag'
-        },
-        TransExchange = {
-            link = 'TransTag',
-        },
-        TransPos = {
-            link = 'TransTag',
-        },
-        TransTranslation = {
-            link = 'TransWord',
-        },
-        TransDefinition = {
-            link = 'Moremsg',
-        },
-        TransWin = {
-            link = 'Normal',
-        },
-        TransBorder = {
-            fg = '#89B4FA',
-        },
-        TransCollins = {
-            fg = '#faf743',
-            bold = true,
-        },
-        TransFailed = {
-            fg = '#7aa89f',
-        },
-        TransWaitting = {
-            link = 'MoreMsg'
-        },
-        TransWeb = {
-            -- TODO :
-            link = 'MoreMsg',
-        }
+    },
     }
+}
 ```
+
+> 当窗口没有打开的时候, key 会被使用`vim.api.nvim_feedkey`来执行
+
+## 高亮组
+
+所有主题可见 `lua/Trans/style/theme.lua`
+
+<details>
+
+<summary>默认主题</summary>
+
+```lua
+TransWord = {
+    fg = '#7ee787',
+    bold = true,
+}
+TransPhonetic = {
+    link = 'Linenr'
+}
+TransTitle = {
+    fg = '#0f0f15',
+    bg = '#75beff',
+    bold = true,
+}
+TransTitleRound = {
+    fg = '#75beff',
+}
+TransTag = {
+    -- fg = '#e5c07b',
+    link = '@tag'
+}
+TransExchange = {
+    link = 'TransTag',
+}
+TransPos = {
+    link = 'TransTag',
+}
+TransTranslation = {
+    link = 'TransWord',
+}
+TransDefinition = {
+    link = 'Moremsg',
+}
+TransWin = {
+    link = 'Normal',
+}
+TransBorder = {
+    fg = '#89B4FA',
+}
+TransCollins = {
+    fg = '#faf743',
+    bold = true,
+}
+TransFailed = {
+    fg = '#7aa89f',
+}
+TransWaitting = {
+    link = 'MoreMsg'
+}
+TransWeb = {
+    link = 'MoreMsg',
+}
+```
+
+</details>
 
 ## 声明
 
@@ -435,6 +458,10 @@ vim.keymap.set({'n', 'x'}, 'mk', '<Cmd>TransPlay<CR>') -- 自动发音选中或�
 
 > 更新比较频繁, 文档先鸽了  
 > 如果你想要参加这个项目, 可以提 issue, 我会把文档补齐
+
+## 从 v1 (main)分支迁移
+
+    见[wiki](https://github.com/JuanZoran/Trans.nvim/wiki/%E4%BB%8E(v1)main%E5%88%86%E6%94%AF%E8%BF%81%E7%A7%BB)
 
 ## 待办 (画大饼)
 

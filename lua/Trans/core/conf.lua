@@ -57,7 +57,6 @@ return {
                 -- close        = '<leader>]',
                 -- toggle_entry = '<leader>;',
 
-
                 -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
