@@ -59,8 +59,7 @@ local strategy = {
 
             local name = backend.name
             ---@cast backend TransBackend
-            while result[name] == nil do
-                if not update(backend) then break end
+            while result[name] == nil and update(backend) do
             end
 
             if result[name] then return true end
@@ -70,7 +69,6 @@ local strategy = {
     end,
     --- TODO :More Strategys
 }
-
 
 
 -- HACK : Core process logic

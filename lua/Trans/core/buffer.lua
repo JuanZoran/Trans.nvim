@@ -37,7 +37,7 @@ end
 
 ---Destory buffer
 function buffer:destroy()
-    api.nvim_buf_delete(self.bufnr, { force = true })
+    pcall(api.nvim_buf_delete, self.bufnr, { force = true })
 end
 
 ---Set buffer load keymap

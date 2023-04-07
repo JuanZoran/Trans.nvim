@@ -39,9 +39,9 @@ local function check_binary_dependencies()
     }
 
     binary_dependencies[3] = ({
-        win = 'node',
-        mac = 'say',
-        linux = 'festival',
+        win    = 'node',
+        mac    = 'say',
+        linux  = 'festival',
         termux = 'termux-api-speak',
     })[Trans.system]
 

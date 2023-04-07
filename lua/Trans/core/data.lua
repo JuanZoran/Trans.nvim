@@ -37,7 +37,7 @@ function M.new(opts)
         data.backends[i] = Trans.backend[name]
     end
 
-    if Trans.util.is_English(str) then
+    if Trans.util.is_english(str) then
         data.from = 'en'
         data.to = 'zh'
     else

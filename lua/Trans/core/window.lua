@@ -124,7 +124,8 @@ function window:try_close()
         }
     end
 
-    api.nvim_win_close(self.winid, true)
+
+    pcall(api.nvim_win_close, self.winid, true)
 end
 
 ---Set window local highlight group

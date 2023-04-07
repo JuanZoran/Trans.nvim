@@ -72,7 +72,7 @@ end
 ---Detect whether the string is English
 ---@param str string
 ---@return boolean
-function M.is_English(str)
+function M.is_english(str)
     local char = { str:byte(1, -1) }
     for i = 1, #str do
         if char[i] > 128 then
