@@ -52,4 +52,12 @@ return function(opts)
 
     set_strategy_opts(conf)
     define_highlights(conf)
+
+    if Trans.conf.warning then
+        vim.notify([[
+新版本v2已经发布, 见:
+    https://github.com/JuanZoran/Trans.nvim
+请使用当前默认(v2)分支
+        ]], vim.log.levels.WARN)
+    end
 end
