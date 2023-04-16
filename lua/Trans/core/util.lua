@@ -175,7 +175,7 @@ end
 ---@param str string
 ---@return boolean
 function M.is_word(str)
-    return str:find('%W') == nil
+    return str:find '%W' == nil
 end
 
 ---@param list any[]

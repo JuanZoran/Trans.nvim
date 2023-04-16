@@ -198,7 +198,7 @@ local default_opts = {
         -- zindex
         style     = 'minimal',
         border    = 'rounded',
-        focusable = false,
+        focusable = true,
         noautocmd = true,
     },
 }
