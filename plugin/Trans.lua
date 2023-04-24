@@ -28,6 +28,7 @@ local f =
     system == 'termux' and 'termux-tts-speak %q' or
     system == 'linux' and 'echo %q | festival --tts' or
     'node' .. Trans.relative_path { 'tts', 'say.js' } .. ' %q'
+-- 'python ' .. Trans.relative_path { 'pytts', 'say.py' } .. ' %q'
 -- 'powershell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak([Console]::In.ReadToEnd())" | Out-File -Encoding ASCII %q'
 -- or 'node' .. Trans.relative_path { 'tts', 'say.js' } .. ' %q'
 -- system == 'win' and 'powershell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak([Console]::In.ReadToEnd())" | Out-File -Encoding ASCII %q'
