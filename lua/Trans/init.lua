@@ -25,7 +25,7 @@ local system =
     uname == 'Linux' and (vim.fn.executable 'termux-api-start' == 1 and 'termux' or 'linux') or
     error 'Unknown System, Please Report Issue'
 
-local sep = system == 'win' and '\\' or '/'
+local sep = system == 'win' and '\\\\' or '/'
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
