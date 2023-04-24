@@ -4,62 +4,63 @@ local util = require 'Trans'.util
 ---@field [1] string text to be rendered
 ---@field render fun(self: TransNode, buffer: TransBuffer, line: number, col: number) render the node
 
+local item = (function()
+    ---@class TransItem : TransNode
+    local mt = {
+        ---@param self TransItem
+        ---@param buffer TransBuffer
+        ---@param line integer
+        ---@param col integer
+        render = function(self, buffer, line, col)
+            if self[2] then
+                buffer:add_highlight(line, self[2], col, col + #self[1])
+            end
+        end,
+    }
+    mt.__index = mt
 
----@class TransItem : TransNode
-local item_meta = {
-    ---@param self TransItem
-    ---@param buffer TransBuffer
-    ---@param line integer
-    ---@param col integer
-    render = function(self, buffer, line, col)
-        if self[2] then
-            buffer:add_highlight(line, self[2], col, col + #self[1])
-        end
-    end,
-}
+    ---Basic item node
+    ---@param tuple {[1]: string, [2]: string?}
+    ---@return TransItem
+    return function(tuple)
+        return setmetatable(tuple, mt)
+    end
+end)()
 
----@class TransText : TransNode
----@field step string
----@field nodes TransNode[]
-local text_meta = {
-    ---@param self TransText
-    ---@param buffer TransBuffer
-    ---@param line integer
-    ---@param col integer
-    render = function(self, buffer, line, col)
-        local nodes = self.nodes
-        local step  = self.step
-        local len   = step and #step or 0
+local text = (function()
+    ---@class TransText : TransNode
+    ---@field step string
+    ---@field nodes TransNode[]
 
-        for _, node in ipairs(nodes) do
-            node:render(buffer, line, col)
-            col = col + #node[1] + len
-        end
-    end,
-}
+    local mt = {
+        ---@param self TransText
+        ---@param buffer TransBuffer
+        ---@param line integer
+        ---@param col integer
+        render = function(self, buffer, line, col)
+            local nodes = self.nodes
+            local step  = self.step
+            local len   = step and #step or 0
 
-item_meta.__index = item_meta
-text_meta.__index = text_meta
+            for _, node in ipairs(nodes) do
+                node:render(buffer, line, col)
+                col = col + #node[1] + len
+            end
+        end,
+    }
 
+    mt.__index = mt
 
----Basic item node
----@param tuple {[1]: string, [2]: string?}
----@return TransItem
-local function item(tuple)
-    return setmetatable(tuple, item_meta)
-end
-
-
-
----@param nodes {[number]: TransNode, step: string?}
----@return TransText
-local function text(nodes)
-    return setmetatable({
-        [1]   = table.concat(util.list_fields(nodes, 1), nodes.step),
-        step  = nodes.step,
-        nodes = nodes,
-    }, text_meta)
-end
+    ---@param nodes {[number]: TransNode, step: string?}
+    ---@return TransText
+    return function(nodes)
+        return setmetatable({
+            [1]   = table.concat(util.list_fields(nodes, 1), nodes.step),
+            step  = nodes.step,
+            nodes = nodes,
+        }, mt)
+    end
+end)()
 
 
 ---@param args {[number]: TransNode, width: integer, spin: string?}
@@ -84,7 +85,6 @@ end
 
 ---@class TransUtil
 ---@field node TransNodes
-
 
 ---@class TransNodes
 return {
