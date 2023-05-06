@@ -18,8 +18,6 @@ local M = {
 }
 
 ---@param data any
----@return any
----@overload fun(TransData): TransResult
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then
         return
@@ -33,6 +31,7 @@ function M.query(data)
 
     data.result.offline = res and M.formatter(res) or false
 end
+
 
 -- this is a awesome plugin
 M.query_field = {

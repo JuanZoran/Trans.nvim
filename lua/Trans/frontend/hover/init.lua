@@ -19,7 +19,11 @@ local M = Trans.metatable('frontend.hover', {
 M.__index = M
 
 
----Set up function which will be invoked when this module is loaded
+--[[
+Set up function which will be invoked when this module is loaded
+
+Because the options are not loaded yet when this module is loaded
+--]]
 function M.setup()
     local set = vim.keymap.set
     for action, key in pairs(M.opts.keymaps) do
@@ -89,15 +93,18 @@ end
 function M:init_window(opts)
     opts = opts or {}
     local m_opts = self.opts
+
+
+    ---@format disable-next
     local option = {
         buffer = self.buffer,
         animation = m_opts.animation,
         win_opts = {
             relative  = opts.relative or 'cursor',
-            col       = opts.col or 1,
-            row       = opts.row or 1,
-            width     = opts.width or m_opts.width,
-            height    = opts.height or m_opts.height,
+            col       = opts.col      or 1,
+            row       = opts.row      or 1,
+            width     = opts.width    or m_opts.width,
+            height    = opts.height   or m_opts.height,
             title     = m_opts.title,
             title_pos = m_opts.title and 'center',
             zindex    = 100,

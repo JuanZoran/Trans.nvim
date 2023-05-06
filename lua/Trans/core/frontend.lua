@@ -1,7 +1,6 @@
 local Trans         = require 'Trans'
 local frontend_opts = Trans.conf.frontend
 
-
 ---@class TransFrontend
 ---@field opts TransFrontendOpts
 ---@field get_active_instance fun():TransFrontend?

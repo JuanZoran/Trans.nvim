@@ -5,9 +5,11 @@ local strategy = {
     pageup = function(hover)
         hover.buffer:normal 'gg'
     end,
+
     pagedown = function(hover)
         hover.buffer:normal 'G'
     end,
+
     pin = function(hover)
         if hover.pin then
             return
@@ -27,9 +29,11 @@ local strategy = {
 
         window:set('wrap', true)
     end,
+
     close = function(hover)
         hover:destroy()
     end,
+
     toggle_entry = function(hover)
         if api.nvim_get_current_win() ~= hover.window.winid then
             api.nvim_set_current_win(hover.window.winid)
@@ -48,6 +52,12 @@ local strategy = {
 ---@class TransHover
 ---@field execute fun(hover: TransHover, action: string)
 return function(hover, action)
-    -- TODO :
-    strategy[action](hover)
+    return strategy[action](hover)
 end
+
+-- This function will be called within coroutine, so we can't use __call
+-- return setmetatable(strategy, {
+--     __call = function(_, hover, action)
+--         return strategy[action](hover)
+--     end,
+-- })

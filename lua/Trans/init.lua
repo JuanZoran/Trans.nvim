@@ -32,9 +32,11 @@ local sep = system == 'win' and '\\\\' or '/'
 ---@field plugin_dir string @Plugin directory
 ---@field separator string @Path separator
 ---@field system 'mac'|'win'|'termux'|'linux' @Path separator
+---@field strategy table<string, fun(data: TransData):boolean> Translate string core function
 local M = metatable('core', {
     cache      = {},
     style      = metatable 'style',
+    strategy   = metatable 'strategy',
     separator  = sep,
     system     = system,
     plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. sep .. 'Trans'),

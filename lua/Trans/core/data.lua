@@ -10,7 +10,7 @@ local Trans = require 'Trans'
 ---@field result table<string, TransResult|nil|false> @The result of the translation
 ---@field frontend TransFrontend
 ---@field trace table<string, string> debug message
----@field backends table<string, TransBackend>
+---@field backends TransBackend[]
 local M = {}
 M.__index = M
 
