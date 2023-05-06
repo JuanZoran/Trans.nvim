@@ -1,6 +1,5 @@
-local Trans = require 'Trans'
-local conf = Trans.conf
-local frontend_opts = conf.frontend
+local Trans         = require 'Trans'
+local frontend_opts = Trans.conf.frontend
 
 
 ---@class TransFrontend

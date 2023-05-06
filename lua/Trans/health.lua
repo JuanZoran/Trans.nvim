@@ -42,7 +42,7 @@ local function check_binary_dependencies()
         win    = 'node',
         mac    = 'say',
         linux  = 'festival',
-        termux = 'termux-api-speak',
+        termux = 'termux-tts-speak',
     })[Trans.system]
 
 
