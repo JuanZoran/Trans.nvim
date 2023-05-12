@@ -31,5 +31,6 @@ local f =
     system == 'linux' and 'echo %q | festival --tts'
 
 string.play = function(self)
-    fn.jobstart(f:format(self))
+    local s = string.gsub(self, "\"", " ")
+    fn.jobstart(f:format(s))
 end
