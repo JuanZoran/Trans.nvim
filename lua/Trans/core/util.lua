@@ -32,8 +32,28 @@ function M.get_select()
         local e = #lines
         lines[1] = lines[1]:sub(s_col)
         lines[e] = line:sub(1, e_col)
-        return table.concat(lines)
+        return table.concat(lines, ' ')
     end
+end
+
+---Get selected text
+---@return string
+function M.get_lines()
+  local _start = vim.fn.getpos 'v'
+  local _end = vim.fn.getpos '.'
+
+  if _start[2] > _end[2] then
+    _start, _end = _end, _start
+  end
+
+  local s_row, e_row = _start[2], _end[2]
+
+  if s_row == e_row then
+    return vim.fn.getline(s_row)
+  else
+    local lines = vim.fn.getline(s_row, e_row)
+    return table.concat(lines, " ")
+  end
 end
 
 ---Get Text which need to be translated
@@ -52,8 +72,8 @@ function M.get_str(mode)
             return fn.input '需要翻译的字符串: '
         end,
         V = function()
-            print 'TODO'
-            return ''
+            api.nvim_input '<Esc>'
+            return M.get_lines()
         end,
     })[mode]():match '^%s*(.-)%s*$'
 end

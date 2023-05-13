@@ -24,15 +24,12 @@ string.width = api.nvim_strwidth
 
 local system = Trans.system
 local f =
+    (vim.fn.has 'wsl' or system == 'win') and 'powershell.exe -Command "Add-Type -AssemblyName System.speech;(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\\\"%s\\\")"' or
     system == 'mac' and 'say %q' or
     system == 'termux' and 'termux-tts-speak %q' or
-    system == 'linux' and 'echo %q | festival --tts' or
-    'node' .. Trans.relative_path { 'tts', 'say.js' } .. ' %q'
--- 'python ' .. Trans.relative_path { 'pytts', 'say.py' } .. ' %q'
--- 'powershell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak([Console]::In.ReadToEnd())" | Out-File -Encoding ASCII %q'
--- or 'node' .. Trans.relative_path { 'tts', 'say.js' } .. ' %q'
--- system == 'win' and 'powershell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak([Console]::In.ReadToEnd())" | Out-File -Encoding ASCII %q'
+    system == 'linux' and 'echo %q | festival --tts'
 
 string.play = function(self)
-    fn.jobstart(f:format(self))
+    local s = string.gsub(self, "\"", " ")
+    fn.jobstart(f:format(s))
 end
