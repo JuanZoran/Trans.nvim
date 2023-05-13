@@ -32,7 +32,7 @@ function M.get_select()
         local e = #lines
         lines[1] = lines[1]:sub(s_col)
         lines[e] = line:sub(1, e_col)
-        return table.concat(lines, '\n')
+        return table.concat(lines, ' ')
     end
 end
 
@@ -52,7 +52,7 @@ function M.get_lines()
     return vim.fn.getline(s_row)
   else
     local lines = vim.fn.getline(s_row, e_row)
-    return table.concat(lines, "\n")
+    return table.concat(lines, " ")
   end
 end
 
