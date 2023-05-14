@@ -41,16 +41,11 @@ return function()
     end
 
     Trans.curl.get(uri, {
-        output    = zip,
-        callback  = handle,
-        extra     = continue and { '-C', '-' } or nil,
+        output   = zip,
+        callback = handle,
+        extra    = continue and { '-C', '-' } or nil,
     })
 
     local message = continue and 'Continue download database' or 'Begin to download database'
     vim.notify(message, vim.log.levels.INFO)
-
-    -- INFO : Install tts dependencies
-    if Trans.system == 'win' then
-        os.execute 'cd ./tts && npm install'
-    end
 end

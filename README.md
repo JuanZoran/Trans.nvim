@@ -93,7 +93,7 @@ _安装之前, 首先需要明确本插件的依赖:_
 
 ```lua
 use {
-    'JuanZoran/Trans.nvim'
+    'JuanZoran/Trans.nvim',
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
     requires =  'kkharji/sqlite.lua', ,
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
@@ -177,10 +177,7 @@ use {
 
     -   `Mac` 使用系统的`say`命令
 
-    -   `Windows` 使用 `nodejs`的 say 模块, 如果你有更好的方案欢迎提供 PR
-        -   需要确保安装了`nodejs`
-        -   进入插件的`tts`目录运行`npm install`
-            > 如果`install`运行正常则自动安装，如果安装失败，请尝试手动安装
+    -   `Windows` 使用原生的 Powershell 命令, 感谢[PR](https://github.com/JuanZoran/Trans.nvim/pull/34)
 
 -   `title`的配置，只对`neovim 0.9+`版本有效
 
@@ -455,12 +452,12 @@ TransWeb = {
 
 ## 贡献
 
-> 更新比较频繁, 文档先鸽了  
+> 更新比较频繁, 文档先鸽了 (wiki 写了一小部分  
 > 如果你想要参加这个项目, 可以提 issue, 我会把文档补齐
 
 ## 从 v1 (main)分支迁移
 
-    见[wiki](https://github.com/JuanZoran/Trans.nvim/wiki/%E4%BB%8E(v1)main%E5%88%86%E6%94%AF%E8%BF%81%E7%A7%BB)
+见[wiki](<https://github.com/JuanZoran/Trans.nvim/wiki/%E4%BB%8E(v1)main%E5%88%86%E6%94%AF%E8%BF%81%E7%A7%BB>)
 
 ## 待办 (画大饼)
 
@@ -468,11 +465,11 @@ TransWeb = {
 -   [x] 自动读音
 -   [x] 在线多引擎异步查询
 -   [x] `句子翻译` | `中翻英` 的支持
--   [ ] 迁移文档
+-   [x] 迁移文档
 -   [ ] 多风格样式查询
--   [ ] 重新录制屏幕截图示例
 -   [ ] 变量命名的支持
 -   [ ] 历史查询结果保存
+-   [ ] 翻译结果替换
 
 ## 项目情况
 

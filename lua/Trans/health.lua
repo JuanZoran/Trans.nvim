@@ -36,13 +36,14 @@ local function check_binary_dependencies()
     local binary_dependencies = {
         'curl',
         'sqlite3',
+        'unzip',
     }
 
     binary_dependencies[3] = ({
-        win    = 'node',
+        win    = nil,
         mac    = 'say',
         linux  = 'festival',
-        termux = 'termux-api-speak',
+        termux = 'termux-tts-speak',
     })[Trans.system]
 
 
