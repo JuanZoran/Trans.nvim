@@ -56,6 +56,33 @@ function M.get_lines()
   end
 end
 
+---Get selected text
+---@return string
+function M.get_block()
+    local _start = fn.getpos 'v'
+    local _end = fn.getpos '.'
+
+    local s_row, e_row = math.min(_start[2],_end[2]), math.max(_start[2],_end[2])
+    local s_col, e_col = math.min(_start[3], _end[3]), math.max(_start[3], _end[3])
+
+    ---@type string
+    ---@diagnostic disable-next-line: assign-type-mismatch
+    local line = fn.getline(e_row)
+    local uidx = vim.str_utfindex(line, math.min(#line, e_col))
+    ---@diagnostic disable-next-line: param-type-mismatch
+    e_col = vim.str_byteindex(line, uidx)
+
+    if s_row == e_row then
+        return line:sub(s_col, e_col)
+    else
+        local lines = fn.getline(s_row, e_row)
+        for col, l in pairs(lines) do
+          lines[col] = l:sub(s_col,e_col)
+        end
+        return table.concat(lines, ' ')
+    end
+end
+
 ---Get Text which need to be translated
 ---@param mode string
 ---@return string
@@ -74,6 +101,10 @@ function M.get_str(mode)
         V = function()
             api.nvim_input '<Esc>'
             return M.get_lines()
+        end,
+        [''] = function()
+            api.nvim_input '<Esc>'
+            return M.get_block()
         end,
     })[mode]():match '^%s*(.-)%s*$'
 end
