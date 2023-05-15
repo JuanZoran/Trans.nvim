@@ -3,27 +3,29 @@ local fn, api = vim.fn, vim.api
 ---@class TransUtil
 local M = require 'Trans'.metatable 'util'
 
+---Get the range of visual modes
+---@return table
+function M.get_range()
+    local _start = fn.getpos 'v'
+    local _end = fn.getpos '.'
+
+    local s_row, e_row = math.min(_start[2], _end[2]), math.max(_start[2], _end[2])
+    local s_col, e_col = math.min(_start[3], _end[3]), math.max(_start[3], _end[3])
+
+    return { s_row, e_row, s_col, e_col }
+end
 
 ---Get selected text
 ---@return string
 function M.get_select()
-    local _start = fn.getpos 'v'
-    local _end = fn.getpos '.'
+    local s_row, e_row, s_col, e_col = unpack(M.get_range())
 
-    if _start[2] > _end[2] or (_start[3] > _end[3] and _start[2] == _end[2]) then
-        _start, _end = _end, _start
-    end
-    local s_row, s_col = _start[2], _start[3]
-    local e_row, e_col = _end[2], _end[3]
-
-    -- print(s_row, e_row, s_col, e_col)
     ---@type string
     ---@diagnostic disable-next-line: assign-type-mismatch
     local line = fn.getline(e_row)
     local uidx = vim.str_utfindex(line, math.min(#line, e_col))
     ---@diagnostic disable-next-line: param-type-mismatch
     e_col = vim.str_byteindex(line, uidx)
-
 
     if s_row == e_row then
         return line:sub(s_col, e_col)
@@ -39,19 +41,12 @@ end
 ---Get selected text
 ---@return string
 function M.get_lines()
-  local _start = vim.fn.getpos 'v'
-  local _end = vim.fn.getpos '.'
-
-  if _start[2] > _end[2] then
-    _start, _end = _end, _start
-  end
-
-  local s_row, e_row = _start[2], _end[2]
+  local s_row, e_row = unpack(M.get_range())
 
   if s_row == e_row then
-    return vim.fn.getline(s_row)
+    return fn.getline(s_row)
   else
-    local lines = vim.fn.getline(s_row, e_row)
+    local lines = fn.getline(s_row, e_row)
     return table.concat(lines, " ")
   end
 end
@@ -59,11 +54,7 @@ end
 ---Get selected text
 ---@return string
 function M.get_block()
-    local _start = fn.getpos 'v'
-    local _end = fn.getpos '.'
-
-    local s_row, e_row = math.min(_start[2],_end[2]), math.max(_start[2],_end[2])
-    local s_col, e_col = math.min(_start[3], _end[3]), math.max(_start[3], _end[3])
+    local s_row, e_row, s_col, e_col = unpack(M.get_range())
 
     ---@type string
     ---@diagnostic disable-next-line: assign-type-mismatch
@@ -79,7 +70,7 @@ function M.get_block()
         for col, l in pairs(lines) do
           lines[col] = l:sub(s_col,e_col)
         end
-        return table.concat(lines, ' ')
+        return table.concat(lines, " ")
     end
 end
 
