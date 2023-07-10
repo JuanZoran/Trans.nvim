@@ -12,7 +12,6 @@ local M = {
     method  = 'get',
 }
 
-
 local Trans = require 'Trans'
 
 ---@class BaiduQuery
@@ -26,7 +25,7 @@ local Trans = require 'Trans'
 ---Get content for query
 ---@param data TransData
 ---@return BaiduQuery
-function M.get_query(data)
+local function get_query(data)
     local tmp  = M.app_id .. data.str .. M.salt .. M.app_passwd
     local sign = Trans.util.md5.sumhexa(tmp)
 
@@ -40,11 +39,12 @@ function M.get_query(data)
     }
 end
 
+
 ---@overload fun(body: table, data:TransData): TransResult
 ---Query Using Baidu API
 ---@param body table BaiduQuery Response
 ---@return table|false
-function M.formatter(body, data)
+local function formatter(body, data)
     local result = body.trans_result
     if not result then return false end
 
@@ -57,14 +57,41 @@ function M.formatter(body, data)
     }
 end
 
----@class TransBackend
+
+---@class TransBackendCore
 ---@field baidu Baidu
-return M
+return {
+    name         = 'baidu',
+    display_text = '百度',
+    uri          = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+    method       = 'get',
+    get_query    = get_query,
+    formatter    = formatter,
+}
 
--- -- NOTE :free tts:
--- -- https://zj.v.api.aa1.cn/api/baidu-01/?msg=我爱你&choose=0&su=100&yd=5
--- -- 选择转音频的人物，女生1 输入0 ｜ 女生2输入：5｜男生1 输入：1｜男生2 输入：2｜男生3 输入：3
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- NOTE :free tts:
+-- https://zj.v.api.aa1.cn/api/baidu-01/?msg=我爱你&choose=0&su=100&yd=5
+-- 选择转音频的人物，女生1 输入0 ｜ 女生2输入：5｜男生1 输入：1｜男生2 输入：2｜男生3 输入：3
 -- {
 --   body = '{"from":"en","to":"zh","trans_result":[{"src":"require","dst":"\\u8981\\u6c42"}]}',
 --   exit = 0,

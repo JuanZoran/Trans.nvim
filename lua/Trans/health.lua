@@ -9,7 +9,7 @@ local executable = fn.executable
 
 local function check_neovim_version()
     if has 'nvim-0.9' == 1 then
-        ok [[You have [neovim-nightly] ]]
+        ok [[You have [neovim-0.9] ]]
     else
         warn [[Trans Title requires Neovim 0.9 or newer
         See neovim-nightly: [https://github.com/neovim/neovim/releases/tag/nightly]

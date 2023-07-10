@@ -184,11 +184,12 @@ window.__index = window
 --     relative  = relative,
 -- }
 
+---@class TransWindowOpts
 local default_opts = {
-    enter    = false,
-    winid    = -1,
+    enter     = false,
+    winid     = -1,
     ---@type WindowOpts
-    win_opts = {
+    win_opts  = {
         -- INFO : ensured options
         -- col
         -- row
@@ -201,13 +202,9 @@ local default_opts = {
         focusable = true,
         noautocmd = true,
     },
+    animation = nil, ---@type table? Hover Window Animation
+    buffer    = nil, ---@type TransBuffer attached buffer object
 }
-
----@class TransWindowOpts
----@field buffer TransBuffer attached buffer object
----@field enter? boolean cursor should [enter] window when open,default: false
----@field win_opts WindowOpts window config [**When open**]
----@field animation? table? Hover Window Animation
 
 ---Create new window
 ---@param opts TransWindowOpts window config
