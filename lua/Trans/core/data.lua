@@ -33,9 +33,11 @@ function M.new(opts)
 
     data.frontend = Trans.frontend[strategy.frontend].new()
     data.backends = {}
-    for i, name in ipairs(strategy.backend) do
-        data.backends[i] = Trans.backend[name]
-    end
+
+    -- FIXME :
+    -- for i, name in ipairs(strategy.backend) do
+    --     data.backends[i] = Trans.backend[name]
+    -- end
 
     if Trans.util.is_english(str) then
         data.from = 'en'

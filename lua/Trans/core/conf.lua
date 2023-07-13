@@ -2,25 +2,34 @@
 ---@field conf TransConf
 
 
+---@alias TransMode 'visual' 'input'
+
 ---@class TransConf
 return {
     ---@type string the directory for database file and password file
     dir      = require 'Trans'.plugin_dir,
-    debug    = true,
-    ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [see lua/Trans/style/theme.lua]
+    ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [@see lua/Trans/style/theme.lua]
     theme    = 'default', -- default | tokyonight | dracula
+    ---@type table<TransMode, { frontend:string, backend:string | string[] }> fallback strategy for mode
     strategy = {
-        ---@type { frontend:string, backend:string | string[] } fallback strategy for mode
         default = {
             frontend = 'hover',
-            backend = '*',
+            backend = {
+                'offline',
+                -- 'youdao',
+                -- 'baidu',
+            }
         },
+        -- input = {
+        -- visual = {
+        -- ...
     },
     ---@type table frontend options
     frontend = {
         ---@class TransFrontendOpts
         ---@field keymaps table<string, string>
         default = {
+            auto_play = true,
             query     = 'fallback',
             border    = 'rounded',
             title     = vim.fn.has 'nvim-0.9' == 1 and {
@@ -28,7 +37,6 @@ return {
                     { ' Trans', 'TransTitle' },
                     { '',       'TransTitleRound' },
                 } or nil, -- need nvim-0.9+
-            auto_play = true,
             ---@type {open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
             animation = {
                 open = 'slid', -- 'fold', 'slid'
@@ -46,7 +54,7 @@ return {
             ---@type string -- see: /lua/Trans/style/spinner
             spinner           = 'dots',
             ---@type string
-            fallback_message  = '{{notfound}} 翻译超时或没有找到相关的翻译',
+            fallback_message  = '{{notfound}} {{error_message}}',
             auto_resize       = true,
             split_width       = 60,
             padding           = 10, -- padding for hover window width
@@ -56,8 +64,6 @@ return {
                 -- pin          = '<leader>[',
                 -- close        = '<leader>]',
                 -- toggle_entry = '<leader>;',
-
-                -- play         = '_', -- Deprecated
             },
             ---@type string[] auto close events
             auto_close_events = {
@@ -104,7 +110,31 @@ return {
             },
         },
     },
+
+
+
+   -- debug    = true,
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -- TODO :

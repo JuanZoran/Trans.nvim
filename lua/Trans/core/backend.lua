@@ -28,111 +28,7 @@ local M = {
 
 local m_util = {}
 
-
-
--- TODO :Implement all of utility functions
-
-
-M.util = m_util
-M.random_num = math.random(bit.lshift(1, 15))
-
-
----@class Trans
----@field backend TransBackendCore
-return setmetatable(M, {
-    __index = function(self, name)
-        ---@type TransBackend
-        local backend = require('Trans.backend.' .. name)
-        backend.conf = user_conf[name]
-
-        self.sources[name] = backend
-        return backend
-    end,
-})
-
-
--- local new = (function()
---     ---@class TransBackend
---     local mt = {
---         ---State hooks
---         ---@param self TransBackend
---         ---@param state TransState @state name
---         ---@param hook fun() hook function
---         ---@param event? TransEvents
---         register = function(self, state, hook, event)
---             table.insert(self.on[state][event], hook)
---         end,
-
---         ---Update state and Notify hooks
---         ---@param self TransBackend
---         ---@param newstate TransState @state name
---         update = function(self, newstate)
---             -- Enter
---             for _, hook in ipairs(self.on[newstate].enter) do
---                 hook()
---             end
-
---             -- Leave
---             for _, hook in ipairs(self.on[self.state].leave) do
---                 hook()
---             end
-
---             -- Change
---             for _, hook in ipairs(self.on[self.state].change) do
---                 hook()
---             end
-
---             for _, hook in ipairs(self.on[newstate].change) do
---                 hook()
---             end
-
---             self.state = newstate
---         end,
---     }
---     mt.__index = mt
-
---     ---TransBackend Constructor
---     ---@param origin TransBackendDefinition
---     ---@return TransBackend
---     return function(origin)
---         origin.on = vim.defaulttable()
---         origin.state = origin.state or 'IDLE'
---         ---@cast origin TransBackend
---         return setmetatable(origin, mt)
---     end
--- end)()
-
--- local conf = Trans.conf
--- --- INFO :Parse online engine keys config file
--- local path = conf.dir .. '/Trans.json'
--- local file = io.open(path, 'r')
-
-
--- local user_conf = {}
--- if file then
---     local content = file:read '*a'
---     user_conf = vim.json.decode(content) or user_conf
---     file:close()
--- end
-
--- local all_name = {
---     'offline', -- default backend
--- }
-
--- for _, config in ipairs(user_conf) do
---     if not config.disable then
---         all_name[#all_name + 1] = config.name
---         user_conf[config.name] = config
---     end
--- end
-
--- ---@class TransBackends
--- ---@field all_name string[] all backend names
--- local M = {
---     all_name = all_name,
--- }
-
--- ---Template method for online query
+-- INFO :Template method for online query
 -- ---@param data TransData @data
 -- ---@param backend TransOnlineBackend @backend
 -- function M.do_query(data, backend)
@@ -165,3 +61,38 @@ return setmetatable(M, {
 --     })
 --     -- Hook ?
 -- end
+
+
+
+
+
+
+-- TODO :Implement all of utility functions
+
+
+M.util = m_util
+M.random_num = math.random(bit.lshift(1, 15))
+
+-- INFO :Parse configuration file
+local path = Trans.conf.dir .. '/Trans.json'
+local file = io.open(path, 'r')
+local user_conf = {}
+if file then
+    local content = file:read '*a'
+    user_conf = vim.json.decode(content) or user_conf
+    file:close()
+end
+-- WARNING : [Breaking change] 'Trans.json' should use json object instead of array
+
+---@class Trans
+---@field backend TransBackendCore
+return setmetatable(M, {
+    __index = function(self, name)
+        ---@type TransBackend
+        local backend = require('Trans.backend.' .. name)
+        backend.conf = user_conf[name]
+
+        self.sources[name] = backend
+        return backend
+    end,
+})

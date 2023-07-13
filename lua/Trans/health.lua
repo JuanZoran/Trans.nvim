@@ -1,9 +1,9 @@
 local Trans      = require 'Trans'
 local health, fn = vim.health, vim.fn
 
-local ok         = health.report_ok
-local warn       = health.report_warn
-local error      = health.report_error
+local ok         = health.ok or health.report_ok
+local warn       = health.warn or health.report_warn
+local error      = health.error or health.report_error
 local has        = fn.has
 local executable = fn.executable
 
