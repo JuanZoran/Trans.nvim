@@ -1,15 +1,11 @@
----@class Baidu: TransOnlineBackend
----@field uri string api uri
----@field salt string
----@field app_id string
----@field app_passwd string
----@field disable boolean
+---@class Baidu: TransBackendOnline
+---@field conf { app_id: string, app_passwd: string }
 local M = {
-    uri     = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
-    salt    = tostring(math.random(bit.lshift(1, 15))),
-    name    = 'baidu',
-    name_zh = '百度',
-    method  = 'get',
+    name         = 'baidu',
+    display_text = '百度',
+    uri          = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
+    salt         = tostring(math.random(bit.lshift(1, 15))),
+    method       = 'get',
 }
 
 local Trans = require 'Trans'
@@ -25,26 +21,28 @@ local Trans = require 'Trans'
 ---Get content for query
 ---@param data TransData
 ---@return BaiduQuery
-local function get_query(data)
-    local tmp  = M.app_id .. data.str .. M.salt .. M.app_passwd
+function M.get_query(data)
+    local m_conf = M.conf
+    assert(m_conf, 'Load Baidu config failed')
+
+    local tmp  = m_conf.app_id .. data.str .. M.salt .. m_conf.app_passwd
     local sign = Trans.util.md5.sumhexa(tmp)
 
     return {
         q     = data.str,
         from  = data.from,
         to    = data.to,
-        appid = M.app_id,
+        appid = m_conf.app_id,
         salt  = M.salt,
         sign  = sign,
     }
 end
 
-
 ---@overload fun(body: table, data:TransData): TransResult
 ---Query Using Baidu API
 ---@param body table BaiduQuery Response
 ---@return table|false
-local function formatter(body, data)
+function M.formatter(body, data)
     local result = body.trans_result
     if not result then return false end
 
@@ -57,17 +55,7 @@ local function formatter(body, data)
     }
 end
 
-
----@class TransBackendCore
----@field baidu Baidu
-return {
-    name         = 'baidu',
-    display_text = '百度',
-    uri          = 'https://fanyi-api.baidu.com/api/trans/vip/translate',
-    method       = 'get',
-    get_query    = get_query,
-    formatter    = formatter,
-}
+return M
 
 
 

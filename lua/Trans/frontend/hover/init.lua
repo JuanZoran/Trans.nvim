@@ -10,18 +10,82 @@ local util = Trans.util
 ---@field window TransWindow @hover window
 ---@field queue TransHover[] @hover queue for all hover instances
 ---@field destroy_funcs fun(hover:TransHover)[] @functions to be executed when hover window is closed
----@field opts TransHoverOpts @options for hover window
+---@field opts TransHoverOpts @hover window options
 ---@field pin boolean @whether hover window is pinned
 local M = Trans.metatable('frontend.hover', {
     ns = vim.api.nvim_create_namespace 'TransHoverWin',
     queue = {},
+    ---@class TransHoverOpts: TransFrontendOpts
+    opts = {
+        ---@type integer Max Width of Hover Window
+        width             = 37,
+        ---@type integer Max Height of Hover Window
+        height            = 27,
+        ---@type string -- see: /lua/Trans/style/spinner
+        spinner           = 'dots',
+        ---@type string
+        fallback_message  = '{{notfound}} {{error_message}}',
+        auto_resize       = true,
+        split_width       = 60,
+        padding           = 10, -- padding for hover window width
+        keymaps           = {
+            -- pageup       = '<C-u>',
+            -- pagedown     = '<C-d>',
+            -- pin          = '<leader>[',
+            -- close        = '<leader>]',
+            -- toggle_entry = '<leader>;',
+        },
+        ---@type string[] auto close events
+        auto_close_events = {
+            'InsertEnter',
+            'CursorMoved',
+            'BufLeave',
+        },
+        ---@type table<string, string[]> order to display translate result
+        order             = {
+            default = {
+                'str',
+                'translation',
+                'definition',
+            },
+            offline = {
+                'title',
+                'tag',
+                'pos',
+                'exchange',
+                'translation',
+                'definition',
+            },
+            youdao = {
+                'title',
+                'translation',
+                'definition',
+                'web',
+            },
+        },
+        icon              = {
+            -- or use emoji
+            list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
+            star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
+            notfound    = ' ', --❔ | ❓ | ❗ | ❕|
+            yes         = '✔', -- ✅ | ✔️ | ☑
+            no          = '', -- ❌ | ❎ | ✖ | ✘ | ✗ |
+            cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉
+            web         = '󰖟', --🌍 | 🌎 | 🌏 | 🌐 |
+            tag         = '',
+            pos         = '',
+            exchange    = '',
+            definition  = '󰗊',
+            translation = '󰊿',
+        },
+    },
 })
 M.__index = M
 
 
+
 --[[
 Set up function which will be invoked when this module is loaded
-
 Because the options are not loaded yet when this module is loaded
 --]]
 function M.setup()
@@ -146,7 +210,7 @@ function M:wait()
     local it      = util.node.item
     return function(backend)
         cur = cur + 1
-        buffer[1] = pr(backend.name_zh)
+        buffer[1] = pr(backend.display_text)
         buffer[2] = it { spinner[cur % size + 1] .. (cell):rep(cur), 'TransWaitting' }
         pause(interval)
         return cur < times

@@ -1,44 +1,31 @@
+---@class Trans
 local Trans = require 'Trans'
 
--- local function set_strategy_opts(conf)
---     local all_backends = conf.frontend.default.enabled_backend
---     local g_strategy = conf.strategy
+---@alias TransMode 'visual' 'input'
+local default_strategy = {
+    frontend = 'hover',
+    backend  = {
+        'offline',
+        -- 'youdao',
+        -- 'baidu',
+    },
+}
 
---     local function parse_backend(backend)
---         if type(backend) == 'string' then
---             return backend == '*' and all_backends or { backend }
---         end
+Trans.conf = {
+    ---@type string the directory for database file and password file
+    dir      = require 'Trans'.plugin_dir,
+    ---@type 'default' | 'dracula' | 'tokyonight' global Trans theme [@see lua/Trans/style/theme.lua]
+    theme    = 'default',
+    ---@type table<TransMode, { frontend:string, backend:string | string[] }> fallback strategy for mode
+    -- input = {
+    -- visual = {
+    -- ...
+    strategy = vim.defaulttable(function()
+        return setmetatable({}, default_strategy)
+    end),
+    frontend = {},
+}
 
---         return backend
---     end
-
---     local default_strategy = g_strategy.default
---     default_strategy.backend = parse_backend(default_strategy.backend)
---     default_strategy.__index = default_strategy
-
---     g_strategy.default = nil
-
---     setmetatable(g_strategy, {
---         __index = function()
---             return default_strategy
---         end,
---     })
-
---     for _, strategy in pairs(g_strategy) do
---         strategy.backend = parse_backend(strategy.backend)
---         setmetatable(strategy, default_strategy)
---     end
--- end
-
-
-
-local function define_highlights(conf)
-    local set_hl     = vim.api.nvim_set_hl
-    local highlights = Trans.style.theme[conf.theme]
-    for hl, opt in pairs(highlights) do
-        set_hl(0, hl, opt)
-    end
-end
 
 
 ---@class Trans
@@ -48,8 +35,12 @@ return function(opts)
         Trans.conf = vim.tbl_deep_extend('force', Trans.conf, opts)
     end
     local conf = Trans.conf
-    conf.dir = vim.fn.expand(conf.dir)
+    conf.dir   = vim.fn.expand(conf.dir)
 
-    -- set_strategy_opts(conf)
-    define_highlights(conf)
+    -- INFO : set highlight
+    local set_hl     = vim.api.nvim_set_hl
+    local highlights = Trans.style.theme[conf.theme]
+    for hl, opt in pairs(highlights) do
+        set_hl(0, hl, opt)
+    end
 end

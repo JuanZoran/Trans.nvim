@@ -1,15 +1,14 @@
----@class Youdao: TransOnlineBackend
+---@class Youdao: TransBackendOnline
 ---@field uri string api uri
 ---@field salt string
----@field app_id string
----@field app_passwd string
 ---@field disable boolean
+---@field conf { app_id: string, app_passwd: string }
 local M = {
-    uri     = 'https://openapi.youdao.com/api',
-    salt    = tostring(math.random(bit.lshift(1, 15))),
-    name    = 'youdao',
-    name_zh = '有道',
-    method  = 'get',
+    uri          = 'https://openapi.youdao.com/api',
+    name         = 'youdao',
+    display_text = '有道',
+    method       = 'get',
+    salt         = tostring(math.random(bit.lshift(1, 15))),
 }
 
 ---@class YoudaoQuery
@@ -26,7 +25,7 @@ local M = {
 ---@return YoudaoQuery
 function M.get_query(data)
     local str     = data.str
-    local app_id  = M.app_id
+    local m_conf  = M.conf
     local salt    = M.salt
     local curtime = tostring(os.time())
 
@@ -38,7 +37,7 @@ function M.get_query(data)
 
 
     -- sign=sha256(应用ID+input+salt+curtime+应用密钥)； 一二三四五六七八九十
-    local hash = app_id .. input .. salt .. curtime .. M.app_passwd
+    local hash = m_conf.app_id .. input .. salt .. curtime .. m_conf.app_passwd
     local sign = vim.fn.sha256(hash)
 
 
@@ -47,7 +46,7 @@ function M.get_query(data)
         to       = data.from == 'zh' and 'en' or 'zh-CHS',
         from     = 'auto',
         signType = 'v3',
-        appKey   = app_id,
+        appKey   = m_conf.app_id,
         salt     = M.salt,
         curtime  = curtime,
         sign     = sign,
@@ -160,6 +159,26 @@ end
 ---@class TransBackend
 ---@field youdao Youdao
 return M
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -- INFO :Query Result Example
 -- {

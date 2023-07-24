@@ -3,7 +3,6 @@ local fn, api = vim.fn, vim.api
 ---@class TransUtil
 local M = require 'Trans'.metatable 'util'
 
-
 ---Get selected text
 ---@return string
 function M.get_select()

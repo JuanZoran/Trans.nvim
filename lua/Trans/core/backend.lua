@@ -10,9 +10,11 @@ local Trans = require 'Trans'
 ---@class TransBackendOnline: TransBackend
 ---@field uri string @request uri
 ---@field method 'get' | 'post' @request method
----@field formatter fun(body: table, data: TransData): TransResult|false|nil @formatter
+---@field formatter fun(body: table, data: TransData): TransResult|false|nil transform response body to TransResult
 ---@field get_query fun(data: TransData): table<string, any> @get query table
+---@field error_message? fun(errorCode) @get error message
 
+-- -@field header table<string, string>|fun(data: TransData): table<string, string> @request header
 
 
 ---@class TransBackendOffline: TransBackend
@@ -22,56 +24,41 @@ local Trans = require 'Trans'
 
 ---@class TransBackendCore
 local M = {
-    ---@type table<string, TransBackend>
+    ---@type table<string, TransBackend> backendname -> backend source
     sources = {},
 }
 
 local m_util = {}
 
 -- INFO :Template method for online query
--- ---@param data TransData @data
--- ---@param backend TransOnlineBackend @backend
--- function M.do_query(data, backend)
---     local name      = backend.name
---     local uri       = backend.uri
---     local method    = backend.method
---     local formatter = backend.formatter
---     local query     = backend.get_query(data)
---     local header    = type(backend.header) == 'function' and backend.header(data) or backend.header
+---@param data TransData @data
+---@param backend TransBackendOnline @backend
+function M.do_query(data, backend)
+    local name      = backend.name
+    local formatter = backend.formatter
+    -- local header    = type(backend.header) == 'function' and backend.header(data) or backend.header
 
---     local function handle(output)
---         local status, body = pcall(vim.json.decode, output.body)
---         if not status or not body then
---             if not Trans.conf.debug then
---                 backend.debug(body)
---                 data.trace[name] = output
---             end
+    local function handle(output)
+        local status, body = pcall(vim.json.decode, output.body)
+        if not status or not body then
+            data.result[name] = false
+            return
+        end
 
---             data.result[name] = false
---             return
---         end
+        data.result[name] = formatter(body, data)
+    end
 
---         data.result[name] = formatter(body, data)
---     end
-
---     Trans.curl[method](uri, {
---         query = query,
---         callback = handle,
---         header = header,
---     })
---     -- Hook ?
--- end
-
-
-
-
-
+    Trans.curl[backend.method](backend.uri, {
+        query = backend.get_query(data),
+        callback = handle,
+        --- FIXME :
+        header = header,
+    })
+end
 
 -- TODO :Implement all of utility functions
-
-
 M.util = m_util
-M.random_num = math.random(bit.lshift(1, 15))
+
 
 -- INFO :Parse configuration file
 local path = Trans.conf.dir .. '/Trans.json'
@@ -82,6 +69,7 @@ if file then
     user_conf = vim.json.decode(content) or user_conf
     file:close()
 end
+
 -- WARNING : [Breaking change] 'Trans.json' should use json object instead of array
 
 ---@class Trans
