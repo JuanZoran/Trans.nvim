@@ -71,7 +71,6 @@ if file then
 end
 
 -- WARNING : [Breaking change] 'Trans.json' should use json object instead of array
-
 ---@class Trans
 ---@field backend TransBackendCore
 return setmetatable(M, {

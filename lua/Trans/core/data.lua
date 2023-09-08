@@ -1,55 +1,39 @@
 local Trans = require 'Trans'
 
-
----@class TransData
+---@class TransData: TransDataOption
+---@field mode string @The mode of the str
 ---@field from string @Source language type
 ---@field to string @Target language type
----@field is_word boolean @Is the str a word
 ---@field str string @The original string
----@field mode string @The mode of the str
 ---@field result table<string, TransResult|nil|false> @The result of the translation
 ---@field frontend TransFrontend
+---@field is_word? boolean @Is the str a word
 ---@field trace table<string, string> debug message
 ---@field backends TransBackend[]
 local M = {}
 M.__index = M
 
 ---TransData constructor
----@param opts table
+---@param opts TransDataOption
 ---@return TransData
 function M.new(opts)
-    local mode = opts.mode
-    local str  = opts.str
 
-
+    ---@cast opts TransData
+    local mode     = opts.mode
+    opts.result    = {}
+    opts.trace     = {}
     local strategy = Trans.conf.strategy[mode]
-    local data = setmetatable({
-        str    = str,
-        mode   = mode,
-        result = {},
-        trace  = {},
-    }, M)
 
 
-    data.frontend = Trans.frontend[strategy.frontend].new()
-    data.backends = {}
+    ---@cast opts TransData
+    setmetatable(opts, M)
 
-    -- FIXME :
-    -- for i, name in ipairs(strategy.backend) do
-    --     data.backends[i] = Trans.backend[name]
-    -- end
 
-    if Trans.util.is_english(str) then
-        data.from = 'en'
-        data.to = 'zh'
-    else
-        data.from = 'zh'
-        data.to = 'en'
-    end
+    -- NOTE : whether should we use the default strategy
+    opts.frontend = Trans.frontend[strategy.frontend].new()
+    opts.backends = {}
 
-    data.is_word = Trans.util.is_word(str)
-
-    return data
+    return opts
 end
 
 ---@class TransResult
@@ -69,12 +53,8 @@ end
 ---@return string? backend.name
 function M:get_available_result()
     local result = self.result
-
-    if result['offline'] then return result['offline'], 'offline' end
-
     for _, backend in ipairs(self.backends) do
         if result[backend.name] then
-            ---@diagnostic disable-next-line: return-type-mismatch
             return result[backend.name], backend.name
         end
     end

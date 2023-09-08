@@ -38,21 +38,21 @@ end
 ---Get selected text
 ---@return string
 function M.get_lines()
-  local _start = vim.fn.getpos 'v'
-  local _end = vim.fn.getpos '.'
+    local _start = vim.fn.getpos 'v'
+    local _end = vim.fn.getpos '.'
 
-  if _start[2] > _end[2] then
-    _start, _end = _end, _start
-  end
+    if _start[2] > _end[2] then
+        _start, _end = _end, _start
+    end
 
-  local s_row, e_row = _start[2], _end[2]
+    local s_row, e_row = _start[2], _end[2]
 
-  if s_row == e_row then
-    return vim.fn.getline(s_row)
-  else
-    local lines = vim.fn.getline(s_row, e_row)
-    return table.concat(lines, " ")
-  end
+    if s_row == e_row then
+        return vim.fn.getline(s_row)
+    else
+        local lines = vim.fn.getline(s_row, e_row)
+        return table.concat(lines, ' ')
+    end
 end
 
 ---Get Text which need to be translated
@@ -223,6 +223,13 @@ function M.list_fields(list, field)
     end
     return ret
 end
+
+-- function M.checker(method, ...)
+--     -- TODO :Use function programming to simplify the code
+--     local params = { ... }
+
+-- end
+
 
 ---@class Trans
 ---@field util TransUtil

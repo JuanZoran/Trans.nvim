@@ -6,9 +6,9 @@ local default_frontend = {
     query     = 'fallback',
     border    = 'rounded',
     title     = vim.fn.has 'nvim-0.9' == 1 and {
-        { '',       'TransTitleRound' },
+        { '', 'TransTitleRound' },
         { ' Trans', 'TransTitle' },
-        { '',       'TransTitleRound' },
+        { '', 'TransTitleRound' },
     } or nil, -- need nvim-0.9+
     ---@type {open: string | boolean, close: string | boolean, interval: integer} Window Animation
     animation = {
@@ -16,26 +16,38 @@ local default_frontend = {
         close = 'slid',
         interval = 12,
     },
-    timeout   = 2000, -- only for online backend query 
+    timeout   = 2000, -- only for online backend query
 }
 
 if Trans.conf.frontend.default then
     default_frontend = vim.tbl_extend('force', default_frontend, Trans.conf.frontend.default)
 end
 
+local function empty_method(method)
+    return function() error('Method [' .. method .. '] not implemented') end
+end
+
 
 ---@class TransFrontend
 ---@field opts? TransFrontendOpts options which user can set
 ---@field get_active_instance fun():TransFrontend?
----@field process fun(self: TransFrontend, data: TransData) @render backend result
 ---@field wait fun(self: TransFrontend): fun(backend: TransBackend): boolean Update wait status
 ---@field execute fun(action: string) @Execute action for frontend instance
----@field fallback fun() @Fallback method when no result
 ---@field setup? fun() @Setup method for frontend [optional] **NOTE: This method will be called when frontend is first used**
+local M = {
+    ---@type fun() @Fallback method when no result
+    fallback = empty_method 'fallback',
+    ---@type fun(self: TransFrontend, data: TransData) @render backend result
+    process = empty_method 'process',
+}
+
+
+
+
 
 ---@class Trans
 ---@field frontend TransFrontend
-return setmetatable({}, {
+return setmetatable(M, {
     __index = function(self, name)
         ---@type TransFrontend
         local frontend = require('Trans.frontend.' .. name)
