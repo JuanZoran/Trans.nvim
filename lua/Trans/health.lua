@@ -57,7 +57,7 @@ local function check_binary_dependencies()
 end
 
 local function check_database()
-    local db_path = Trans.conf.dir .. Trans.separator .. 'ultimate.db'
+    local db_path = Trans.conf.dir .. '/ultimate.db'
     if fn.filereadable(db_path) == 1 then
         ok [[ultimate database found ]]
     else
@@ -69,7 +69,7 @@ local function check_database()
 end
 
 local function check_configure_file()
-    local path = fn.expand(Trans.conf.dir .. Trans.separator .. 'Trans.json')
+    local path = fn.expand(Trans.conf.dir .. '/Trans.json')
     if not fn.filereadable(path) then
         warn 'Backend configuration file[%s] not found'
     end

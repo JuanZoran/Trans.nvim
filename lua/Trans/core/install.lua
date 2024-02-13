@@ -5,7 +5,7 @@ return function()
     local fn = vim.fn
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
-    local path = dir .. 'ultimate.db'
+    local path = dir .. '/ultimate.db'
 
     if fn.isdirectory(dir) == 0 then
         fn.mkdir(dir, 'p')
@@ -18,7 +18,7 @@ return function()
 
     -- INFO :Download ultimate.db
     local uri = 'https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdict-ultimate-sqlite.zip'
-    local zip = dir .. 'ultimate.zip'
+    local zip = dir .. '/ultimate.zip'
     local continue = fn.filereadable(zip) == 1
     local handle = function(output)
         if output.exit == 0 and fn.filereadable(zip) then
