@@ -25,29 +25,18 @@ local system =
     uname == 'Linux' and (vim.fn.executable 'termux-api-start' == 1 and 'termux' or 'linux') or
     error 'Unknown System, Please Report Issue'
 
-local sep = system == 'win' and '\\\\' or '/'
 ---@class Trans
 ---@field style table @Style module
 ---@field cache table<string, TransData> @Cache for translated data object
 ---@field plugin_dir string @Plugin directory
----@field separator string @Path separator
----@field system 'mac'|'win'|'termux'|'linux' @Path separator
+---@field system 'mac'|'win'|'termux'|'linux' @Operating system
 local M = metatable('core', {
     cache      = {},
     style      = metatable 'style',
-    separator  = sep,
     system     = system,
-    plugin_dir = debug.getinfo(1, 'S').source:sub(2):match('(.-)lua' .. sep .. 'Trans'),
+    plugin_dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':p:h:h:h'),
 })
 
 M.metatable = metatable
-
----Get abs_path of file
----@param path string[]
----@param is_dir boolean?
----@return string
-function M.relative_path(path, is_dir)
-    return M.plugin_dir .. table.concat(path, sep) .. (is_dir and sep or '')
-end
 
 return M

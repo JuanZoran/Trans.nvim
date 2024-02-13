@@ -5,7 +5,7 @@ return function()
     local fn = vim.fn
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
-    local path = dir .. 'ultimate.db'
+    local path = dir .. '/ultimate.db'
 
     if fn.isdirectory(dir) == 0 then
         fn.mkdir(dir, 'p')
@@ -18,16 +18,15 @@ return function()
 
     -- INFO :Download ultimate.db
     local uri = 'https://github.com/skywind3000/ECDICT-ultimate/releases/download/1.0.0/ecdict-ultimate-sqlite.zip'
-    local zip = dir .. 'ultimate.zip'
+    local zip = dir .. '/ultimate.zip'
     local continue = fn.filereadable(zip) == 1
     local handle = function(output)
         if output.exit == 0 and fn.filereadable(zip) then
-            if fn.executable 'unzip' == 0 then
-                vim.notify('unzip not found, Please unzip ' .. zip .. 'manually', vim.log.ERROR)
-                return
-            end
-
-            local cmd = string.format('unzip %s -d %s', zip, dir)
+            local cmd =
+                Trans.system == 'win' and
+                string.format('powershell.exe -Command "Expand-Archive -Force %s %s"', zip, dir) or
+                fn.executable('unzip') == 1 and string.format('unzip %s -d %s', zip, dir) or
+                error('unzip not found, Please unzip ' .. zip .. ' manually')
             local status = os.execute(cmd)
             os.remove(zip)
             if status == 0 then

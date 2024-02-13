@@ -1,7 +1,7 @@
 local Trans   = require 'Trans'
 
 local db      = require 'sqlite.db'
-local path    = Trans.conf.dir .. Trans.separator .. 'ultimate.db'
+local path    = Trans.conf.dir .. '/ultimate.db'
 local dict    = db:open(path)
 local db_name = 'stardict'
 vim.api.nvim_create_autocmd('VimLeavePre', {
