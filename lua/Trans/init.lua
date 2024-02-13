@@ -42,12 +42,4 @@ local M = metatable('core', {
 
 M.metatable = metatable
 
----Get abs_path of file
----@param path string[]
----@param is_dir boolean?
----@return string
-function M.relative_path(path, is_dir)
-    return M.plugin_dir .. table.concat(path, sep) .. (is_dir and sep or '')
-end
-
 return M
