@@ -150,4 +150,53 @@ return {
             link = 'MoreMsg'
         },
     },
+    catppuccin = {
+        TransWord = {
+            fg = '#a6d189',
+            bold = true,
+        },
+        TransPhonetic = {
+            link = 'Comment',
+        },
+        TransTitle = {
+            fg = '#303446',
+            bg = '#babbf1',
+            bold = true,
+        },
+        TransTitleRound = {
+            fg = '#babbf1',
+        },
+        TransTag = {
+            fg = '#e5c890',
+        },
+        TransExchange = {
+            link = 'TransTag',
+        },
+        TransPos = {
+            link = 'TransTag',
+        },
+        TransTranslation = {
+            link = 'TransWord',
+        },
+        TransDefinition = {
+            fg = '#f2d5cf',
+        },
+        TransWin = {
+            link = 'Normal',
+        },
+        TransBorder = {
+            fg = '#babbf1',
+        },
+        TransCollins = {
+            fg = '#eebebe',
+            bold = true,
+        },
+        TransFailed = {
+            fg = '#ea999c',
+        },
+        TransWaitting = {
+            link = 'MoreMsg'
+        },
+    },
+
 }
