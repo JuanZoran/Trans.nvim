@@ -85,8 +85,8 @@ https://user-images.githubusercontent.com/107862700/226176106-c2962dd3-d66c-499c
 _安装之前, 首先需要明确本插件的依赖:_
 
 -   [ECDICT](https://github.com/skywind3000/ECDICT): 插件所用的离线单词数据库
--   [sqlite.lua](https://github.com/kkharji/sqlite.lua): 操作数据库所用的库
 -   sqlite3: 数据库
+-   `espeak` (仅 Linux auto_play)
 
 <details>
     <summary>Packer.nvim</summary>
@@ -95,7 +95,6 @@ _安装之前, 首先需要明确本插件的依赖:_
 use {
     'JuanZoran/Trans.nvim'
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
-    requires =  'kkharji/sqlite.lua', ,
     -- 如果你不需要任何配置的话, 可以直接按照下面的方式启动
     config = function ()
         require'Trans'.setup{
@@ -116,7 +115,6 @@ use {
         { 'n', 'mi' },
     },
     run = function() require('Trans').install() end, -- 自动下载使用的本地词库
-    requires = { 'kkharji/sqlite.lua',  },
     config = function()
         require("Trans").setup {
             -- your configuration here
@@ -144,7 +142,6 @@ use {
             -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
             { 'mi', '<Cmd>TranslateInput<CR>', desc = ' Translate From Input' },
         },
-        dependencies = { 'kkharji/sqlite.lua', },
         opts = {
             -- your configuration there
         }
@@ -166,12 +163,11 @@ use {
 
 -   **`auto_play`** 的使用:
 
-    -   `Linux` 需要安装`festival`
+    -   `Linux` 需要安装`espeak`
 
-        > `sudo apt-get install festival festvox-kallpc16k`
+        > `sudo apt-get install espeak`
 
-        **如果你想要设置音色，发音可以访问:** [Festival 官方](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html)  
-        可以选择英音、美音、男声、女声
+        **可以通过参数改变语音，例如:** `espeak -v en+f3 'text'`
 
     -   `Termux` 需要安装`termux-api`
 
@@ -184,53 +180,7 @@ use {
 
 -   `title`的配置，只对`neovim 0.9+`版本有效
 
-<details>
-    <summary>Festival配置(仅针对linux用户)</summary>
-- 配置文件
-    - 全局配置: `/usr/share/festival/siteinit.scm`
-    - 用户配置: `~/.festivalrc`
-
--   更改声音
-
-    -   在 festival 的 voices 文件内建立自己的文件夹
-
-        > 一般其默认配置目录在`/usr/share/festival/voices`
-
-        示例:
-
-        > `sudo mkdir /usr/share/festival/voices/my_voices`
-
-    -   下载想要的 voices 文件并解压
-
-        > 可能需要 
-
-        -   试听[在这里](https://www.cstr.ed.ac.uk/projects/festival/morevoices.html))
-        -   下载[在这里](http://festvox.org/packed/festival/2.5/voices/))
-            > 假设下载的文件在`Downloads`文件夹, 下载的文件为:`festvox_cmu_us_aew_cg.tar.gz`
-
-        示例:
-
-        > `cd ~/Downloads && tar -xf festvox_cmu_us_aew_cg.tar.gz`
-
-    -   将音频文件拷贝到 festival 文件夹
-        示例:
-
-        > `sudo cp -r festival/lib/voices/us/cmu_us_aew_cg/ /usr/share/festival/voices/my_voices/`
-
-    -   在配置文件中设置默认的声音
-        示例:
-
-        > 加入`(set! voice_default voice_cmu_indic_hin_ab_cg)`到配置文件
-
-    -   安装完成
-
--   相关说明网站
-    > 可能需要 
-    -   [wiki](https://archlinux.org/packages/community/any/festival-us/) 查看更多详细配置
-    -   [官方网站](http://festvox.org/dbs/index.html)
-    -   [用户手册](http://www.festvox.org/docs/manual-2.4.0/festival_toc.html)
-
-</details>
+<!-- festival instructions retired; espeak used instead -->
 
 ## 配置
 
@@ -450,7 +400,6 @@ TransWeb = {
 ## 感谢
 
 -   [ECDICT](https://github.com/skywind3000/ECDICT) 本地词典的提供
--   [sqlite.lua](https://github.com/kharji/sqlite.lua) 数据库访问
 -   [T.vim](https://github.com/sicong-li/T.vim) 灵感来源
 
 ## 贡献

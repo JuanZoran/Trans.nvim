@@ -28,7 +28,7 @@ local f =
     'powershell.exe -Command "Add-Type -AssemblyName System.speech;(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\\\"%s\\\")"' or
     system == 'mac' and 'say %q' or
     system == 'termux' and 'termux-tts-speak %q' or
-    system == 'linux' and 'echo %q | festival --tts' or
+    system == 'linux' and 'espeak %q' or
     error 'Unsupported system'
 
 

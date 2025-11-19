@@ -2,7 +2,6 @@ local Trans = require 'Trans'
 local api = vim.api
 local uv = vim.loop
 local fn = vim.fn
-
 local function current_offline_conf()
     local conf = Trans.conf.offline or {}
     return {
@@ -47,6 +46,19 @@ local function path_join(dir, name, sep)
     return dir .. sep .. name
 end
 
+local columns = {
+    'word',
+    'phonetic',
+    'definition',
+    'translation',
+    'pos',
+    'collins',
+    'oxford',
+    'tag',
+    'exchange',
+}
+local sep = '\x1f'
+
 local function ensure_dict()
     if dict_path then
         return dict_path
@@ -67,35 +79,7 @@ local function ensure_dict()
     return dict_path
 end
 
-local function ensure_query_row(word, db_path, offline_conf)
-    local columns = {
-        'word',
-        'phonetic',
-        'definition',
-        'translation',
-        'pos',
-        'collins',
-        'oxford',
-        'tag',
-        'exchange',
-    }
-    local sep = '\x1f'
-    local raw_sql = string.format(
-        'SELECT %s FROM %s WHERE word = %s LIMIT 1',
-        table.concat(columns, ','),
-        offline_conf.db_name,
-        fn.shellescape(word)
-    )
-    local args = { 'sqlite3', '-separator', sep, db_path, raw_sql }
-    local raw_lines = fn.systemlist(args)
-    if vim.v.shell_error ~= 0 then
-        local raw = table.concat(raw_lines, '\n')
-        load_error = 'cli_query_failed'
-        trace_debug('sqlite3 failed: ' .. raw)
-        return nil
-    end
-
-    local raw = table.concat(raw_lines, '\n')
+local function parse_cli_row(raw)
     raw = raw:gsub('[\r\n]+$', '')
     if raw == '' then
         return nil
@@ -118,7 +102,33 @@ local function ensure_query_row(word, db_path, offline_conf)
     for i, key in ipairs(columns) do
         row[key] = fields[i] or ''
     end
+
     return row
+end
+
+local function query_row_with_cli(data, word, db_path, offline_conf)
+    local raw_sql = string.format(
+        'SELECT %s FROM %s WHERE word = %s LIMIT 1',
+        table.concat(columns, ','),
+        offline_conf.db_name,
+        fn.shellescape(word)
+    )
+    local args = { 'sqlite3', '-separator', sep, db_path, raw_sql }
+    local start = uv and uv.hrtime()
+    local raw_lines = fn.systemlist(args)
+    if start and uv then
+        local duration_ms = (uv.hrtime() - start) / 1e6
+        data.trace.offline_query_ms = duration_ms
+    end
+    if vim.v.shell_error ~= 0 then
+        local raw = table.concat(raw_lines, '\n')
+        load_error = 'cli_query_failed'
+        trace_debug('sqlite3 failed: ' .. raw)
+        return nil
+    end
+
+    local raw = table.concat(raw_lines, '\n')
+    return parse_cli_row(raw)
 end
 
 local function split_lines(text)
@@ -262,8 +272,9 @@ function M.query(data)
     end
 
     local offline_conf = current_offline_conf()
-    local row = ensure_query_row(data.str, db_path, offline_conf)
+    local row = query_row_with_cli(data, data.str, db_path, offline_conf)
     if not row then
+        data.trace.offline = load_error
         data.result.offline = false
         return
     end

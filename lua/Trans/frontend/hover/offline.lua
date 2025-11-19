@@ -25,6 +25,11 @@ function M.title(hover, result)
     local collins  = title.collins
     local phonetic = title.phonetic
 
+    local collins_display =
+        (collins and tonumber(collins)) and icon.star:rep(tonumber(collins))
+        or collins and collins
+        or icon.notfound
+
     hover.buffer:setline(f {
         it { word, 'TransWord' },
         t {
@@ -33,7 +38,7 @@ function M.title(hover, result)
             it { ']' },
         },
 
-        it { collins and icon.star:rep(collins) or icon.notfound, 'TransCollins' },
+        it { collins_display, 'TransCollins' },
         it { oxford == 1 and icon.yes or icon.no },
 
         width = hover.opts.width,

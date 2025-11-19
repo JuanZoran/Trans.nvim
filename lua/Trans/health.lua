@@ -18,10 +18,7 @@ local function check_neovim_version()
 end
 
 local function check_plugin_dependencies()
-    local plugin_dependencies = {
-        -- 'plenary',
-        'sqlite',
-    }
+    local plugin_dependencies = {}
 
     for _, dep in ipairs(plugin_dependencies) do
         if pcall(require, dep) then
@@ -39,9 +36,9 @@ local function check_binary_dependencies()
     }
 
     binary_dependencies[3] = ({
-        win    = 'node',
+        win    = 'powershell.exe',
         mac    = 'say',
-        linux  = 'festival',
+        linux  = 'espeak',
         termux = 'termux-tts-speak',
     })[Trans.system]
 
