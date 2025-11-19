@@ -33,6 +33,19 @@ function M.new(opts)
     opts.frontend = Trans.frontend[strategy.frontend].new()
     opts.backends = {}
 
+    local backend_list = strategy.backend
+    if backend_list then
+        if type(backend_list) ~= 'table' then
+            backend_list = { backend_list }
+        end
+
+        for _, name in ipairs(backend_list) do
+            if name then
+                opts.backends[#opts.backends + 1] = Trans.backend[name]
+            end
+        end
+    end
+
     return opts
 end
 

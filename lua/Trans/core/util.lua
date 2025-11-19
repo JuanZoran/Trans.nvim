@@ -161,11 +161,16 @@ function M.split_to_paragraphs(lines, opts)
     local paragraph = {}
     for _, line in ipairs(lines) do
         if line == '' then
-            paragraphs[#paragraphs + 1] = paragraph
-            paragraph = {}
+            if #paragraph > 0 then
+                paragraphs[#paragraphs + 1] = paragraph
+                paragraph = {}
+            end
         else
             paragraph[#paragraph + 1] = line
         end
+    end
+    if #paragraph > 0 then
+        paragraphs[#paragraphs + 1] = paragraph
     end
     return paragraphs
 end

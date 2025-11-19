@@ -90,3 +90,37 @@ describe('util.is_word', function()
         end
     end)
 end)
+
+describe('util.split_to_paragraphs', function()
+    it('splits lines by empty separator', function()
+        local lines = {
+            'first line',
+            'second line',
+            '',
+            'third line',
+            '',
+            '',
+            'fourth line',
+        }
+
+        local paragraphs = util.split_to_paragraphs(lines)
+        assert.are.same({
+            { 'first line', 'second line' },
+            { 'third line' },
+            { 'fourth line' },
+        }, paragraphs)
+    end)
+end)
+
+describe('node.format', function()
+    it('joins nodes with calculated spacing', function()
+        local formatted = f {
+            i { 'foo' },
+            i { 'bar' },
+            width = 10,
+            spin = '-',
+        }
+
+        assert.are.equal('foo----bar', formatted[1])
+    end)
+end)

@@ -1,0 +1,23 @@
+{
+  "Lua": {
+    "runtime": {
+      "version": "LuaJIT",
+      "path": [
+        "?.lua",
+        "?/init.lua",
+        "?/?.lua"
+      ]
+    },
+    "diagnostics": {
+      "globals": [
+        "vim",
+        "Trans"
+      ]
+    },
+    "workspace": {
+      "library": [
+        "lua"
+      ]
+    }
+  }
+}

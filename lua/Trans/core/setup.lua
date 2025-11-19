@@ -21,7 +21,7 @@ Trans.conf = {
     -- visual = {
     -- ...
     strategy = vim.defaulttable(function()
-        return setmetatable({}, default_strategy)
+        return vim.tbl_extend('force', {}, default_strategy)
     end),
     frontend = {},
 }
