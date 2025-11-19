@@ -1,24 +1,29 @@
 jobs:
   run_tests:
     name: unit tests
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - run: date +%F > todays-date
-      - name: Restore cache for today's nightly.
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y curl unzip sqlite3 espeak
+      - name: Cache neovim build
+        id: cache
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ matrix.rev }}-${{ hashFiles('todays-date') }}
+          key: neovim-${{ matrix.rev }}
           path: _neovim
-      - name: Prepare
+      - name: Download neovim
         run: |
           test -d _neovim || {
             mkdir -p _neovim
             curl -sL "https://github.com/neovim/neovim/releases/download/${{ matrix.rev }}" | tar xzf - --strip-components=1 -C "${PWD}/_neovim"
           }
+      - name: Prepare runtime
+        run: |
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
-          ln -s $(pwd) ~/.local/share/nvim/site/pack/vendor/start
+          ln -sfn $(pwd) ~/.local/share/nvim/site/pack/vendor/start
       - name: Run tests
         run: |
           export PATH="${PWD}/_neovim/bin:${PATH}"
@@ -29,23 +34,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            rev: nightly/nvim-linux64.tar.gz
-          - os: ubuntu-22.04
-            rev: v0.7.2/nvim-linux64.tar.gz
-          - os: ubuntu-22.04
-            rev: v0.8.2/nvim-linux64.tar.gz
+          - rev: nightly/nvim-linux64.tar.gz
+          - rev: v0.10.0/nvim-linux64.tar.gz
+          - rev: v0.9.3/nvim-linux64.tar.gz
 name: Test
 on:
   pull_request:
     paths:
       - "lua/**"
       - "plugin/**"
-      - "script/*"
+      - "scripts/**"
       - "makefile"
+      - ".github/workflows/**"
   push:
     paths:
       - "lua/**"
       - "plugin/**"
-      - "script/*"
+      - "scripts/**"
       - "makefile"
