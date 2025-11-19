@@ -1,6 +1,7 @@
 ---@type Trans
 local Trans = require 'Trans'
 local util = Trans.util
+local ui = Trans.style.ui
 
 -- FIXME :Adjust Window Size
 
@@ -22,7 +23,7 @@ local M = Trans.metatable('frontend.hover', {
         ---@type integer Max Height of Hover Window
         height            = 27,
         ---@type string -- see: /lua/Trans/style/spinner
-        spinner           = 'dots',
+        spinner           = ui.hover.spinner,
         ---@type string
         fallback_message  = '{{notfound}} {{error_message}}',
         auto_resize       = true,
@@ -63,21 +64,7 @@ local M = Trans.metatable('frontend.hover', {
                 'web',
             },
         },
-        icon              = {
-            -- or use emoji
-            list        = '●', -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
-            star        = '', -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
-            notfound    = ' ', --❔ | ❓ | ❗ | ❕|
-            yes         = '✔', -- ✅ | ✔️ | ☑
-            no          = '', -- ❌ | ❎ | ✖ | ✘ | ✗ |
-            cell        = '■', -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉
-            web         = '󰖟', --🌍 | 🌎 | 🌏 | 🌐 |
-            tag         = '',
-            pos         = '',
-            exchange    = '',
-            definition  = '󰗊',
-            translation = '󰊿',
-        },
+        icon              = ui.hover.icon,
     },
 })
 M.__index = M

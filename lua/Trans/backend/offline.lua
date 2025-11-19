@@ -1,17 +1,16 @@
 local Trans = require 'Trans'
-local db = require 'sqlite.db'
+local api = vim.api
+local uv = vim.loop
+local fn = vim.fn
 
-local path = Trans.conf.dir .. Trans.separator .. 'ultimate.db'
-local dict = db:open(path)
-local db_name = 'stardict'
-
-vim.api.nvim_create_autocmd('VimLeavePre', {
-    callback = function()
-        if db:isopen() then
-            db:close()
-        end
-    end,
-})
+local function current_offline_conf()
+    local conf = Trans.conf.offline or {}
+    return {
+        filename = conf.filename or 'ultimate.db',
+        db_name = conf.db_name or 'stardict',
+        debug = conf.debug == true,
+    }
+end
 
 ---@class TransOfflineBackend
 local M = {
@@ -19,6 +18,125 @@ local M = {
     name_zh = '本地',
     no_wait = true,
 }
+
+local dict_path
+local load_error
+local notify = vim.notify
+
+local function trace_debug(msg)
+    if not msg then
+        return
+    end
+    local offline_conf = current_offline_conf()
+    if not offline_conf.debug then
+        return
+    end
+    vim.schedule(function()
+        notify('[Trans offline] ' .. msg, vim.log.levels.INFO)
+    end)
+end
+
+local function path_join(dir, name, sep)
+    if not dir then
+        return name
+    end
+    sep = sep or Trans.separator
+    if dir:sub(-1) == sep then
+        return dir .. name
+    end
+    return dir .. sep .. name
+end
+
+local function ensure_dict()
+    if dict_path then
+        return dict_path
+    end
+
+    load_error = nil
+    local base_dir = Trans.conf.dir
+    local offline_conf = current_offline_conf()
+    local candidate = path_join(base_dir, offline_conf.filename)
+    if not uv.fs_stat(candidate) then
+        load_error = 'missing_dictionary'
+        trace_debug('dictionary missing at ' .. candidate)
+        return nil
+    end
+
+    dict_path = candidate
+    trace_debug('dictionary ready: ' .. dict_path)
+    return dict_path
+end
+
+local function ensure_query_row(word, db_path, offline_conf)
+    local columns = {
+        'word',
+        'phonetic',
+        'definition',
+        'translation',
+        'pos',
+        'collins',
+        'oxford',
+        'tag',
+        'exchange',
+    }
+    local sep = '\x1f'
+    local raw_sql = string.format(
+        'SELECT %s FROM %s WHERE word = %s LIMIT 1',
+        table.concat(columns, ','),
+        offline_conf.db_name,
+        fn.shellescape(word)
+    )
+    local args = { 'sqlite3', '-separator', sep, db_path, raw_sql }
+    local raw_lines = fn.systemlist(args)
+    if vim.v.shell_error ~= 0 then
+        local raw = table.concat(raw_lines, '\n')
+        load_error = 'cli_query_failed'
+        trace_debug('sqlite3 failed: ' .. raw)
+        return nil
+    end
+
+    local raw = table.concat(raw_lines, '\n')
+    raw = raw:gsub('[\r\n]+$', '')
+    if raw == '' then
+        return nil
+    end
+
+    local fields = {}
+    local last = 1
+    for i = 1, #columns - 1 do
+        local idx = raw:find(sep, last, true)
+        if not idx then
+            trace_debug('unexpected sqlite3 output: ' .. raw)
+            return nil
+        end
+        fields[i] = raw:sub(last, idx - 1)
+        last = idx + 1
+    end
+    fields[#columns] = raw:sub(last)
+
+    local row = {}
+    for i, key in ipairs(columns) do
+        row[key] = fields[i] or ''
+    end
+    return row
+end
+
+local function split_lines(text)
+    if not text or text == '' then
+        return nil
+    end
+
+    local lines = {}
+    for line in text:gmatch('([^\n]*)\n?') do
+        if line == '' and #lines == 0 then
+            -- skip leading empty
+        else
+            lines[#lines + 1] = line
+        end
+    end
+
+    return #lines > 0 and lines or nil
+end
 
 local function exist(str)
     return str and str ~= ''
@@ -111,65 +229,46 @@ local formatter = {
             d = '限定词determiner ',
         }
 
-            local pos = {}
-            for _, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
-                local key = _pos:sub(1, 1)
-                local name = pos_map[key]
-                if name then
-                    pos[name] = ('%2s%%'):format(_pos:sub(3))
-                end
+        local pos = {}
+        for _, _pos in ipairs(vim.split(res.pos, '/', { plain = true })) do
+            local key = _pos:sub(1, 1)
+            local name = pos_map[key]
+            if name then
+                pos[name] = ('%2s%%'):format(_pos:sub(3))
             end
+        end
 
         return pos
     end,
     translation = function(res)
-        if not exist(res.translation) then
-            return
-        end
-        local translation = {}
-        for i, _translation in ipairs(vim.split(res.translation, '\n', { plain = true })) do
-            translation[i] = _translation
-        end
-
-        return translation
+        return split_lines(res.translation)
     end,
     definition = function(res)
-        if not exist(res.definition) then
-            return
-        end
-        local definition = {}
-        for i, _definition in ipairs(vim.split(res.definition, '\n', { plain = true })) do
-            definition[i] = _definition:gsub('^%s+', '', 1)
-        end
-
-        return definition
+        return split_lines(res.definition)
     end,
 }
 
----@class TransOfflineBackend
 ---@field query fun(data: TransData)
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then
         return
     end
 
-    local res = dict:select(db_name, {
-        where = { word = data.str },
-        keys = {
-            'word',
-            'phonetic',
-            'definition',
-            'translation',
-            'pos',
-            'collins',
-            'oxford',
-            'tag',
-            'exchange',
-        },
-        limit = 1,
-    })[1]
+    local db_path = ensure_dict()
+    if not db_path then
+        data.trace.offline = load_error
+        data.result.offline = false
+        return
+    end
 
-    data.result.offline = res and M.formatter(res) or false
+    local offline_conf = current_offline_conf()
+    local row = ensure_query_row(data.str, db_path, offline_conf)
+    if not row then
+        data.result.offline = false
+        return
+    end
+
+    data.result.offline = M.formatter(row)
 end
 
 function M.formatter(res)

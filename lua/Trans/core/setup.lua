@@ -24,6 +24,10 @@ Trans.conf = {
         return vim.tbl_extend('force', {}, default_strategy)
     end),
     frontend = {},
+    offline = {
+        filename = 'ultimate.db',
+        db_name = 'stardict',
+    },
 }
 
 

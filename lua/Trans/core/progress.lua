@@ -12,7 +12,8 @@
 local Trans = require 'Trans'
 local buffer = Trans.buffer
 local window = Trans.window
-local spinners = Trans.style.spinner
+local ui = Trans.style.ui
+local spinners = ui.spinner
 local uv = vim.loop
 local progress_util = require 'Trans.core.progress_util'
 
@@ -37,16 +38,17 @@ local function layout(opts)
     return width, col
 end
 
+local progress_theme = ui.progress
 local default_opts = {
-    width = 40,
-    height = 4,
+    width = progress_theme.width,
+    height = progress_theme.height,
     row = 1,
     col = nil,
     zindex = 300,
-    border = 'rounded',
+    border = progress_theme.border,
     message = 'Downloading dictionary...',
     life = 1200,
-    spinner = 'dots',
+    spinner = progress_theme.spinner,
     interval = 80,
 }
 

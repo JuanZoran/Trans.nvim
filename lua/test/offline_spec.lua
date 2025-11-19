@@ -2,25 +2,14 @@ require 'test.setup'
 
 local Trans = require 'Trans'
 local fn = vim.fn
+local uv = vim.loop
 
 describe('offline backend', function()
-local backend
-local tmp_dir
-local dict_stub
-local original_separator
-local original_dir
-
-    local sample_row = {
-        word = 'theme',
-        phonetic = 'θiːm',
-        collins = 'B',
-        oxford = 'Oxford 3000',
-        definition = 'n. a subject\nadj. shimmering soft',
-        translation = '主题\n主旋律',
-        pos = 'n/100',
-        tag = 'gk cet6',
-        exchange = 's/themes',
-    }
+    local tmp_dir
+    local backend
+    local original_dir
+    local original_separator
+    local original_system
 
     local function prepare_backend()
         tmp_dir = fn.tempname()
@@ -31,32 +20,48 @@ local original_dir
         original_separator = Trans.separator
         Trans.separator = '/'
 
-        dict_stub = {
-            select = function(_, _)
-                return { vim.deepcopy(sample_row) }
-            end,
+        Trans.conf.offline = {
+            filename = 'ultimate.db',
+            db_name = 'stardict',
         }
 
-        package.preload['sqlite.db'] = function()
-            return {
-                open = function()
-                    return dict_stub
-                end,
-            }
+        local db_path = tmp_dir .. '/ultimate.db'
+        fn.writefile({ '' }, db_path)
+
+        original_system = fn.system
+        fn.system = function(cmd)
+            vim.v.shell_error = 0
+            return table.concat({
+                'theme',
+                '\x1f',
+                'θiːm',
+                '\x1f',
+                'n. a subject',
+                '\nadj. shimmering soft',
+                '\x1f',
+                '主题',
+                '\n主旋律',
+                '\x1f',
+                'n/100',
+                '\x1f',
+                'B',
+                '\x1f',
+                'Oxford 3000',
+                '\x1f',
+                'gk cet6',
+                '\x1f',
+                's/themes',
+            })
         end
 
-        package.loaded['sqlite.db'] = nil
         package.loaded['Trans.backend.offline'] = nil
         backend = require 'Trans.backend.offline'
     end
 
-    before_each(function()
-        prepare_backend()
-    end)
-
     after_each(function()
-        package.preload['sqlite.db'] = nil
-        package.loaded['sqlite.db'] = nil
+        if original_system then
+            fn.system = original_system
+        end
         package.loaded['Trans.backend.offline'] = nil
         if original_separator then
             Trans.separator = original_separator
@@ -69,7 +74,9 @@ local original_dir
         end
     end)
 
-    it('formats query results', function()
+    it('formats query results via sqlite CLI', function()
+        prepare_backend()
+
         local data = {
             str = 'theme',
             from = 'en',

@@ -22,6 +22,15 @@ local function fetch_total_size(uri, fn)
     end
 end
 
+local function path_join(dir, name, sep)
+    if not dir then return name end
+    sep = sep or '/'
+    if dir:sub(-1) == sep then
+        return dir .. name
+    end
+    return dir .. sep .. name
+end
+
 return function()
     local Trans = require 'Trans'
     local fn = vim.fn
@@ -29,8 +38,13 @@ return function()
 
     -- INFO :Check ultimate.db exists
     local dir = Trans.conf.dir
-    local path = dir .. 'ultimate.db'
-    local zip = dir .. 'ultimate.zip'
+    local offline_conf = Trans.conf.offline or {}
+    local join = function(name)
+        return path_join(dir, name, Trans.separator)
+    end
+
+    local path = join(offline_conf.filename or 'ultimate.db')
+    local zip = join('ultimate.zip')
 
     if fn.isdirectory(dir) == 0 then
         fn.mkdir(dir, 'p')
@@ -95,6 +109,11 @@ return function()
 
             if status == 0 then
                 local message = '词库安装成功'
+                local version_file = offline_conf.version_file or 'ultimate.version'
+                local version_value = offline_conf.version
+                if version_value then
+                    fn.writefile({ version_value }, join(version_file))
+                end
                 finish_progress(true, message)
                 vim.notify('Download database successfully', vim.log.INFO)
                 return
