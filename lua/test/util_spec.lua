@@ -90,3 +90,11 @@ describe('util.is_word', function()
         end
     end)
 end)
+
+describe('util.replace_chinese_punctuation', function()
+    it('replaces Chinese punctuation with English punctuation', function()
+        local input = '你好，世界。欢迎！你在这里吗？'
+        local expected = '你好,世界.欢迎!你在这里吗?'
+        assert.are.equal(expected, util.replace_chinese_punctuation(input))
+    end)
+end)

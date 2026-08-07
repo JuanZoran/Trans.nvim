@@ -3,6 +3,23 @@ local fn, api = vim.fn, vim.api
 ---@class TransUtil
 local M = require 'Trans'.metatable 'util'
 
+---Replace full-width Chinese punctuation with English punctuation
+---@param str string The input text containing Chinese punctuation
+---@return string The processed text with replaced punctuation
+function M.replace_chinese_punctuation(str)
+    local replacements = {
+        ['，'] = ',', -- Full-width comma to half-width comma
+        ['。'] = '.', -- Full-width period to half-width period
+        ['！'] = '!', -- Full-width exclamation to half-width
+        ['？'] = '?', -- Full-width question to half-width
+    }
+
+    for k, v in pairs(replacements) do
+        str = str:gsub(k, v)
+    end
+    return str
+end
+
 ---Get the range of visual modes
 ---@return table
 function M.get_range()

@@ -142,3 +142,17 @@ describe('buffer:lines()', with_buffer(function(buffer)
         assert.are.equal(lines[2], 'line 3')
     end)
 end))
+
+describe('buffer:process_chinese_punctuation()', with_buffer(function(buffer)
+    before_each(function()
+        buffer:wipe()
+    end)
+
+    it('replaces Chinese punctuation in buffer lines', function()
+        buffer[1] = '你好，世界。'
+        buffer[2] = '欢迎！你在这里吗？'
+        buffer:process_chinese_punctuation()
+        assert.are.equal(buffer[1], '你好,世界.')
+        assert.are.equal(buffer[2], '欢迎!你在这里吗?')
+    end)
+end))
