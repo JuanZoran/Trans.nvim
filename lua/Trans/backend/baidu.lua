@@ -27,6 +27,11 @@ local Trans = require 'Trans'
 ---@param data TransData
 ---@return BaiduQuery
 function M.get_query(data)
+    if not M.app_id or not M.app_passwd then
+        vim.notify('百度翻译未配置 API 密钥 (Trans.json)', vim.log.levels.WARN)
+        return nil
+    end
+
     local tmp  = M.app_id .. data.str .. M.salt .. M.app_passwd
     local sign = Trans.util.md5.sumhexa(tmp)
 

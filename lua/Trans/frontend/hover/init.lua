@@ -156,8 +156,13 @@ function M:fallback()
     buffer:wipe()
     buffer[1] = util.center(fallback_msg, opts.width)
     buffer:add_highlight(1, 'TransFailed')
-    if not self.window then
+    if not self.window or not self.window:is_valid() then
         self:init_window {
+            height = buffer:line_count(),
+            width = self.opts.width,
+        }
+    else
+        self.window:resize {
             height = buffer:line_count(),
             width = self.opts.width,
         }

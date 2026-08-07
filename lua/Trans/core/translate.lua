@@ -13,19 +13,30 @@ end
 ---@param data TransData @data
 ---@param backend TransOnlineBackend @backend
 local function do_query(data, backend)
-    -- TODO : template method for online query
     local name      = backend.name
     local uri       = backend.uri
     local method    = backend.method
     local formatter = backend.formatter
-    local query     = backend.get_query(data)
-    local header    = type(backend.header) == 'function' and backend.header(data) or backend.header
+
+    local q_ok, query = pcall(backend.get_query, data)
+    if not q_ok or not query then
+        data.result[name] = false
+        return
+    end
+
+    local header
+    if backend.header then
+        local h_ok, h_res = pcall(function()
+            return type(backend.header) == 'function' and backend.header(data) or backend.header
+        end)
+        header = h_ok and h_res or nil
+    end
 
     local function handle(output)
         local status, body = pcall(vim.json.decode, output.body)
         if not status or not body then
             if not Trans.conf.debug then
-                backend.debug(body)
+                if backend.debug then pcall(backend.debug, body) end
                 data.trace[name] = output
             end
 
@@ -33,16 +44,21 @@ local function do_query(data, backend)
             return
         end
 
-        -- vim.print(data.result[name])
-        data.result[name] = formatter(body, data)
+        local f_ok, res = pcall(formatter, body, data)
+        data.result[name] = f_ok and res or false
     end
 
-    Trans.curl[method](uri, {
-        query = query,
-        callback = handle,
-        header = header,
-    })
-    -- Hook ?
+    local c_ok = pcall(function()
+        Trans.curl[method](uri, {
+            query = query,
+            callback = handle,
+            header = header,
+        })
+    end)
+
+    if not c_ok then
+        data.result[name] = false
+    end
 end
 
 ---@type table<string, fun(data: TransData):boolean>
