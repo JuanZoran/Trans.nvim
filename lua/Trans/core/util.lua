@@ -132,9 +132,11 @@ end
 ---@param str string
 ---@return boolean
 function M.is_english(str)
-    local char = { str:byte(1, -1) }
-    for i = 1, #str do
-        if char[i] > 128 then
+    local len = vim.fn.strchars(str)
+    for i = 0, len - 1 do
+        local c = vim.fn.strgetchar(str, i)
+        -- CJK Unified Ideographs range: 0x4E00 - 0x9FFF, 0x3400 - 0x4DBF, 0x20000 - 0x323AF
+        if (c >= 0x4E00 and c <= 0x9FFF) or (c >= 0x3400 and c <= 0x4DBF) or (c >= 0x20000 and c <= 0x323AF) then
             return false
         end
     end

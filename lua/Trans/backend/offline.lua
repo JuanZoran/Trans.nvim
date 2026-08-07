@@ -22,6 +22,7 @@ local M = {
 ---@overload fun(TransData): TransResult
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then
+        data.result.offline = false
         return
     end
 

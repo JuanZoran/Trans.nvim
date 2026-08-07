@@ -213,7 +213,18 @@ function M:process(data)
     local buffer = self.buffer
 
     if opts.auto_play then
-        (data.from == 'en' and data.str or result.definition[1]):play()
+        local text_to_play
+        if data.from == 'en' then
+            text_to_play = data.str
+        elseif result and result.definition and result.definition[1] then
+            text_to_play = result.definition[1]
+        elseif result and result.translation and result.translation[1] then
+            text_to_play = result.translation[1]
+        end
+
+        if text_to_play and type(text_to_play) == 'string' then
+            pcall(function() text_to_play:play() end)
+        end
     end
 
     -- vim.pretty_print(result)
