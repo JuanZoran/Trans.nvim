@@ -156,8 +156,13 @@ function M:fallback()
     buffer:wipe()
     buffer[1] = util.center(fallback_msg, opts.width)
     buffer:add_highlight(1, 'TransFailed')
-    if not self.window then
+    if not self.window or not self.window:is_valid() then
         self:init_window {
+            height = buffer:line_count(),
+            width = self.opts.width,
+        }
+    else
+        self.window:resize {
             height = buffer:line_count(),
             width = self.opts.width,
         }
@@ -208,7 +213,18 @@ function M:process(data)
     local buffer = self.buffer
 
     if opts.auto_play then
-        (data.from == 'en' and data.str or result.definition[1]):play()
+        local text_to_play
+        if data.from == 'en' then
+            text_to_play = data.str
+        elseif result and result.definition and result.definition[1] then
+            text_to_play = result.definition[1]
+        elseif result and result.translation and result.translation[1] then
+            text_to_play = result.translation[1]
+        end
+
+        if text_to_play and type(text_to_play) == 'string' then
+            pcall(function() text_to_play:play() end)
+        end
     end
 
     -- vim.pretty_print(result)

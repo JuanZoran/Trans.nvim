@@ -3,6 +3,23 @@ local fn, api = vim.fn, vim.api
 ---@class TransUtil
 local M = require 'Trans'.metatable 'util'
 
+---Replace full-width Chinese punctuation with English punctuation
+---@param str string The input text containing Chinese punctuation
+---@return string The processed text with replaced punctuation
+function M.replace_chinese_punctuation(str)
+    local replacements = {
+        ['，'] = ',', -- Full-width comma to half-width comma
+        ['。'] = '.', -- Full-width period to half-width period
+        ['！'] = '!', -- Full-width exclamation to half-width
+        ['？'] = '?', -- Full-width question to half-width
+    }
+
+    for k, v in pairs(replacements) do
+        str = str:gsub(k, v)
+    end
+    return str
+end
+
 ---Get the range of visual modes
 ---@return table
 function M.get_range()
@@ -115,9 +132,11 @@ end
 ---@param str string
 ---@return boolean
 function M.is_english(str)
-    local char = { str:byte(1, -1) }
-    for i = 1, #str do
-        if char[i] > 128 then
+    local len = vim.fn.strchars(str)
+    for i = 0, len - 1 do
+        local c = vim.fn.strgetchar(str, i)
+        -- CJK Unified Ideographs range: 0x4E00 - 0x9FFF, 0x3400 - 0x4DBF, 0x20000 - 0x323AF
+        if (c >= 0x4E00 and c <= 0x9FFF) or (c >= 0x3400 and c <= 0x4DBF) or (c >= 0x20000 and c <= 0x323AF) then
             return false
         end
     end

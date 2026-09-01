@@ -30,6 +30,10 @@ function M.get_query(data)
     local salt    = M.salt
     local curtime = tostring(os.time())
 
+    if not app_id or not M.app_passwd then
+        vim.notify('有道翻译未配置 API 密钥 (Trans.json)', vim.log.levels.WARN)
+        return nil
+    end
 
     local chars = vim.str_utf_pos(str)
     local count = #chars

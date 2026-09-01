@@ -22,15 +22,31 @@ local M = {
 ---@overload fun(TransData): TransResult
 function M.query(data)
     if data.is_word == false or data.from == 'zh' then
+        data.result.offline = false
         return
     end
 
-    local res = dict:select(db_name, {
-        where = { word = data.str },
-        keys  = M.query_field,
-        limit = 1,
-    })[1]
+    if vim.fn.filereadable(path) == 0 then
+        vim.notify('离线词典未安装，可运行 :lua require("Trans").install() 安装词典', vim.log.levels.WARN)
+        data.result.offline = false
+        return
+    end
 
+    local ok, rows = pcall(function()
+        return dict:select(db_name, {
+            where = { word = data.str },
+            keys  = M.query_field,
+            limit = 1,
+        })
+    end)
+
+    if not ok or not rows then
+        vim.notify('离线词典数据库查询失败，可运行 :lua require("Trans").install() 重新安装', vim.log.levels.WARN)
+        data.result.offline = false
+        return
+    end
+
+    local res = rows[1]
     data.result.offline = res and M.formatter(res) or false
 end
 

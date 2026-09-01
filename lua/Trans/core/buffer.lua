@@ -135,6 +135,16 @@ function buffer:setline(nodes, one_index)
     end
 end
 
+---Process lines within the buffer to handle Chinese punctuation
+function buffer:process_chinese_punctuation()
+    local util = require('Trans.core.util')
+    local lines = self:lines(1, -1)
+    for i, line in ipairs(lines) do
+        lines[i] = util.replace_chinese_punctuation(line)
+    end
+    api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
+end
+
 buffer.__index = function(self, key)
     local res = buffer[key]
     if res then
